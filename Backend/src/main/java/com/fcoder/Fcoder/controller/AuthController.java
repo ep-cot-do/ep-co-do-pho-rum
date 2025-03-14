@@ -1,6 +1,7 @@
 package com.fcoder.Fcoder.controller;
 
 import com.fcoder.Fcoder.model.dto.request.AuthRequest;
+import com.fcoder.Fcoder.model.dto.request.ResetPasswordRequest;
 import com.fcoder.Fcoder.model.dto.request.LoginRequest;
 import com.fcoder.Fcoder.model.dto.response.AuthResponse;
 import com.fcoder.Fcoder.model.dto.response.ResponseObject;
@@ -32,6 +33,18 @@ public class AuthController {
                 .success(true)
                 .build()
         );
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        authService.sendForgotConfirmation(email);
+        return ResponseEntity.ok("Confirmation email sent!");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetForgotPassword(request.getEmail(), request.getNewPassword());
+        return ResponseEntity.ok("Password has been reset successfully!");
     }
 
     @PostMapping("/logout")

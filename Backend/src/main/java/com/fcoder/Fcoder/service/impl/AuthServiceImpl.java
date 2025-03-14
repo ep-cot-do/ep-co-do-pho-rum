@@ -19,6 +19,7 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.gson.Gson;
+import org.springframework.mail.javamail.JavaMailSender;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,6 +45,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +59,13 @@ public class AuthServiceImpl implements AuthService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TemplateEngine templateEngine;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${spring.mail.username}")
+    private String mailUsername;
+    @Value("${base-urls.front-end}")
+    private String frontendUrl;
+    private final JavaMailSender mailSender;
+
 
     @Override
     public AuthResponse memberLocalAuthentication(AuthRequest authRequest) {
@@ -108,6 +118,48 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
+    public void sendForgotConfirmation(String email) {
+        var accountEntity = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Email not found"));
+
+        String resetUrl = String.format("%s/reset-password?email=%s", frontendUrl, email);
+
+        sendEmail(email, "Confirm password reset", forgotEmail(accountEntity.getUsername(), resetUrl));
+    }
+
+
+    private void sendEmail(String to, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(mailUsername);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
+    private String forgotEmail(String username, String resetUrl) {
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("resetUrl", resetUrl);
+
+        return templateEngine.process("forgot-password", context);
+    }
+
+
+    @Override
+    public void resetForgotPassword(String email, String newPassword) {
+        var accountEntity = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ValidationException("Email not found"));
+
+        accountEntity.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(accountEntity);
+    }
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {

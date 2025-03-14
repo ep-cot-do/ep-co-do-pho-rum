@@ -2,8 +2,8 @@ spring:
   application:
     name: Fcoder
   datasource:
-    username: ${DB_USERNAME:user}
-    password: ${DB_PASSWORD:pass}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}
   jpa:
     hibernate:
@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:email_here}
-    password: ${MAIL_PASSWORD:password_here}
+    username: ${MAIL_USERNAME:email@gmail.com}
+    password: ${MAIL_PASSWORD:xxxxxxxxxxxx}
     properties:
       mail:
         smtp:

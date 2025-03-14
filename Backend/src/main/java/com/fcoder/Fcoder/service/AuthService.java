@@ -22,5 +22,9 @@ public interface AuthService {
 
 //    void forgotPasswordConfirm (ForgotPasswordRequest request);
 
+    void sendForgotConfirmation (String email);
+
+    void resetForgotPassword (String email, String newPassword);
+
     void logout (HttpServletRequest request, HttpServletResponse response);
 }
