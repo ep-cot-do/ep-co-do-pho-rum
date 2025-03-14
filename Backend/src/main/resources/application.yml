@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: Fcoder
+  datasource:
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:pass}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      port: 6379
+      host: ${REDIS_HOST:localhost}
+      timeout: 2000
+      connect-timeout: 2000
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:email_here}
+    password: ${MAIL_PASSWORD:password_here}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+application:
+  security:
+    jwt:
+      reset-passeord-token-expiration: ${RESET_PASSWORD_TOKEN_EXT:3600000}
+
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8080
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    try-it-out-enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    filter: true
+    path: /swagger-ui.html
+
+base-urls:
+  api: ${BASE_URL_API:null}
+  front-end: ${ORIGIN_ALLOWED:null}
+access-token:
+  max-age: ${ACCESS_TOKEN_EXT:86400000}
+  secret-key: ${ACCESS_TOKEN_KEY:longAndComplexSecretKeyWithAtLeast64BytesOfRandomness}
+
+refresh-token:
+  max-age: ${REFRESH_TOKEN_EXT:315360000}
+  secret-key: ${REFRESH_TOKEN_KEY:anotherLongAndComplexSecretKeyDifferentFromTheAccessTokenKey}
+
+swagger-url: ${SWAGGER_URL:null}

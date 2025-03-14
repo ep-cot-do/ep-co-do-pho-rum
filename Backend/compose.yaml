@@ -1,0 +1,33 @@
+services:
+  fcoder-postgres:
+    container_name: fcoder_postgres
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+    restart: always
+    networks:
+      fcoder-networks:
+
+  fcoder-api:
+    container_name: fcoder_api
+    image: fcoder-api:latest
+    restart: always
+    environment:
+      DB_HOST: fcoder-postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ACCESS_TOKEN_KEY: ${API_ACCESS_TOKEN_KEY}
+      REFRESH_TOKEN_KEY: ${API_REFRESH_TOKEN_KEY}
+      SWAGGER_URL: ${SWAGGER_URL}
+    ports:
+      - "8080:8080"
+    networks:
+      fcoder-networks:
+
+networks:
+  fcoder-networks:
+    name: fcoder_networks
