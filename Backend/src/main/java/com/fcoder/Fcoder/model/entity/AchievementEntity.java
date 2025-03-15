@@ -12,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public class AchievementEntity extends BaseEntity{
 
-    @OneToOne(targetEntity = AccountEntity.class, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
+    @ManyToOne(targetEntity = AccountEntity.class, fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "user_id", nullable = false)
     private AccountEntity userId;
 
