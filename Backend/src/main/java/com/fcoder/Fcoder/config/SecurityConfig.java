@@ -40,6 +40,7 @@ public class SecurityConfig {
                             .requestMatchers("/event-registrations/**").permitAll()
                             .requestMatchers("/event-recaps/**").permitAll()
                             .requestMatchers("/libraries/**").permitAll()
+                            .requestMatchers("/faqs/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .exceptionHandling(exception -> {
