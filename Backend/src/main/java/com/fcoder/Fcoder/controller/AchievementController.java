@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class AchievementController {
 
     @Operation(summary = "Create a new achievement", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> createAchievement(@RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.createAchievement(achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -58,6 +60,7 @@ public class AchievementController {
 
     @Operation(summary = "Update an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> updateAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.updateAchievement(id, achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -70,6 +73,7 @@ public class AchievementController {
 
     @Operation(summary = "Delete an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> deleteAchievement(@PathVariable Long id) {
         achievementService.deleteAchievement(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -92,6 +96,7 @@ public class AchievementController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     @Operation(summary = "Partially update an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<AchievementResponse>> patchAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.patchAchievement(id, achievementRequest);
