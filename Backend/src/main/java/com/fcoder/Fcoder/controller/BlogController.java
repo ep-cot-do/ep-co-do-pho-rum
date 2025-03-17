@@ -97,7 +97,7 @@ public class BlogController {
 
 
     @PatchMapping("/publish/{id}")
-    @PreAuthorize("hasRole('ROLE_ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     @Operation(summary = "Publish a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> publishBlog(@PathVariable Long id) {
         blogService.publishBlog(id);
