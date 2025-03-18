@@ -1,0 +1,85 @@
+<!-- payment-reminder.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #1a73e8;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        .details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Quarterly Fund Payment Reminder</h1>
+</div>
+<div class="content">
+    <p>Dear <span th:text="${account.fullName}">Student Name</span>,</p>
+
+    <p>This is a reminder that your quarterly fund payment is now due.</p>
+
+    <div class="details">
+        <p><strong>Student Code:</strong> <span th:text="${account.studentCode}">S12345</span></p>
+        <p><strong>Quarter:</strong> <span th:text="${quarter}">Quarter</span></p>
+        <p><strong>Amount Due:</strong> <span th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000 VND</span></p>
+        <p><strong>Due Date:</strong> <span th:text="${dueDate}">March 31, 2025</span></p>
+    </div>
+
+    <p>Please complete your payment before the due date to maintain your access to all student services.</p>
+
+    <p>To make your payment, please click the button below:</p>
+
+    <a th:href="${paymentUrl}" class="button">Pay Now</a>
+
+    <p>If you have any questions regarding your payment, please contact our finance department.</p>
+
+    <p>Thank you for your prompt attention to this matter.</p>
+
+    <p>Best regards,<br>Finance Department</p>
+</div>
+<div class="footer">
+    <p>This is an automated message. Please do not reply to this email.</p>
+    <p>© FCoder <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span></p>
+</div>
+</body>
+</html>

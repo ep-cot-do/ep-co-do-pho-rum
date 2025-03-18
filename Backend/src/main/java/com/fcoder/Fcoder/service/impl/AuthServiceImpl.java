@@ -74,16 +74,20 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateToken(authentication, JwtTokenType.ACCESS_TOKEN);
         String refreshToken = jwtService.generateToken(authentication, JwtTokenType.REFRESH_TOKEN);
 
-        // Get the first role as a string instead of a list
         String role = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
 
+        String username = authentication.getName();
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new ActionFailedException("User not found"));
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
+                .userId(account.getId())
                 .build();
     }
 
@@ -115,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
+                .userId(account.getId())
                 .build();
     }
 
