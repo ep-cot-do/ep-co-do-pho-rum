@@ -28,7 +28,7 @@
         }
         .button {
             display: inline-block;
-            background-color: #1a73e8;
+            background-color: #dddddd;
             color: white;
             text-decoration: none;
             padding: 10px 20px;
@@ -61,7 +61,8 @@
     <div class="details">
         <p><strong>Student Code:</strong> <span th:text="${account.studentCode}">S12345</span></p>
         <p><strong>Quarter:</strong> <span th:text="${quarter}">Quarter</span></p>
-        <p><strong>Amount Due:</strong> <span th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000 VND</span></p>
+        <p><strong>Amount Due:</strong> <span
+                th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">70,000 VND</span></p>
         <p><strong>Due Date:</strong> <span th:text="${dueDate}">March 31, 2025</span></p>
     </div>
 

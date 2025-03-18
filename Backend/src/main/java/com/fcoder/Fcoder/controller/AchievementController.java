@@ -8,6 +8,8 @@ import com.fcoder.Fcoder.service.AchievementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +25,8 @@ public class AchievementController {
 
     @Operation(summary = "Get all achievements", security = {@SecurityRequirement(name = "accessCookie")})
     @GetMapping
-    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getAllAchievements(@RequestParam(required = false) String query) {
+    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getAllAchievements(@RequestParam(name = "q", required = false) String query,
+                                                                                        @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var achievements = achievementService.getAllAchievements(QueryWrapper.builder().search(query).build());
         return ResponseEntity.ok(new ResponseObject.Builder<List<AchievementResponse>>()
                 .success(true)

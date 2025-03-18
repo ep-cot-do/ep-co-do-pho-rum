@@ -1,7 +1,9 @@
 package com.fcoder.Fcoder.service.impl;
 
 import com.fcoder.Fcoder.model.entity.AccountEntity;
+import com.fcoder.Fcoder.model.entity.PaymentEntity;
 import com.fcoder.Fcoder.repository.AccountRepository;
+import com.fcoder.Fcoder.repository.PaymentRepository;
 import com.fcoder.Fcoder.service.EmailService;
 import com.fcoder.Fcoder.service.PaymentUrlBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,44 +30,48 @@ public class EmailServiceImpl implements EmailService {
     private final AccountRepository accountRepository;
     private final PaymentUrlBuilder paymentUrlBuilder;
 
+    private final PaymentRepository paymentRepository;
+
     @Value("${spring.mail.username}")
     private String senderEmail;
 
-    @Value("${payment.default.amount:100000}")
+    @Value("${payment.default.amount:70000}")
     private BigDecimal defaultPaymentAmount;
 
     public EmailServiceImpl(
             JavaMailSender mailSender,
             TemplateEngine templateEngine,
             AccountRepository accountRepository,
-            PaymentUrlBuilder paymentUrlBuilder) {
+            PaymentUrlBuilder paymentUrlBuilder, PaymentRepository paymentRepository) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.accountRepository = accountRepository;
         this.paymentUrlBuilder = paymentUrlBuilder;
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
     public void sendPaymentReminderEmail(AccountEntity account) {
         try {
+            PaymentEntity latestPayment = paymentRepository.findFirstByOrderByCreatedDateDesc();
+            BigDecimal amountToCharge = latestPayment != null ? latestPayment.getAmount() : defaultPaymentAmount;
+
             String paymentUrl = paymentUrlBuilder.buildPaymentUrl(
                     account.getId(),
                     account.getStudentCode(),
                     account.getFullName(),
-                    defaultPaymentAmount,
-                    null); // No specific bank code
+                    amountToCharge,
+                    null);
 
             Context context = new Context();
             context.setVariable("account", account);
             context.setVariable("quarter", getCurrentQuarterName());
-            context.setVariable("amount", defaultPaymentAmount);
+            context.setVariable("amount", amountToCharge);
             context.setVariable("dueDate", getQuarterEndDate());
             context.setVariable("paymentUrl", paymentUrl);
 
-            // Process template
             String emailContent = templateEngine.process("payment-reminder", context);
 
-            // Send email
             sendHtmlEmail(
                     account.getEmail(),
                     "Fund Payment Reminder - " + getCurrentQuarterName(),

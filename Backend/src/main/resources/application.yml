@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:claimrequestsystem@gmail.com}
+    password: ${MAIL_PASSWORD:ihss oorb exus dcph}
     properties:
       mail:
         smtp:

@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -317,7 +319,7 @@ public class AccountServiceImpl implements AccountService {
         AccountEntity account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("No account found with this email"));
 
-        String randomPassword = RandomUtils.generateSecurePassword(12L); // Increased password length
+        String randomPassword = RandomUtils.generateSecurePassword(12L);
         account.setPassword(passwordEncoder.encode(randomPassword));
         accountRepository.save(account);
 
@@ -380,6 +382,25 @@ public class AccountServiceImpl implements AccountService {
         if (password.length() < 8) {
             throw new ValidationException("Password must be at least 8 characters");
         }
+    }
+
+    @Override
+    public List<ProfileResponse> getUsersWithBirthdayToday() {
+        LocalDate today = LocalDate.now();
+        int todayMonth = today.getMonthValue();
+        int todayDay = today.getDayOfMonth();
+
+        List<AccountEntity> accounts = accountRepository.findAll();
+
+        return accounts.stream()
+                .filter(account -> {
+                    LocalDate birthday = account.getBirthday();
+                    return birthday != null &&
+                            birthday.getMonthValue() == todayMonth &&
+                            birthday.getDayOfMonth() == todayDay;
+                })
+                .map(this::buildProfileResponse)
+                .collect(Collectors.toList());
     }
 
     private ProfileResponse wrapAccountResponse(AccountEntity account) {
