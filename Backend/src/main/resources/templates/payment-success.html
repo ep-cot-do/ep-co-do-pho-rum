@@ -1,81 +1,139 @@
 <!-- payment-success.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Confirmation</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             line-height: 1.6;
             color: #333;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
         }
+
+        .success-card {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            margin-bottom: 20px;
+        }
+
         .header {
-            background-color: #4CAF50;
+            background-color: #8D01FF;
             color: white;
-            padding: 15px;
-            text-align: center;
-            border-radius: 5px 5px 0 0;
-        }
-        .content {
-            border: 1px solid #ddd;
             padding: 20px;
-            border-radius: 0 0 5px 5px;
+            display: flex;
+            align-items: center;
         }
+
+        .logo {
+            max-width: 60px;
+            margin-right: 15px;
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
         .success-icon {
             text-align: center;
             font-size: 48px;
-            color: #4CAF50;
+            color: #8D01FF;
             margin: 20px 0;
         }
+
         .receipt {
             background-color: #f5f5f5;
             padding: 15px;
             border-radius: 5px;
             margin: 15px 0;
         }
+
+        .receipt h3 {
+            color: #8D01FF;
+            margin-top: 0;
+        }
+
+        .highlight {
+            color: #8D01FF;
+            font-weight: bold;
+        }
+
         .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #666;
+            background-color: #f4f4f4;
+            padding: 15px;
             text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eaeaea;
+        }
+
+        .signature {
+            font-style: italic;
+            margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
-<div class="header">
-    <h1>Payment Successful</h1>
-</div>
-<div class="content">
-    <p>Dear <span th:text="${account.fullName}">Student Name</span>,</p>
+<div class="success-card">
+    <div class="header">
+        <img class="logo" src="icon.png" alt="Logo">
+        <div class="header-content">
+            <h1>Payment Successful</h1>
+        </div>
+    </div>
+    <div class="content">
+        <p>Dear <span class="highlight" th:text="${account.fullName}">Student Name</span>,</p>
 
-    <p>We are pleased to confirm that your quarterly fund payment has been successfully processed.</p>
+        <p>We are pleased to confirm that your quarterly fund payment has been successfully processed.</p>
 
-    <div class="success-icon">✓</div>
+        <div class="success-icon">✓</div>
 
-    <div class="receipt">
-        <h3>Payment Receipt</h3>
-        <p><strong>Transaction ID:</strong> <span th:text="${transactionId}">12345678</span></p>
-        <p><strong>Student Code:</strong> <span th:text="${account.studentCode}">S12345</span></p>
-        <p><strong>Quarter:</strong> <span th:text="${quarter}">Quarter</span></p>
-        <p><strong>Amount Paid:</strong> <span th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000 VND</span></p>
-        <p><strong>Payment Date:</strong> <span th:text="${#temporals.format(paymentDate, 'dd/MM/yyyy HH:mm')}">18/03/2025 15:30</span></p>
-        <p><strong>Status:</strong> <span style="color: #4CAF50; font-weight: bold;">Successful</span></p>
+        <div class="receipt">
+            <h3>Payment Receipt</h3>
+            <p><strong>Transaction ID:</strong> <span th:text="${transactionId}">12345678</span></p>
+            <p><strong>Student Code:</strong> <span th:text="${account.studentCode}">S12345</span></p>
+            <p><strong>Quarter:</strong> <span th:text="${quarter}">Quarter</span></p>
+            <p><strong>Amount Paid:</strong> <span
+                    th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">100,000 VND</span>
+            </p>
+            <p><strong>Payment Date:</strong> <span
+                    th:text="${#temporals.format(paymentDate, 'dd/MM/yyyy HH:mm')}">18/03/2025 15:30</span></p>
+            <p><strong>Status:</strong> <span class="highlight">Successful</span></p>
+        </div>
+
+        <p>Your student account has been updated, and your fund status is now confirmed for the current quarter.</p>
+
+        <p class="signature">Thank you for your payment.</p>
+
+        <p class="signature">Best regards,<br>Fcoder</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+        <p>&copy; <span id="currentYear">2025</span> FCoder. All rights reserved.</p>
     </div>
 
-    <p>Your student account has been updated, and your fund status is now confirmed for the current quarter.</p>
-
-    <p>Thank you for your payment.</p>
-
-    <p>Best regards,<br>Finance Department</p>
-</div>
-<div class="footer">
-    <p>This is an automated message. Please do not reply to this email.</p>
-    <p>© FCoder <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2025</span></p>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
 </div>
 </body>
+
 </html>

@@ -127,8 +127,9 @@ public class AuthServiceImpl implements AuthService {
     public void sendForgotConfirmation(String email) {
         var accountEntity = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Email not found"));
-
-        String resetUrl = String.format("%s/reset-password?email=%s", frontendUrl, email);
+        String token = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set("PASSWORD_RESET:" + email, token, 10, TimeUnit.MINUTES);
+        String resetUrl = String.format("%s/reset-password?email=%s&token=%s", frontendUrl, email, token);
 
         sendEmail(email, "Confirm password reset", forgotEmail(accountEntity.getUsername(), resetUrl));
     }
