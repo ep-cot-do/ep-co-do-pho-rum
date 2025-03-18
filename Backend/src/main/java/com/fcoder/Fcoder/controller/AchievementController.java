@@ -23,7 +23,7 @@ import java.util.List;
 public class AchievementController {
     private final AchievementService achievementService;
 
-    @Operation(summary = "Get all achievements", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all achievements")
     @GetMapping
     public ResponseEntity<ResponseObject<List<AchievementResponse>>> getAllAchievements(@RequestParam(name = "q", required = false) String query,
                                                                                         @PageableDefault(page = 0, size = 10) Pageable pageable) {
@@ -36,7 +36,7 @@ public class AchievementController {
                 .build());
     }
 
-    @Operation(summary = "Get achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get achievement by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<AchievementResponse>> getAchievementById(@PathVariable Long id) {
         var achievement = achievementService.getAchievementById(id);

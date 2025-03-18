@@ -24,8 +24,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping
-    @Operation(summary = "Get all payments", description = "This API will return all payments", security = {
-            @SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all payments", description = "This API will return all payments")
     public ResponseEntity<ResponseObject<List<PaymentResponse>>> getAllPayments(@RequestParam(name = "q", required = false) String query,
                                                                                 @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var result = paymentService.getAllPaymentPagination(QueryWrapper.builder()
@@ -40,7 +39,7 @@ public class PaymentController {
                 .build());
     }
 
-    @Operation(summary = "Get payment by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get payment by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<PaymentResponse>> getPaymentById(@PathVariable Long id) {
         var payment = paymentService.getPaymentById(id);

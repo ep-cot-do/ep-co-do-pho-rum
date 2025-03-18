@@ -22,7 +22,7 @@ import java.util.List;
 public class EventRecapController {
     private final EventRecapService eventRecapService;
 
-    @Operation(summary = "Get all event recaps", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all event recaps")
     @GetMapping
     public ResponseEntity<ResponseObject<PaginationWrapper<List<EventRecapResponse>>>> getAllEventRecaps(@RequestParam(required = false) String query) {
         var eventRecaps = eventRecapService.getAllEventRecaps(QueryWrapper.builder().search(query).build());
@@ -34,7 +34,7 @@ public class EventRecapController {
                 .build());
     }
 
-    @Operation(summary = "Get event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get event recap by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<EventRecapResponse>> getEventRecapById(@PathVariable Long id) {
         var eventRecap = eventRecapService.getEventRecapById(id);

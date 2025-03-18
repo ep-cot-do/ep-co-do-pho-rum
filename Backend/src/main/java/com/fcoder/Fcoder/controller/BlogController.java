@@ -26,8 +26,7 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    @Operation(summary = "Get all blog", description = "This API will return all blogs", security = {
-            @SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all blog", description = "This API will return all blogs")
     public ResponseEntity<ResponseObject<List<BlogResponse>>> getAllBlogs(@RequestParam(name = "q", required = false) String query,
                                                                           @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var result = blogService.getAllBlogs(QueryWrapper.builder()
@@ -42,7 +41,7 @@ public class BlogController {
                 .build());
     }
 
-    @Operation(summary = "Get blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get blog by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<BlogResponse>> getBlogById(@PathVariable Long id) {
         var blog = blogService.getBlogById(id);

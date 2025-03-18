@@ -23,7 +23,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    @Operation(summary = "Get all comments", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all comments")
     public ResponseEntity<ResponseObject<PaginationWrapper<List<CommentResponse>>>> getAllComments(@RequestParam(name = "q", required = false) String query) {
         var result = commentService.getAllComments(QueryWrapper.builder().search(query).build());
         return ResponseEntity.ok(new ResponseObject.Builder<PaginationWrapper<List<CommentResponse>>>()
@@ -35,7 +35,7 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get comment by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get comment by ID")
     public ResponseEntity<ResponseObject<CommentResponse>> getCommentById(@PathVariable Long id) {
         var comment = commentService.getCommentById(id);
         return ResponseEntity.ok(new ResponseObject.Builder<CommentResponse>()

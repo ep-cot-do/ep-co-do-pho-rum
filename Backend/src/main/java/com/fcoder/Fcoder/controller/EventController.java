@@ -22,7 +22,7 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
 
-    @Operation(summary = "Get all events", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all events")
     @GetMapping
     public ResponseEntity<ResponseObject<PaginationWrapper<List<EventResponse>>>> getAllEvents(@RequestParam(required = false) String query) {
         var events = eventService.getAllEvent(QueryWrapper.builder().search(query).build());
@@ -34,7 +34,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Get event by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get event by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<EventResponse>> getEventById(@PathVariable Long id) {
         var event = eventService.getEventById(id);

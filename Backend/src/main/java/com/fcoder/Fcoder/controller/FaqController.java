@@ -25,8 +25,7 @@ public class FaqController {
     private final FaqService faqService;
 
     @GetMapping
-    @Operation(summary = "Get all FAQ", description = "This API will return all FAQ", security = {
-            @SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all FAQ", description = "This API will return all FAQ")
     public ResponseEntity<ResponseObject<List<FaqResponse>>> getAllFaqs(@RequestParam(name = "q", required = false) String query,
                                                                         @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var queryWrapperBuilder = QueryWrapper.builder().wrapSort(pageable);
@@ -45,7 +44,7 @@ public class FaqController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get FAQ by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get FAQ by ID")
     public ResponseEntity<ResponseObject<FaqResponse>> getFaqById(@PathVariable Long id) {
         var faq = faqService.getFaqById(id);
         return ResponseEntity.ok(new ResponseObject.Builder<FaqResponse>()
