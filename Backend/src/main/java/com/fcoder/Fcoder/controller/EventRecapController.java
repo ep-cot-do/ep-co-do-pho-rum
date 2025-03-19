@@ -46,7 +46,7 @@ public class EventRecapController {
                 .build());
     }
 
-    @Operation(summary = "Create a new event recap", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Create a new event recap (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventRecapResponse>> createEventRecap(@RequestBody EventRecapRequest eventRecapRequest) {
@@ -59,7 +59,7 @@ public class EventRecapController {
                 .build());
     }
 
-    @Operation(summary = "Update an event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Update an event recap by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventRecapResponse>> updateEventRecap(@PathVariable Long id, @RequestBody EventRecapRequest eventRecapRequest) {
@@ -72,7 +72,8 @@ public class EventRecapController {
                 .build());
     }
 
-    @Operation(summary = "Delete an event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete an event recap by ID (Admin only)", security = {@SecurityRequirement(name =
+            "accessCookie")})
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEventRecap(@PathVariable Long id) {

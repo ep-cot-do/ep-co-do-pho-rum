@@ -46,7 +46,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Create a new event", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Create a new event (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventResponse>> createEvent(@RequestBody EventRequest eventRequest) {
@@ -59,7 +59,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Update an event by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Update an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventResponse>> updateEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest) {
@@ -72,7 +72,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Delete an event by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete an event by ID (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEvent(@PathVariable Long id) {
@@ -84,7 +84,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Hide an event by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Hide an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/hide")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> hideEvent(@PathVariable Long id, @RequestParam Long requestUserId) {
@@ -96,7 +96,7 @@ public class EventController {
                 .build());
     }
 
-    @Operation(summary = "Show an event by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Show an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/show")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> showEvent(@PathVariable Long id) {
@@ -109,6 +109,7 @@ public class EventController {
     }
 
     @PatchMapping("/{id}")
+    @Operation(summary = "Update event details by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> updateEventDetails(@PathVariable Long id,
                                                                    @RequestParam EventRequest eventRequest) {

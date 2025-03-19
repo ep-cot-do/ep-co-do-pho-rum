@@ -74,7 +74,8 @@ public class CommentController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Delete a comment by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete a comment by ID (Admin only)", security =
+            {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()

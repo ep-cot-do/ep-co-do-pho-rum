@@ -57,7 +57,8 @@ public class FaqController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Create a new FAQ", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Create a new FAQ (Admin only)", security = {@SecurityRequirement(name =
+            "accessCookie")})
     public ResponseEntity<ResponseObject<FaqResponse>> createFaq(@RequestBody FaqRequest faqRequest) {
         var faq = faqService.createFaq(faqRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<FaqResponse>()
@@ -70,7 +71,7 @@ public class FaqController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Update FAQ", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Update FAQ (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<FaqResponse>> updateFaq(@PathVariable Long id, @RequestBody FaqRequest faqRequest) {
         var faq = faqService.updateFaq(id, faqRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<FaqResponse>()
@@ -83,7 +84,7 @@ public class FaqController {
 
     @PatchMapping("/publish/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Publish a faq by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Publish a faq by ID (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> publishFaq(@PathVariable Long id) {
         faqService.publishFaq(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -95,7 +96,7 @@ public class FaqController {
 
     @PatchMapping("/unpublish/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Unpublish a faq by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Unpublish a faq by ID (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> unpublishFaq(@PathVariable Long id) {
         faqService.unpublishFaq(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -107,7 +108,7 @@ public class FaqController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Delete FAQ", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete FAQ (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<String>> deleteFaq(@PathVariable Long id) {
         faqService.deleteFaq(id);
         return ResponseEntity.ok(new ResponseObject.Builder<String>()

@@ -62,7 +62,6 @@ public class EventRegistrationController {
 
     @Operation(summary = "Update event registration", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventRegistrationResponse>> updateEventRegistration(
             @PathVariable Long id, @RequestBody EventRegistrationRequest registrationRequest) {
         var registration = eventRegistrationService.updateEventRegistration(id, registrationRequest);
@@ -74,7 +73,7 @@ public class EventRegistrationController {
                 .build());
     }
 
-    @Operation(summary = "Delete event registration", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete event registration (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEventRegistration(@PathVariable Long id) {
@@ -114,7 +113,6 @@ public class EventRegistrationController {
 
     @Operation(summary = "Deactivate event registration", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> deactivateRegistration(@PathVariable Long id) {
         eventRegistrationService.deactivateRegistration(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -124,7 +122,7 @@ public class EventRegistrationController {
                 .build());
     }
 
-    @Operation(summary = "Activate event registration", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Activate event registration (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> activateRegistration(@PathVariable Long id) {
