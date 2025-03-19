@@ -24,6 +24,7 @@ public class ProfileResponse {
     private boolean fundStatus;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+    private LocalDateTime lastLogin;
     private boolean isActive;
 }
 

@@ -160,4 +160,18 @@ public class AccountController {
                 .message("Get Profile Success")
                 .build());
     }
+
+    @GetMapping("birthdays/today")
+    @Operation(summary = "Get users with birthday today",
+            security = {@SecurityRequirement(name = "accessCookie")}
+    )
+    public ResponseEntity<ResponseObject<List<ProfileResponse>>> getUsersWithBirthdayToday() {
+        List<ProfileResponse> birthdayUsers = accountService.getUsersWithBirthdayToday();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<ProfileResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(birthdayUsers)
+                .message(birthdayUsers.isEmpty() ? "No birthdays today" : "Found users with birthday today")
+                .build());
+    }
 }

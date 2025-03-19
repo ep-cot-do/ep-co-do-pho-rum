@@ -40,7 +40,7 @@ public class AchievementServiceImpl implements AchievementService {
     @Override
     public AchievementResponse getAchievementById(Long id) {
         var achievement = achievementRepository.findById(id)
-                .orElseThrow(() -> new ValidationException("Achievement not found"));
+                .orElseThrow(() -> new ValidationException("Achievement not fou nd"));
         return wrapAchievementResponse(achievement);
     }
 

@@ -36,6 +36,15 @@ public class SecurityConfig {
                             .requestMatchers("/roles/**").permitAll()
                             .requestMatchers("/blogs/**").permitAll()
                             .requestMatchers("/achievements/**").permitAll()
+                            .requestMatchers("/events/**").permitAll()
+                            .requestMatchers("/event-registrations/**").permitAll()
+                            .requestMatchers("/event-recaps/**").permitAll()
+                            .requestMatchers("/libraries/**").permitAll()
+                            .requestMatchers("/faqs/**").permitAll()
+                            .requestMatchers("/comments/**").permitAll()
+                            .requestMatchers("/games/**").permitAll()
+                            .requestMatchers("/payments/**").permitAll()
+                            .requestMatchers("/payment/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .exceptionHandling(exception -> {
