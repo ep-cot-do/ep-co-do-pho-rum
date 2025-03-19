@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/payments", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "payments", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PaymentController {
     private final PaymentService paymentService;
 

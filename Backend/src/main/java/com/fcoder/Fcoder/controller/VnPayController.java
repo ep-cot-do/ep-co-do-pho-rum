@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("payment")
 public class VnPayController {
 
     private final VnPayService vnPayService;

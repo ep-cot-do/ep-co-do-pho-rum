@@ -41,6 +41,10 @@ public class SecurityConfig {
                             .requestMatchers("/event-recaps/**").permitAll()
                             .requestMatchers("/libraries/**").permitAll()
                             .requestMatchers("/faqs/**").permitAll()
+                            .requestMatchers("/comments/**").permitAll()
+                            .requestMatchers("/games/**").permitAll()
+                            .requestMatchers("/payments/**").permitAll()
+                            .requestMatchers("/payment/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .exceptionHandling(exception -> {

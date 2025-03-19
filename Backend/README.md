@@ -1,6 +1,6 @@
 ### Install [Docker](https://www.docker.com/) + basic set up
 
-### Ensure you have [Intelliji](https://www.jetbrains.com/idea/download/?section=windows) ultimate version + gradlew (java 23)
+### Ensure you have [Intelliji](https://www.jetbrains.com/idea/download/?section=windows) ultimate version + gradlew (java 21)
 
 ### Create a .env file
 
