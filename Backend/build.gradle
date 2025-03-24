@@ -55,6 +55,13 @@ dependencies {
 	implementation 'org.springframework:spring-web:6.1.4'
 }
 
-//tasks.named('test') {
-//	useJUnitPlatform()
-//}
+tasks.register('run', JavaExec) {
+	group = 'application'
+	description = 'Chạy ứng dụng sau khi build'
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'com.fcoder.fcoder.FcoderApplication'
+}
+
+springBoot {
+	mainClass.set("com.fcoder.fcoder.FcoderApplication")
+}

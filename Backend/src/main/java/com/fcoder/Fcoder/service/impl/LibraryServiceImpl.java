@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.LibraryRepository;
 import com.fcoder.Fcoder.service.LibraryService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class LibraryServiceImpl implements LibraryService {
     private final AccountRepository accountRepository;
     private final LibraryRepository libraryRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<LibraryResponse>> getAllLibraries(QueryWrapper queryWrapper) {
@@ -104,16 +106,19 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Transactional
     @Override
-    public void hideLibrary(Long id, Long requestUserId) {
+    public void hideLibrary(Long id) {
         var library = libraryRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Library not found"));
 
-        var requestUser = accountRepository.findById(requestUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        var requestUser = authUtils.getUserFromAuthentication();
 
-        if (!library.getAuthorId().getId().equals(requestUserId) && !"ADMIN".equals(requestUser.getRole().getRoleName())) {
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isAuthor = library.getAuthorId().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isAuthor) {
             throw new ActionFailedException("You do not have permission to hide this library");
         }
+
         library.setStatus("HIDDEN");
         library.setUpdatedDate(LocalDateTime.now());
         libraryRepository.save(library);

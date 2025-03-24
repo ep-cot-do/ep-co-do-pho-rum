@@ -14,6 +14,6 @@ public interface EventRecapService {
     EventRecapResponse getEventRecapById(Long id);
     EventRecapResponse updateEventRecap(Long id , EventRecapRequest eventRecapRequest);
     void deleteEventRecap(Long id);
-    void hideEventRecap(Long id, Long requestUserId);
+    void hideEventRecap(Long id);
     void showEventRecap(Long id);
 }

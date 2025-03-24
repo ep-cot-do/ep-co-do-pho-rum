@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.GameRepository;
 import com.fcoder.Fcoder.service.GameService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
     private final AccountRepository accountRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<GameResponse>> getAllGames(QueryWrapper queryWrapper) {
@@ -102,11 +104,16 @@ public class GameServiceImpl implements GameService {
 
     @Transactional
     @Override
-    public void hideGame(Long id, Long requestUserId) {
+    public void hideGame(Long id) {
         var game = gameRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Game not found"));
 
-        if (!game.getAuthorId().getId().equals(requestUserId)) {
+        var requestUser = authUtils.getUserFromAuthentication();
+
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isAuthor = game.getAuthorId().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isAuthor) {
             throw new ActionFailedException("You do not have permission to hide this game");
         }
 
@@ -114,6 +121,7 @@ public class GameServiceImpl implements GameService {
         game.setUpdatedDate(LocalDateTime.now());
         gameRepository.save(game);
     }
+
 
     @Transactional
     @Override

@@ -14,6 +14,6 @@ public interface GameService {
     GameResponse updateGame(Long id, GameRequest gameRequest);
     void deleteGame(Long id);
     GameResponse getGameByCategory(String category);
-    void hideGame(Long id, Long requestUserId);
+    void hideGame(Long id);
     void showGame(Long id);
 }

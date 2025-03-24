@@ -13,6 +13,6 @@ public interface CommentService {
     CommentResponse createComment(CommentRequest commentRequest);
     CommentResponse updateComment(Long id, CommentRequest commentRequest);
     void deleteComment(Long id);
-    void hideComment(Long id, Long requestUserId);
+    void hideComment(Long id);
     void showComment(Long id);
 }

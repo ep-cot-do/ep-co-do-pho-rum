@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.BlogRepository;
 import com.fcoder.Fcoder.repository.CommentRepository;
 import com.fcoder.Fcoder.service.CommentService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final BlogRepository blogRepository;
     private final AccountRepository accountRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<CommentResponse>> getAllComments(QueryWrapper queryWrapper) {
@@ -98,9 +100,18 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void hideComment(Long id, Long requestUserId) {
+    public void hideComment(Long id) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Comment not found"));
+
+        var requestUser = authUtils.getUserFromAuthentication();
+
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isAuthor = comment.getUserId().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isAuthor) {
+            throw new ActionFailedException("You do not have permission to hide this comment");
+        }
 
         comment.setIsActive(false);
         commentRepository.save(comment);

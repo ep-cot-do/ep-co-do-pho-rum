@@ -87,8 +87,8 @@ public class CommentController {
 
     @PatchMapping("/hide/{id}")
     @Operation(summary = "Hide a comment by ID", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<Void>> hideComment(@PathVariable Long id, @RequestParam Long requestUserId) {
-        commentService.hideComment(id, requestUserId);
+    public ResponseEntity<ResponseObject<Void>> hideComment(@PathVariable Long id) {
+        commentService.hideComment(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

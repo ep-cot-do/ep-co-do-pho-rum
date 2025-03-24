@@ -12,6 +12,7 @@ import com.fcoder.Fcoder.repository.EventRecapRepository;
 import com.fcoder.Fcoder.repository.EventRepository;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.service.EventRecapService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class EventRecapServiceImpl implements EventRecapService {
     private final EventRecapRepository eventRecapRepository;
     private final EventRepository eventRepository;
     private final AccountRepository accountRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<EventRecapResponse>> getAllEventRecaps(QueryWrapper queryWrapper) {
@@ -95,15 +97,16 @@ public class EventRecapServiceImpl implements EventRecapService {
 
     @Transactional
     @Override
-    public void hideEventRecap(Long id, Long requestUserId) {
+    public void hideEventRecap(Long id) {
         var eventRecap = eventRecapRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Event recap not found"));
 
-        var requestUser = accountRepository.findById(requestUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        var requestUser = authUtils.getUserFromAuthentication();
 
-        if (!eventRecap.getEvent().getOrganizer().getId().equals(requestUserId) &&
-                !"ADMIN".equals(requestUser.getRole().getRoleName())) {
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isOrganizer = eventRecap.getEvent().getOrganizer().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isOrganizer) {
             throw new ActionFailedException("You do not have permission to hide this event recap");
         }
 

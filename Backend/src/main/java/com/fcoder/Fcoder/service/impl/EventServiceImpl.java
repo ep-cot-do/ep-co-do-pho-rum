@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.EventRepository;
 import com.fcoder.Fcoder.service.EventService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final AccountRepository accountRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<EventResponse>> getAllEvent(QueryWrapper queryWrapper) {
@@ -109,14 +111,16 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void hideEvent(Long id, Long requestUserId) {
+    public void hideEvent(Long id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Event not found"));
 
-        var requestUser = accountRepository.findById(requestUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        var requestUser = authUtils.getUserFromAuthentication();
 
-        if (!event.getOrganizer().getId().equals(requestUserId) && !"ADMIN".equals(requestUser.getRole().getRoleName())) {
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isOrganizer = event.getOrganizer().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isOrganizer) {
             throw new ActionFailedException("You do not have permission to hide this event");
         }
 

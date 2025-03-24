@@ -110,8 +110,8 @@ public class BlogController {
     @PatchMapping("/unpublish/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     @Operation(summary = "Unpublish a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<Void>> unpublishBlog(@PathVariable Long id, @RequestParam Long requestId) {
-        blogService.unpublishBlog(id,requestId);
+    public ResponseEntity<ResponseObject<Void>> unpublishBlog(@PathVariable Long id) {
+        blogService.unpublishBlog(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

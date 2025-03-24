@@ -109,8 +109,8 @@ public class LibraryController {
     @PatchMapping("/hide/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     @Operation(summary = "Hide a library by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<Void>> hideLibrary(@PathVariable Long id, @RequestParam Long requestUserId) {
-        libraryService.hideLibrary(id, requestUserId);
+    public ResponseEntity<ResponseObject<Void>> hideLibrary(@PathVariable Long id) {
+        libraryService.hideLibrary(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

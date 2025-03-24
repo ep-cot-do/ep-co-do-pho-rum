@@ -88,8 +88,8 @@ public class EventRecapController {
     @Operation(summary = "Hide an event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/hide")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
-    public ResponseEntity<ResponseObject<Void>> hideEventRecap(@PathVariable Long id, @RequestParam Long requestUserId) {
-        eventRecapService.hideEventRecap(id, requestUserId);
+    public ResponseEntity<ResponseObject<Void>> hideEventRecap(@PathVariable Long id) {
+        eventRecapService.hideEventRecap(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

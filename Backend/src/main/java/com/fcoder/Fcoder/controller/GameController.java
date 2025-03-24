@@ -90,9 +90,8 @@ public class GameController {
 
     @PatchMapping("/unpublish/{id}")
     @Operation(summary = "Unpublish a game by ID", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<Void>> unpublishGame(@PathVariable Long id,
-                                                              @Valid @RequestBody Long requestUserId) {
-        gameService.hideGame(id, requestUserId);
+    public ResponseEntity<ResponseObject<Void>> unpublishGame(@PathVariable Long id) {
+        gameService.hideGame(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

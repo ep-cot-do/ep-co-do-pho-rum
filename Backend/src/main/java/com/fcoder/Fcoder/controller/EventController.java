@@ -87,8 +87,8 @@ public class EventController {
     @Operation(summary = "Hide an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/hide")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
-    public ResponseEntity<ResponseObject<Void>> hideEvent(@PathVariable Long id, @RequestParam Long requestUserId) {
-        eventService.hideEvent(id, requestUserId);
+    public ResponseEntity<ResponseObject<Void>> hideEvent(@PathVariable Long id) {
+        eventService.hideEvent(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")

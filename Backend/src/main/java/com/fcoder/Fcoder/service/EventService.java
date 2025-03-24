@@ -14,6 +14,6 @@ public interface EventService {
     EventResponse getEventById(Long id);
     EventResponse updateEvent(Long id , EventRequest eventRequest);
     void deleteEvent(Long id);
-    void hideEvent(Long id, Long requestUserId);
+    void hideEvent(Long id);
     void showEvent(Long id);
 }

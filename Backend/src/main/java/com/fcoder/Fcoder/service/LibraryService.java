@@ -13,7 +13,7 @@ public interface LibraryService {
     LibraryResponse getLibraryById(Long id);
     LibraryResponse updateLibrary(Long id , LibraryRequest libraryRequest);
     void deleteLibrary(Long id);
-    void hideLibrary(Long id, Long requestUserId);
+    void hideLibrary(Long id);
     void showLibrary(Long id);
 
     List<LibraryResponse> filterLibraries(Integer semester, String major, String subjectCode, String type, String status, Long authorId);
