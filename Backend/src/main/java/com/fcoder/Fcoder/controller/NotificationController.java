@@ -130,4 +130,16 @@ public class NotificationController {
                 .message("Update Success")
                 .build());
     }
+
+    @GetMapping("/my-notifications")
+    @Operation(summary = "Get my notification", security = {@SecurityRequirement(name = "accessCookie")})
+    public ResponseEntity<ResponseObject<List<NotificationResponse>>> getMyNotifications() {
+        var notifications = notificationService.getMyNotification();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<NotificationResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(notifications)
+                .message("Get Success")
+                .build());
+    }
 }

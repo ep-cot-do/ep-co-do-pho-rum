@@ -10,6 +10,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.NotificationRepository;
 import com.fcoder.Fcoder.service.NotificationService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<NotificationResponse>> getAllNotification(QueryWrapper queryWrapper) {
@@ -108,6 +110,25 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new ValidationException("Notification not found"));
         notification.setRead(true);
         notificationRepository.save(notification);
+    }
+
+    @Override
+    public List<NotificationResponse> getMyNotification() {
+        AccountEntity currentUser = authUtils.getUserFromAuthentication();
+
+        List<NotificationEntity> userNotifications = notificationRepository.findAll()
+                .stream()
+                .filter(notification -> notification.getAccountId() != null &&
+                        notification.getAccountId().getId().equals(currentUser.getId()))
+                .toList();
+
+        if (userNotifications.isEmpty()) {
+            throw new ValidationException("No notifications found for current user");
+        }
+
+        return userNotifications.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private NotificationResponse mapToResponse(NotificationEntity notification) {

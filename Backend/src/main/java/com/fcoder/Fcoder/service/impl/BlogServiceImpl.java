@@ -141,6 +141,25 @@ public class BlogServiceImpl implements BlogService {
         return blogs.stream().map(this::wrapBlogResponse).collect(Collectors.toList());
     }
 
+    @Override
+    public List<BlogResponse> getMyBlog() {
+        AccountEntity currentUser = authUtils.getUserFromAuthentication();
+
+        List<BlogEntity> userPosts = blogRepository.findAll()
+                .stream()
+                .filter(post -> post.getAuthorId() != null &&
+                        post.getAuthorId().getId().equals(currentUser.getId()))
+                .toList();
+
+        if (userPosts.isEmpty()) {
+            throw new ValidationException("No Blogs found for current user");
+        }
+
+        return userPosts.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
 
     private BlogResponse mapToResponse(BlogEntity blog) {
         return BlogResponse.builder()

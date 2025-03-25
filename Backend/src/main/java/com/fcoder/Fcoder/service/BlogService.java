@@ -25,5 +25,5 @@ public interface BlogService {
 
     List<BlogResponse> filterBlog(String title, String category, String status, Integer minViews, Integer maxViews, Long authorId);
 
-//    List<BlogResponse> getMyBlog();
+    List<BlogResponse> getMyBlog();
 }

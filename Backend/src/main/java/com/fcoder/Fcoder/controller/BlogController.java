@@ -148,4 +148,16 @@ public class BlogController {
                 .message("Filter Success")
                 .build());
     }
+
+    @GetMapping("/my-blogs")
+    @Operation(summary = "Get all blogs of current user", description = "This API will return all blogs of current user")
+    public ResponseEntity<ResponseObject<List<BlogResponse>>> getMyBlogs(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+        var result = blogService.getMyBlog();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<BlogResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(result)
+                .message("Accounts retrieved successfully")
+                .build());
+    }
 }

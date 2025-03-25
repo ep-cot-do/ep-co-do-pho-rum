@@ -17,4 +17,5 @@ public interface NotificationService {
     void hideNotification(Long id);
     void showNotification(Long id);
     void isReadNotification(Long id);
+    List<NotificationResponse>getMyNotification();
 }
