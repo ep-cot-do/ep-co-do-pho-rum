@@ -114,4 +114,18 @@ public class AchievementController {
                 .message("Patch Success")
                 .build());
     }
+
+    @GetMapping("/my-achievements")
+    @Operation(summary = "Get my achievements", description = "Retrieve all active achievements for the current user", security = {
+            @SecurityRequirement(name = "accessCookie")})
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PO') or hasRole('ROLE_CARREPAIR')")
+    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getMyAchievements() {
+        var result = achievementService.getMyAchievement();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<AchievementResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(result)
+                .message("My achievements retrieved successfully")
+                .build());
+    }
 }

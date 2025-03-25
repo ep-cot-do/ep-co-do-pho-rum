@@ -24,4 +24,6 @@ public interface BlogService {
     void unpublishBlog(Long id);
 
     List<BlogResponse> filterBlog(String title, String category, String status, Integer minViews, Integer maxViews, Long authorId);
+
+//    List<BlogResponse> getMyBlog();
 }
