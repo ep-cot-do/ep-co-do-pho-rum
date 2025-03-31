@@ -42,7 +42,7 @@ public class PaymentUrlBuilderImpl implements PaymentUrlBuilder {
     @Override
     public String buildPaymentUrl(Long accountId, String studentCode, String fullName, BigDecimal amount, String bankCode) {
         String quarter = getCurrentQuarter();
-        String orderInfo = "Quy" + quarter + "_" + studentCode + "_" + fullName;
+        String orderInfo = "QUY" + quarter + "_" + studentCode + "_" + fullName;
 
         Map<String, String> vnpParams = new HashMap<>();
         vnpParams.put("vnp_Version", vnpVersion);

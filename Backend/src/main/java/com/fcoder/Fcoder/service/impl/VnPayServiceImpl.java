@@ -7,6 +7,7 @@ import com.fcoder.Fcoder.service.EmailService;
 import com.fcoder.Fcoder.service.PaymentUrlBuilder;
 import com.fcoder.Fcoder.service.VnPayService;
 import com.fcoder.Fcoder.util.VnPayUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class VnPayServiceImpl implements VnPayService {
 
     @Value("${payment.vnpay.secretKey}")
@@ -22,12 +24,6 @@ public class VnPayServiceImpl implements VnPayService {
     private final AccountRepository accountRepository;
     private final EmailService emailService;
     private final PaymentUrlBuilder paymentUrlBuilder;
-
-    public VnPayServiceImpl(AccountRepository accountRepository, EmailService emailService, PaymentUrlBuilder paymentUrlBuilder) {
-        this.accountRepository = accountRepository;
-        this.emailService = emailService;
-        this.paymentUrlBuilder = paymentUrlBuilder;
-    }
 
     @Override
     public String createPaymentUrl(Long accountId, BigDecimal amount, String bankCode) {
