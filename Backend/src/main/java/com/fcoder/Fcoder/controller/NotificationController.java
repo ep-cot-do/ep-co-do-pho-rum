@@ -75,7 +75,6 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a notification by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);

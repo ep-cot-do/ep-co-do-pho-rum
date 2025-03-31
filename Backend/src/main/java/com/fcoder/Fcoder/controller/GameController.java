@@ -100,7 +100,6 @@ public class GameController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a game by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> deleteGame(@PathVariable Long id) {
         gameService.deleteGame(id);

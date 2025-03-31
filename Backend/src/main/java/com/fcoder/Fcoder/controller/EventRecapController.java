@@ -75,7 +75,6 @@ public class EventRecapController {
     @Operation(summary = "Delete an event recap by ID (Admin only)", security = {@SecurityRequirement(name =
             "accessCookie")})
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEventRecap(@PathVariable Long id) {
         eventRecapService.deleteEventRecap(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()

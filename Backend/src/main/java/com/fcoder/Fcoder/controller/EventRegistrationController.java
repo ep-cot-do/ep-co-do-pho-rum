@@ -73,9 +73,8 @@ public class EventRegistrationController {
                 .build());
     }
 
-    @Operation(summary = "Delete event registration (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete event registration", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEventRegistration(@PathVariable Long id) {
         eventRegistrationService.deleteEventRegistration(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()

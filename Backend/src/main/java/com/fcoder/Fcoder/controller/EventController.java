@@ -74,7 +74,6 @@ public class EventController {
 
     @Operation(summary = "Delete an event by ID (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
