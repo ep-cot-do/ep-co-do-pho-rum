@@ -110,7 +110,7 @@ public class GameController {
                 .build());
     }
 
-    @GetMapping("/{category}")
+    @GetMapping("/category/{category}")
     @Operation(summary = "Get game by category")
     public ResponseEntity<ResponseObject<GameResponse>> getGameByCategory(@PathVariable String category) {
         var game = gameService.getGameByCategory(category);

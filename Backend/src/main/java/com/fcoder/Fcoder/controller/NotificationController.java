@@ -117,18 +117,6 @@ public class NotificationController {
                 .message("Marked as Read")
                 .build());
     }
-    @PatchMapping("/{id}")
-    @Operation(summary = "Update a notification by ID", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<NotificationResponse>> updateNotificationDetails(@PathVariable Long id,
-                                                                                    @RequestBody NotificationRequest notificationRequest) {
-        var notification = notificationService.updateNotification(id, notificationRequest);
-        return ResponseEntity.ok(new ResponseObject.Builder<NotificationResponse>()
-                .success(true)
-                .code("SUCCESS")
-                .content(notification)
-                .message("Update Success")
-                .build());
-    }
 
     @GetMapping("/my-notifications")
     @Operation(summary = "Get my notification", security = {@SecurityRequirement(name = "accessCookie")})

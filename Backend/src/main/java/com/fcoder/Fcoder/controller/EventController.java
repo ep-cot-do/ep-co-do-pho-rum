@@ -111,7 +111,7 @@ public class EventController {
     @Operation(summary = "Update event details by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> updateEventDetails(@PathVariable Long id,
-                                                                   @RequestParam EventRequest eventRequest) {
+                                                                   @RequestBody EventRequest eventRequest) {
         eventService.updateEvent(id, eventRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
