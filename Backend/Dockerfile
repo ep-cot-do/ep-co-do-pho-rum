@@ -1,7 +1,7 @@
 FROM openjdk:23 AS base
 WORKDIR /application
-RUN groupadd -r ocgi && useradd -r ocgi -g ocgi
-USER ocgi
+RUN groupadd -r fcoder && useradd -r fcoder -g fcoder
+USER fcoder
 
 FROM gradle:jdk23-alpine AS build
 WORKDIR /build
@@ -13,6 +13,6 @@ RUN ls ./build/libs
 
 FROM base AS deploys
 WORKDIR /application
-COPY --chown=ocgi:ocgi --from=build /build/build/libs/*-SNAPSHOT.jar app.jar
-USER ocgi
+COPY --chown=fcoder:fcoder --from=build /build/build/libs/*-SNAPSHOT.jar app.jar
+USER fcoder
 ENTRYPOINT ["java", "-jar", "app.jar"]
