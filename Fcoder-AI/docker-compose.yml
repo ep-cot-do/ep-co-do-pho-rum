@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  gemini-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: fcoder-ai
+    ports:
+      - "9090:9090"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: unless-stopped
