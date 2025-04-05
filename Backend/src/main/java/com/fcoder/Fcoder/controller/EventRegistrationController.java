@@ -132,4 +132,16 @@ public class EventRegistrationController {
                 .message("Registration Activated Successfully")
                 .build());
     }
+
+    @GetMapping("/title/{title}")
+    @Operation(summary = "Get event event registration by title")
+    public ResponseEntity<ResponseObject<List<EventRegistrationResponse>>> getEventRecapByTitle(@PathVariable String title) {
+        List<EventRegistrationResponse> eventRecaps = eventRegistrationService.getEventRegistrationByEventTitle(title);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<EventRegistrationResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(eventRecaps)
+                .message("Get Success")
+                .build());
+    }
 }

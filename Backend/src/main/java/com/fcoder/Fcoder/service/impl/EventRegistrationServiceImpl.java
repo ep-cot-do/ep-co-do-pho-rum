@@ -2,10 +2,12 @@ package com.fcoder.Fcoder.service.impl;
 
 import com.fcoder.Fcoder.model.dto.request.EventRegistrationRequest;
 import com.fcoder.Fcoder.model.dto.request.QueryWrapper;
+import com.fcoder.Fcoder.model.dto.response.EventRecapResponse;
 import com.fcoder.Fcoder.model.dto.response.EventRegistrationResponse;
 import com.fcoder.Fcoder.model.dto.response.PaginationWrapper;
 import com.fcoder.Fcoder.model.entity.AccountEntity;
 import com.fcoder.Fcoder.model.entity.EventEntity;
+import com.fcoder.Fcoder.model.entity.EventRecapEntity;
 import com.fcoder.Fcoder.model.entity.EventRegistrationEntity;
 import com.fcoder.Fcoder.model.exception.ActionFailedException;
 import com.fcoder.Fcoder.model.exception.ValidationException;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,6 +86,33 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
         var registration = eventRegistrationRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Event registration not found"));
         return mapToEventRegistrationResponse(registration);
+    }
+
+    @Override
+    public List<EventRegistrationResponse> getEventRegistrationByEventTitle(String eventTitle) {
+        List<EventEntity> matchingEvents = eventRepository.findByTitleContainingIgnoreCase(eventTitle);
+
+        if (matchingEvents.isEmpty()) {
+            throw new ValidationException("No events found matching: " + eventTitle);
+        }
+
+        List<Long> eventIds = matchingEvents.stream()
+                .map(EventEntity::getId)
+                .toList();
+
+        List<EventRegistrationEntity> registrations = new ArrayList<>();
+
+        for (Long eventId : eventIds) {
+            List<EventRegistrationEntity> eventRegistrations = eventRegistrationRepository.findAllByEventId(eventId);
+            registrations.addAll(eventRegistrations);
+        }
+
+        if (registrations.isEmpty()) {
+            throw new ValidationException("No registrations found for events matching: " + eventTitle);
+        }
+        return registrations.stream()
+                .map(this::mapToEventRegistrationResponse)
+                .toList();
     }
 
     @Transactional

@@ -11,6 +11,7 @@ public interface EventRegistrationService {
     PaginationWrapper<List<EventRegistrationResponse>> getAllEventRegistrations(QueryWrapper queryWrapper);
     EventRegistrationResponse registerForEvent(EventRegistrationRequest registrationRequest);
     EventRegistrationResponse getEventRegistrationById(Long id);
+    List<EventRegistrationResponse> getEventRegistrationByEventTitle(String eventTitle);
     EventRegistrationResponse updateEventRegistration(Long id, EventRegistrationRequest registrationRequest);
     void deleteEventRegistration(Long id);
     List<EventRegistrationResponse> getRegistrationsByEventId(Long eventId);

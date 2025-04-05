@@ -47,7 +47,6 @@ public class CommentController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create a new comment", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<CommentResponse>> createComment(@RequestBody CommentRequest commentRequest) {
         var comment = commentService.createComment(commentRequest);
@@ -60,7 +59,6 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Update a comment by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<CommentResponse>> updateComment(@PathVariable Long id, @RequestBody CommentRequest commentRequest) {
         var comment = commentService.updateComment(id, commentRequest);
@@ -97,7 +95,6 @@ public class CommentController {
     }
 
     @PatchMapping("/show/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Show a hidden comment by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> showComment(@PathVariable Long id) {
         commentService.showComment(id);

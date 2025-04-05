@@ -64,6 +64,40 @@ public class EventRecapServiceImpl implements EventRecapService {
         return mapToEventRecapResponse(eventRecap);
     }
 
+    @Override
+    public List<EventRecapResponse> getEventRecapByEventId(Long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new ValidationException("Event not found with id: " + eventId);
+        }
+        List<EventRecapEntity> eventRecaps = eventRecapRepository.findAllByEventId(eventId);
+        if (eventRecaps.isEmpty()) {
+            throw new ValidationException("No recaps found for event with id: " + eventId);
+        }
+        return eventRecaps.stream()
+                .map(this::mapToEventRecapResponse)
+                .toList();
+    }
+
+    @Override
+    public List<EventRecapResponse> getEventRecapByEventTitle(String eventTitle) {
+        List<EventEntity> matchingEvents = eventRepository.findByTitleContainingIgnoreCase(eventTitle);
+
+        if (matchingEvents.isEmpty()) {
+            throw new ValidationException("No events found matching: " + eventTitle);
+        }
+        List<Long> eventIds = matchingEvents.stream()
+                .map(EventEntity::getId)
+                .toList();
+
+        List<EventRecapEntity> eventRecaps = eventRecapRepository.findAllByEventIdIn(eventIds);
+
+        if (eventRecaps.isEmpty()) {
+            throw new ValidationException("No recaps found for events matching: " + eventTitle);
+        }
+        return eventRecaps.stream()
+                .map(this::mapToEventRecapResponse)
+                .toList();
+    }
     @Transactional
     @Override
     public EventRecapResponse updateEventRecap(Long id, EventRecapRequest eventRecapRequest) {

@@ -120,4 +120,28 @@ public class EventRecapController {
                 .message("Event Recap Updated Successfully")
                 .build());
     }
+
+    @GetMapping("/title/{title}")
+    @Operation(summary = "Get event recaps by title")
+    public ResponseEntity<ResponseObject<List<EventRecapResponse>>> getEventRecapByTitle(@PathVariable String title) {
+        List<EventRecapResponse> eventRecaps = eventRecapService.getEventRecapByEventTitle(title);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<EventRecapResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(eventRecaps)
+                .message("Get Success")
+                .build());
+    }
+
+    @GetMapping("/eventId/{eventId}")
+    @Operation(summary = "Get event recaps by event ID")
+    public ResponseEntity<ResponseObject<List<EventRecapResponse>>> getEventRecapByEventId(@PathVariable Long eventId) {
+        List<EventRecapResponse> eventRecaps = eventRecapService.getEventRecapByEventId(eventId);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<EventRecapResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(eventRecaps)
+                .message("Get Success")
+                .build());
+    }
 }
