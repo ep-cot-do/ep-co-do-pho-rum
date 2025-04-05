@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "account")
@@ -56,6 +57,9 @@ public class AccountEntity extends BaseEntity {
 
     @Column(name = "fund_status", nullable = false)
     private Boolean fundStatus;
+
+    @Column(name = "last_login", nullable = false)
+    private LocalDateTime lastLogin;
 
     @Column(name = "is_active",nullable = false)
     private Boolean isActive;

@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.AchievementRepository;
 import com.fcoder.Fcoder.service.AchievementService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class AchievementServiceImpl implements AchievementService {
     private final AccountRepository accountRepository;
     private final AchievementRepository achievementRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<AchievementResponse>> getAllAchievements(QueryWrapper queryWrapper) {
@@ -40,7 +42,7 @@ public class AchievementServiceImpl implements AchievementService {
     @Override
     public AchievementResponse getAchievementById(Long id) {
         var achievement = achievementRepository.findById(id)
-                .orElseThrow(() -> new ValidationException("Achievement not found"));
+                .orElseThrow(() -> new ValidationException("Achievement not fou nd"));
         return wrapAchievementResponse(achievement);
     }
 
@@ -98,6 +100,33 @@ public class AchievementServiceImpl implements AchievementService {
         return achievementRepository.findByUserId(account.getId()).stream()
                 .map(this::wrapAchievementResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AchievementResponse> getAchievementByUserId(Long userId) {
+        AccountEntity user = accountRepository.findById(userId)
+                .orElseThrow(() -> new ValidationException("User not found"));
+
+        List<AchievementEntity> userTickets = achievementRepository.findAll()
+                .stream()
+                .filter(ticket -> ticket.getUserId() != null &&
+                        ticket.getUserId().getId().equals(userId) &&
+                        ticket.getIsActive())
+                .toList();
+
+        if (userTickets.isEmpty()) {
+            throw new ValidationException("No active tickets found for user");
+        }
+
+        return userTickets.stream()
+                .map(this::wrapAchievementResponse)
+                .toList();
+    }
+
+    @Override
+    public List<AchievementResponse> getMyAchievement() {
+        AccountEntity currentUser = authUtils.getUserFromAuthentication();
+        return getAchievementByUserId(currentUser.getId());
     }
 
     @Transactional

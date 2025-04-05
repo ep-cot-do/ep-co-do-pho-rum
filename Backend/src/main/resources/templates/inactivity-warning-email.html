@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Miss You!</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .miss-you-card {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background-color: #8D01FF;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 60px;
+            margin-right: 15px;
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .profile-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #8D01FF;
+            object-fit: cover;
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .highlight {
+            color: #8D01FF;
+            font-weight: bold;
+        }
+
+        .signature {
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #8D01FF;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .footer {
+            background-color: #f4f4f4;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eaeaea;
+        }
+    </style>
+</head>
+
+<body>
+<div class="miss-you-card">
+    <div class="header">
+        <img class="logo" src="icon.png" alt="Logo">
+        <div class="header-content">
+            <h1>We Miss You!</h1>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="profile-container">
+            <img th:if="${profileImg}" th:src="${profileImg}" class="profile-img" alt="Profile Picture"
+                 src="https://via.placeholder.com/150"
+                 onerror="this.src='https://via.placeholder.com/150?text=FCoder'">
+        </div>
+
+        <div class="message">
+            <p>Dear <span class="highlight" th:text="${name}">User</span>,</p>
+
+            <p>We've noticed that you haven't logged into your <span class="highlight">FCoder</span> account for
+                quite some time.</p>
+
+            <p>It's been <span class=" highlight" th:text="${inactiveDays}">120</span> days since your last login
+                on
+                <span th:text="${lastLoginDate}">01 January 2023</span>.
+            </p>
+
+            <p>We value your participation in our community and would love to see you back! Your contributions help
+                make our platform better for everyone.</p>
+
+            <p>If you've been busy or just taking a break, we understand. However, please note that after extended
+                periods of inactivity, accounts may be subject to our inactive account policy.</p>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="#" class="btn">Log In Now</a>
+            </div>
+
+            <p class="signature">If you're having trouble accessing your account or have any questions, please don't
+                hesitate to contact our support team.</p>
+
+            <p class="signature">We hope to see you soon!<br>
+                <span>FCoder</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message from <span th:text="${applicationName}">FCoder Community</span>.</p>
+        <p>&copy; <span id="currentYear">2025</span> <span th:text="${applicationName}">FCoder Community</span>. All
+            rights reserved.</p>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</div>
+</body>
+
+</html>

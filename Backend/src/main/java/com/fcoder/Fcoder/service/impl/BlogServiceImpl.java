@@ -11,6 +11,7 @@ import com.fcoder.Fcoder.model.exception.ValidationException;
 import com.fcoder.Fcoder.repository.AccountRepository;
 import com.fcoder.Fcoder.repository.BlogRepository;
 import com.fcoder.Fcoder.service.BlogService;
+import com.fcoder.Fcoder.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class BlogServiceImpl implements BlogService {
     private final AccountRepository accountRepository;
     private final BlogRepository blogRepository;
+    private final AuthUtils authUtils;
 
     @Override
     public PaginationWrapper<List<BlogResponse>> getAllBlogs(QueryWrapper queryWrapper) {
@@ -115,16 +117,19 @@ public class BlogServiceImpl implements BlogService {
 
     @Transactional
     @Override
-    public void unpublishBlog(Long id, Long requestUserId) {
+    public void unpublishBlog(Long id) {
         var blog = blogRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Blog not found"));
 
-        var requestUser = accountRepository.findById(requestUserId)
-                .orElseThrow(() -> new ValidationException("User not found"));
+        var requestUser = authUtils.getUserFromAuthentication();
 
-        if (!blog.getAuthorId().getId().equals(requestUserId) && !"ADMIN".equals(requestUser.getRole().getRoleName())) {
+        boolean isAdmin = "ADMIN".equals(requestUser.getRole().getRoleName());
+        boolean isAuthor = blog.getAuthorId().getId().equals(requestUser.getId());
+
+        if (!isAdmin && !isAuthor) {
             throw new ActionFailedException("You do not have permission to unpublish this blog");
         }
+
         blog.setStatus("DRAFT");
         blog.setUpdatedDate(LocalDateTime.now());
         blogRepository.save(blog);
@@ -134,6 +139,25 @@ public class BlogServiceImpl implements BlogService {
     public List<BlogResponse> filterBlog(String title, String category, String status, Integer minViews, Integer maxViews, Long authorId) {
         List<BlogEntity> blogs = blogRepository.filterBlogs(title, category, status, minViews, maxViews, authorId);
         return blogs.stream().map(this::wrapBlogResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BlogResponse> getMyBlog() {
+        AccountEntity currentUser = authUtils.getUserFromAuthentication();
+
+        List<BlogEntity> userPosts = blogRepository.findAll()
+                .stream()
+                .filter(post -> post.getAuthorId() != null &&
+                        post.getAuthorId().getId().equals(currentUser.getId()))
+                .toList();
+
+        if (userPosts.isEmpty()) {
+            throw new ValidationException("No Blogs found for current user");
+        }
+
+        return userPosts.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
 

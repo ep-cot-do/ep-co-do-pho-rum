@@ -24,6 +24,7 @@ public class MemberAccountRegisterResponse {
     private Boolean fundStatus;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+    private LocalDateTime lastLogin;
     private Boolean isActive;
     private String role;
 }

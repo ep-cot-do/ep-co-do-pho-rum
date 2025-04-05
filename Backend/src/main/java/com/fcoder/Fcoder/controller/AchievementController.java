@@ -8,8 +8,11 @@ import com.fcoder.Fcoder.service.AchievementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +23,10 @@ import java.util.List;
 public class AchievementController {
     private final AchievementService achievementService;
 
-    @Operation(summary = "Get all achievements", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all achievements")
     @GetMapping
-    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getAllAchievements(@RequestParam(required = false) String query) {
+    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getAllAchievements(@RequestParam(name = "q", required = false) String query,
+                                                                                        @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var achievements = achievementService.getAllAchievements(QueryWrapper.builder().search(query).build());
         return ResponseEntity.ok(new ResponseObject.Builder<List<AchievementResponse>>()
                 .success(true)
@@ -32,7 +36,7 @@ public class AchievementController {
                 .build());
     }
 
-    @Operation(summary = "Get achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get achievement by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<AchievementResponse>> getAchievementById(@PathVariable Long id) {
         var achievement = achievementService.getAchievementById(id);
@@ -44,8 +48,11 @@ public class AchievementController {
                 .build());
     }
 
-    @Operation(summary = "Create a new achievement", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Create a new achievement (Admin and Header of club only)", security =
+            {@SecurityRequirement(name =
+            "accessCookie")})
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> createAchievement(@RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.createAchievement(achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -56,8 +63,10 @@ public class AchievementController {
                 .build());
     }
 
-    @Operation(summary = "Update an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Update an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name =
+            "accessCookie")})
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> updateAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.updateAchievement(id, achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -68,8 +77,9 @@ public class AchievementController {
                 .build());
     }
 
-    @Operation(summary = "Delete an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> deleteAchievement(@PathVariable Long id) {
         achievementService.deleteAchievement(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -92,7 +102,9 @@ public class AchievementController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(summary = "Partially update an achievement by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @Operation(summary = "Partially update an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name =
+            "accessCookie")})
     public ResponseEntity<ResponseObject<AchievementResponse>> patchAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.patchAchievement(id, achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -100,6 +112,19 @@ public class AchievementController {
                 .code("SUCCESS")
                 .content(achievement)
                 .message("Patch Success")
+                .build());
+    }
+
+    @GetMapping("/my-achievements")
+    @Operation(summary = "Get my achievements", description = "Retrieve all active achievements for the current user", security = {
+            @SecurityRequirement(name = "accessCookie")})
+    public ResponseEntity<ResponseObject<List<AchievementResponse>>> getMyAchievements() {
+        var result = achievementService.getMyAchievement();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<AchievementResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(result)
+                .message("My achievements retrieved successfully")
                 .build());
     }
 }

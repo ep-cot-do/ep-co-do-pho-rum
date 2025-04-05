@@ -27,4 +27,5 @@ public interface AccountService {
 
     ProfileResponse getProfile();
     ProfileResponse getMemberByStudentCode(String studentCode);
+    List<ProfileResponse> getUsersWithBirthdayToday();
 }

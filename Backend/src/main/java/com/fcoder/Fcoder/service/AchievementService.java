@@ -21,4 +21,7 @@ public interface AchievementService {
     AchievementResponse patchAchievement(Long id, AchievementRequest achievementRequest);
 
     List<AchievementResponse> getAchievementsByUserId(Long userId);
+
+    List<AchievementResponse>getAchievementByUserId(Long userId);
+    List<AchievementResponse> getMyAchievement();
 }
