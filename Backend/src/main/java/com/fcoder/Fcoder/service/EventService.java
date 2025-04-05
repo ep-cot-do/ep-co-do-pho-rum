@@ -12,8 +12,8 @@ public interface EventService {
     PaginationWrapper<List<EventResponse>>getAllEvent(QueryWrapper queryWrapper);
     EventResponse createEvent(EventRequest eventRequest);
     EventResponse getEventById(Long id);
-//    List<EventResponse> getEventByUserId(Long userId);
-//    List<EventResponse> getEventByEventTitle(String eventTitle);
+    List<EventResponse> getEventByUserId(Long userId);
+    List<EventResponse> getEventByEventTitle(String eventTitle);
     EventResponse updateEvent(Long id , EventRequest eventRequest);
     void deleteEvent(Long id);
     void hideEvent(Long id);

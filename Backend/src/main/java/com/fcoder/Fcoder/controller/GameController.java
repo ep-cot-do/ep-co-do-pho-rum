@@ -52,9 +52,33 @@ public class GameController {
                 .build());
     }
 
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Get games by user ID")
+    public ResponseEntity<ResponseObject<List<GameResponse>>> getGameByUserId(@PathVariable Long userId) {
+        var games = gameService.getGameByUserId(userId);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<GameResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(games)
+                .message("Get Success")
+                .build());
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search games by title")
+    public ResponseEntity<ResponseObject<List<GameResponse>>> getGameByGameTitle(@RequestParam String title) {
+        var games = gameService.getGameByGameTitle(title);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<GameResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(games)
+                .message("Get Success")
+                .build());
+    }
+
     @PostMapping
     @Operation(summary = "Create a new game", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<GameResponse>> createGame(@RequestBody GameRequest gameRequest) {
+    public ResponseEntity<ResponseObject<GameResponse>> createGame(@Valid @RequestBody GameRequest gameRequest) {
         var game = gameService.createGame(gameRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<GameResponse>()
                 .success(true)
@@ -66,7 +90,7 @@ public class GameController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a game by ID", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<GameResponse>> updateGame(@PathVariable Long id, @RequestBody GameRequest gameRequest) {
+    public ResponseEntity<ResponseObject<GameResponse>> updateGame(@PathVariable Long id, @Valid @RequestBody GameRequest gameRequest) {
         var game = gameService.updateGame(id, gameRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<GameResponse>()
                 .success(true)
@@ -111,13 +135,13 @@ public class GameController {
     }
 
     @GetMapping("/category/{category}")
-    @Operation(summary = "Get game by category")
-    public ResponseEntity<ResponseObject<GameResponse>> getGameByCategory(@PathVariable String category) {
-        var game = gameService.getGameByCategory(category);
-        return ResponseEntity.ok(new ResponseObject.Builder<GameResponse>()
+    @Operation(summary = "Get games by category")
+    public ResponseEntity<ResponseObject<List<GameResponse>>> getGameByCategory(@PathVariable String category) {
+        var games = gameService.getGameByCategory(category);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<GameResponse>>()
                 .success(true)
                 .code("SUCCESS")
-                .content(game)
+                .content(games)
                 .message("Get Success")
                 .build());
     }

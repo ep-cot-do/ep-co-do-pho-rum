@@ -96,10 +96,29 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public GameResponse getGameByCategory(String category) {
+    public List<GameResponse> getGameByCategory(String category) {
         return gameRepository.findByCategory(category)
+                .map(game -> List.of(mapToResponse(game)))
+                .orElse(List.of());
+    }
+
+    @Override
+    public List<GameResponse> getGameByUserId(Long userId) {
+        AccountEntity author = accountRepository.findById(userId)
+                .orElseThrow(() -> new ValidationException("User not found"));
+
+        return gameRepository.findAll().stream()
+                .filter(game -> game.getAuthorId().getId().equals(userId))
                 .map(this::mapToResponse)
-                .orElseThrow(() -> new ValidationException("Game not found"));
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GameResponse> getGameByGameTitle(String gameTitle) {
+        return gameRepository.findAll().stream()
+                .filter(game -> game.getTitle().contains(gameTitle))
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional

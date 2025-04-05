@@ -10,10 +10,12 @@ import java.util.List;
 public interface GameService {
     PaginationWrapper<List<GameResponse>> getAllGames(QueryWrapper queryWrapper);
     GameResponse getGameById(Long id);
+    List<GameResponse> getGameByUserId(Long userId);
+    List<GameResponse> getGameByGameTitle(String gameTitle);
     GameResponse createGame(GameRequest gameRequest);
     GameResponse updateGame(Long id, GameRequest gameRequest);
     void deleteGame(Long id);
-    GameResponse getGameByCategory(String category);
+    List<GameResponse> getGameByCategory(String category);
     void hideGame(Long id);
     void showGame(Long id);
 }

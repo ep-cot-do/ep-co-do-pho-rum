@@ -119,4 +119,27 @@ public class EventController {
                 .message("Event Status Updated Successfully")
                 .build());
     }
+    @Operation(summary = "Get events by user ID")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ResponseObject<List<EventResponse>>> getEventsByUserId(@PathVariable Long userId) {
+        var events = eventService.getEventByUserId(userId);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<EventResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(events)
+                .message("Get Success")
+                .build());
+    }
+
+    @Operation(summary = "Get events by title")
+    @GetMapping("/title")
+    public ResponseEntity<ResponseObject<List<EventResponse>>> getEventsByTitle(@RequestParam String title) {
+        var events = eventService.getEventByEventTitle(title);
+        return ResponseEntity.ok(new ResponseObject.Builder<List<EventResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(events)
+                .message("Get Success")
+                .build());
+    }
 }

@@ -71,6 +71,30 @@ public class EventServiceImpl implements EventService {
         return mapToEventResponse(event);
     }
 
+    @Override
+    public List<EventResponse> getEventByUserId(Long userId) {
+        AccountEntity user = accountRepository.findById(userId)
+                .orElseThrow(() -> new ValidationException("User not found"));
+
+        List<EventEntity> events = eventRepository.findAll()
+                .stream()
+                .filter(event -> event.getOrganizer().getId().equals(userId))
+                .toList();
+
+        return events.stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventResponse> getEventByEventTitle(String eventTitle) {
+        List<EventEntity> events = eventRepository.findByTitleContainingIgnoreCase(eventTitle);
+
+        return events.stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     @Override
     public EventResponse updateEvent(Long id, EventRequest eventRequest) {
