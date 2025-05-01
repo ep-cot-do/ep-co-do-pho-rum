@@ -207,11 +207,11 @@ jobs:
                   - "3000:3000"  # Expose port directly for testing
                 labels:
                   - "traefik.enable=true"
-                  - "traefik.docker.network=svnfrs-networks"
+                  - "traefik.docker.network=fcoder-networks"
                   - "traefik.constraint=proxy-public"
-                  - "traefik.http.routers.svnfrs-portfolio.rule=Host(`${ROOT_DOMAIN}`)"
-                  - "traefik.http.routers.svnfrs-portfolio.entrypoints=web"
-                  - "traefik.http.services.svnfrs-portfolio.loadbalancer.server.port=3000"
+                  - "traefik.http.routers.fcoder-forum-frontend.rule=Host(`${ROOT_DOMAIN}`)"
+                  - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
+                  - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
                 networks:
                   - fcoder-networks
                 profiles:
