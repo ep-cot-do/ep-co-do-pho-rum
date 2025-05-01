@@ -21,4 +21,10 @@ COPY --from=installer --chown=fcoder:fcoder /installer/.next/standalone ./
 COPY --from=installer --chown=fcoder:fcoder /installer/.next/static ./.next/static
 COPY --from=installer --chown=fcoder:fcoder /installer/public ./public
 
+# Set environment variables for proper binding
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+EXPOSE 3000
+
 ENTRYPOINT [ "node", "server.js" ]
