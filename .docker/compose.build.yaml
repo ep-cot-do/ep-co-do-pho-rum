@@ -1,0 +1,10 @@
+services:
+  svnfrs-portfolio:
+    image: ${REGISTRY}/fcoder-forum:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+
+    profiles:
+      - build
+      - client
