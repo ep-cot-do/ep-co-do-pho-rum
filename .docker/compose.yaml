@@ -73,7 +73,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=fcoder-networks"
-      - "traefik.constraint=proxy-public"
+      - "traefik.constraint-label=proxy-public"
       - "traefik.http.routers.fcoder-forum-frontend.rule=Host(`${ROOT_DOMAIN}`)"
       - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
       - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
