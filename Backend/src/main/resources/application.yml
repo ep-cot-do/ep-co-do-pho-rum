@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:email@gmail.com}
-    password: ${MAIL_PASSWORD:xxxxxxxxxxxx}
+    username: ${MAIL_USERNAME:test}
+    password: ${MAIL_PASSWORD:test}
     properties:
       mail:
         smtp:
@@ -31,10 +31,8 @@ spring:
           starttls:
             enable: true
 
-application:
-  security:
-    jwt:
-      reset-passeord-token-expiration: ${RESET_PASSWORD_TOKEN_EXT:3600000}
+  profiles:
+    active: ${SPRING_PROFILE:dev}
 
 server:
   servlet:
@@ -51,11 +49,14 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
     filter: true
-    path: /swagger-ui.html
+    path: /swagger-ui
 
 base-urls:
   api: ${BASE_URL_API:null}
-  front-end: ${ORIGIN_ALLOWED:null}
+  front-end: ${FRONTEND_URL:null}
+  origin-allows: ${ORIGIN_ALLOWED:""}
+  root-host: ${ROOT_HOST:""}
+
 access-token:
   max-age: ${ACCESS_TOKEN_EXT:86400000}
   secret-key: ${ACCESS_TOKEN_KEY:longAndComplexSecretKeyWithAtLeast64BytesOfRandomness}
@@ -65,3 +66,29 @@ refresh-token:
   secret-key: ${REFRESH_TOKEN_KEY:anotherLongAndComplexSecretKeyDifferentFromTheAccessTokenKey}
 
 swagger-url: ${SWAGGER_URL:null}
+
+oauth2:
+  google:
+    clientId: ${GOOGLE_CLIENT_ID}
+    clientSecret: ${GOOGLE_CLIENT_SECRET}
+    scopes:
+      - email
+      - profile
+    redirectUrl: ${GOOGLE_REDIRECT_URL}
+    userProfileEndpoint: ${GOOGLE_USERPROFILE_ENDPOINT}
+
+payment:
+  vnpay:
+    tmnCode: YOUR_TMN_CODE
+    secretKey: YOUR_SECRET_KEY
+    returnUrl: https://yourdomain.com/payment/vnpay-return
+    apiUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    version: "2.1.0"
+    command: "pay"
+    currencyCode: "VND"
+    locale: "vn"
+  callback: ${PAYMENT_CALLBACK:http://localhost:3000/checkout}
+
+forgot-password:
+  timeout: ${FORGOT_PASSWORD_TIMEOUT:10}
+  callbackUrl: ${FORGOT_PASSWORD_CALLBACK:http://localhost:3000/forgot-password}

@@ -21,7 +21,9 @@ public interface BlogService {
 
     void publishBlog(Long id);
 
-    void unpublishBlog(Long id, Long requestUserId);
+    void unpublishBlog(Long id);
 
     List<BlogResponse> filterBlog(String title, String category, String status, Integer minViews, Integer maxViews, Long authorId);
+
+    List<BlogResponse> getMyBlog();
 }

@@ -3,6 +3,7 @@ package com.fcoder.Fcoder.controller;
 import com.fcoder.Fcoder.model.dto.request.AccountRegisterRequest;
 import com.fcoder.Fcoder.model.dto.request.MemberAccountDetailRegisterRequest;
 import com.fcoder.Fcoder.model.dto.request.ProfileRequest;
+import com.fcoder.Fcoder.model.dto.request.QueryWrapper;
 import com.fcoder.Fcoder.model.dto.response.MemberAccountRegisterResponse;
 import com.fcoder.Fcoder.model.dto.response.ProfileResponse;
 import com.fcoder.Fcoder.model.dto.response.ResponseObject;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +51,24 @@ public class AccountController {
                 .code("SUCCESS")
                 .content(result)
                 .message("Create Success")
+                .build());
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all accounts",
+            security = {@SecurityRequirement(name = "accessCookie")}
+    )
+    public ResponseEntity<ResponseObject<List<MemberAccountRegisterResponse>>> getAllAccounts(@RequestParam(name = "q", required = false) String query,
+                                                                                              @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        var result = accountService.getAllMemberPagination(QueryWrapper.builder()
+                .wrapSort(pageable)
+                .search(query)
+                .build());
+        return ResponseEntity.ok(new ResponseObject.Builder<List<MemberAccountRegisterResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .unwrapPaginationWrapper(result)
+                .message("Get Success")
                 .build());
     }
 
@@ -158,6 +179,20 @@ public class AccountController {
                 .code("SUCCESS")
                 .content(result)
                 .message("Get Profile Success")
+                .build());
+    }
+
+    @GetMapping("birthdays/today")
+    @Operation(summary = "Get users with birthday today",
+            security = {@SecurityRequirement(name = "accessCookie")}
+    )
+    public ResponseEntity<ResponseObject<List<ProfileResponse>>> getUsersWithBirthdayToday() {
+        List<ProfileResponse> birthdayUsers = accountService.getUsersWithBirthdayToday();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<ProfileResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(birthdayUsers)
+                .message(birthdayUsers.isEmpty() ? "No birthdays today" : "Found users with birthday today")
                 .build());
     }
 }

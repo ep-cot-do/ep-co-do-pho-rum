@@ -30,11 +30,32 @@ public interface BaseRepository<T, ID extends Serializable> extends JpaRepositor
         };
     }
     default Predicate[] createDefaultPredicate(CriteriaBuilder criteriaBuilder, Root<?> root, Map<String, String> param) {
-        return param.entrySet().stream().map(entry -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(entry.getKey()).as(String.class)),
-                "%" + entry.getValue().toLowerCase() + "%"
-        )).toArray(Predicate[]::new);
+        return param.entrySet().stream().map(entry -> {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.toLowerCase().endsWith("id")) {
+                try {
+                    Long longValue = Long.parseLong(value);
+                    if (root.get(key).getJavaType().isAssignableFrom(Number.class)) {
+                        return criteriaBuilder.equal(root.get(key), longValue);
+                    } else {
+                        return criteriaBuilder.equal(root.get(key).get("id"), longValue);
+                    }
+                } catch (NumberFormatException e) {
+                    return criteriaBuilder.like(
+                            criteriaBuilder.lower(root.get(key).as(String.class)),
+                            "%" + value.toLowerCase() + "%"
+                    );
+                }
+            } else {
+                return criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get(key).as(String.class)),
+                        "%" + value.toLowerCase() + "%"
+                );
+            }
+        }).toArray(Predicate[]::new);
     }
+
     default Page<T> queryAny(Map<String, String> param, Pageable pageable) {
         Specification<T> spec = queryAnySpecification(param);
         return findAll(spec,pageable);

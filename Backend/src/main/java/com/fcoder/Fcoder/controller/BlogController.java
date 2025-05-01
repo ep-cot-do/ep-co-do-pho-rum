@@ -26,8 +26,7 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    @Operation(summary = "Get all blog", description = "This API will return all blogs", security = {
-            @SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get all blog", description = "This API will return all blogs")
     public ResponseEntity<ResponseObject<List<BlogResponse>>> getAllBlogs(@RequestParam(name = "q", required = false) String query,
                                                                           @PageableDefault(page = 0, size = 10) Pageable pageable) {
         var result = blogService.getAllBlogs(QueryWrapper.builder()
@@ -42,7 +41,7 @@ public class BlogController {
                 .build());
     }
 
-    @Operation(summary = "Get blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Get blog by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject<BlogResponse>> getBlogById(@PathVariable Long id) {
         var blog = blogService.getBlogById(id);
@@ -54,8 +53,9 @@ public class BlogController {
                 .build());
     }
 
-    @Operation(summary = "Create a new blog", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Create a new blog (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<BlogResponse>> createBlog(@RequestBody BlogRequest blogRequest) {
         var blog = blogService.createBlog(blogRequest);
         System.out.println("blog = " + blog);
@@ -67,8 +67,9 @@ public class BlogController {
                 .build());
     }
 
-    @Operation(summary = "Update a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Update a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
     public ResponseEntity<ResponseObject<BlogResponse>> updateBlogDetails(@PathVariable Long id,
                                                                     @RequestBody BlogRequest blogRequest) {
         var blog = blogService.updateBlog(id, blogRequest);
@@ -81,7 +82,8 @@ public class BlogController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(summary = "Update a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @Operation(summary = "Update a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<BlogResponse>> updateBlog(@PathVariable Long id, @RequestBody BlogRequest blogRequest) {
         var blog = blogService.updateBlog(id, blogRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<BlogResponse>()
@@ -95,7 +97,7 @@ public class BlogController {
 
     @PatchMapping("/publish/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
-    @Operation(summary = "Publish a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Publish a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> publishBlog(@PathVariable Long id) {
         blogService.publishBlog(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -106,9 +108,10 @@ public class BlogController {
     }
 
     @PatchMapping("/unpublish/{id}")
-    @Operation(summary = "Unpublish a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
-    public ResponseEntity<ResponseObject<Void>> unpublishBlog(@PathVariable Long id, @RequestParam Long requestId) {
-        blogService.unpublishBlog(id,requestId);
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @Operation(summary = "Unpublish a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
+    public ResponseEntity<ResponseObject<Void>> unpublishBlog(@PathVariable Long id) {
+        blogService.unpublishBlog(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
                 .success(true)
                 .code("SUCCESS")
@@ -116,9 +119,8 @@ public class BlogController {
                 .build());
     }
 
-    @Operation(summary = "Delete a blog by ID", security = {@SecurityRequirement(name = "accessCookie")})
+    @Operation(summary = "Delete a blog by ID (Admin only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseObject<Void>> deleteBlog(@PathVariable Long id) {
         blogService.deleteBlog(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -143,6 +145,18 @@ public class BlogController {
                 .code("SUCCESS")
                 .content(blogs)
                 .message("Filter Success")
+                .build());
+    }
+
+    @GetMapping("/my-blogs")
+    @Operation(summary = "Get all blogs of current user", description = "This API will return all blogs of current user")
+    public ResponseEntity<ResponseObject<List<BlogResponse>>> getMyBlogs(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+        var result = blogService.getMyBlog();
+        return ResponseEntity.ok(new ResponseObject.Builder<List<BlogResponse>>()
+                .success(true)
+                .code("SUCCESS")
+                .content(result)
+                .message("Accounts retrieved successfully")
                 .build());
     }
 }

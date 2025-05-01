@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -101,6 +103,7 @@ public class AccountServiceImpl implements AccountService {
                 .fundStatus(false)
                 .role(roleRepository.findByRoleName("MEMBER")
                         .orElseThrow(() -> new ValidationException("Default member role not found")))
+                .lastLogin(LocalDateTime.now())
                 .isActive(true)
                 .build();
 
@@ -138,6 +141,7 @@ public class AccountServiceImpl implements AccountService {
                 .fundStatus(request.getFundStatus())
                 .birthday(request.getBirthday())
                 .profileImg(request.getProfileImg())
+                .lastLogin(LocalDateTime.now())
                 .isActive(true)
                 .build();
     }
@@ -162,6 +166,7 @@ public class AccountServiceImpl implements AccountService {
                     .createdDate(savedAccount.getCreatedDate())
                     .updatedDate(savedAccount.getUpdatedDate())
                     .profileImg(savedAccount.getProfileImg())
+                    .lastLogin(savedAccount.getLastLogin())
                     .isActive(savedAccount.getIsActive())
                     .build();
         } catch (DataIntegrityViolationException ex) {
@@ -192,6 +197,7 @@ public class AccountServiceImpl implements AccountService {
                 .profileImg(account.getProfileImg())
                 .createdDate(account.getCreatedDate())
                 .updatedDate(account.getUpdatedDate())
+                .lastLogin(account.getLastLogin())
                 .isActive(account.getIsActive())
                 .build();
     }
@@ -255,6 +261,12 @@ public class AccountServiceImpl implements AccountService {
                 .findFirst()
                 .orElse(null);
 
+        AccountEntity account = accountRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ValidationException("Account not found"));
+
+        account.setLastLogin(LocalDateTime.now());
+        accountRepository.save(account);
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -268,7 +280,6 @@ public class AccountServiceImpl implements AccountService {
         var account = accountRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Account not found"));
 
-        // Đảm bảo cập nhật thông tin từ request
         account.setEmail(request.getEmail());
         account.setFullName(request.getFullName());
         account.setGender(request.getGender());
@@ -279,6 +290,7 @@ public class AccountServiceImpl implements AccountService {
         account.setCurrentTerm(request.getCurrentTerm());
         account.setBirthday(request.getBirthday());
         account.setProfileImg(request.getProfileImg());
+        account.setLastLogin(LocalDateTime.now());
         account.setUpdatedDate(LocalDateTime.now());
 
         try {
@@ -293,6 +305,7 @@ public class AccountServiceImpl implements AccountService {
                     .major(updatedAccount.getMajor())
                     .birthday(updatedAccount.getBirthday())
                     .profileImg(updatedAccount.getProfileImg())
+                    .lastLogin(updatedAccount.getLastLogin())
                     .currentTerm(updatedAccount.getCurrentTerm())
                     .build();
         } catch (Exception ex) {
@@ -306,7 +319,7 @@ public class AccountServiceImpl implements AccountService {
         AccountEntity account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("No account found with this email"));
 
-        String randomPassword = RandomUtils.generateSecurePassword(12L); // Increased password length
+        String randomPassword = RandomUtils.generateSecurePassword(12L);
         account.setPassword(passwordEncoder.encode(randomPassword));
         accountRepository.save(account);
 
@@ -371,6 +384,25 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public List<ProfileResponse> getUsersWithBirthdayToday() {
+        LocalDate today = LocalDate.now();
+        int todayMonth = today.getMonthValue();
+        int todayDay = today.getDayOfMonth();
+
+        List<AccountEntity> accounts = accountRepository.findAll();
+
+        return accounts.stream()
+                .filter(account -> {
+                    LocalDate birthday = account.getBirthday();
+                    return birthday != null &&
+                            birthday.getMonthValue() == todayMonth &&
+                            birthday.getDayOfMonth() == todayDay;
+                })
+                .map(this::buildProfileResponse)
+                .collect(Collectors.toList());
+    }
+
     private ProfileResponse wrapAccountResponse(AccountEntity account) {
         return buildProfileResponse(account);
     }
@@ -390,6 +422,7 @@ public class AccountServiceImpl implements AccountService {
                 .profileImg(account.getProfileImg())
                 .createdDate(account.getCreatedDate())
                 .updatedDate(account.getUpdatedDate())
+                .lastLogin(account.getLastLogin())
                 .isActive(account.getIsActive())
                 .build();
     }

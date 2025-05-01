@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .birthday-card {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background-color: #8D01FF;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 60px;
+            /* Smaller logo */
+            margin-right: 15px;
+            /* Space between logo and text */
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .cake {
+            font-size: 30px;
+            margin: 10px 0;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .profile-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #8D01FF;
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .highlight {
+            color: #8D01FF;
+            font-weight: bold;
+        }
+
+        .signature {
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        .footer {
+            background-color: #f4f4f4;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eaeaea;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #8D01FF;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .balloon-container {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .balloon-emoji {
+            font-size: 24px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="birthday-card">
+    <div class="header">
+        <img class="logo" src="icon.png" alt="Logo">
+        <div class="header-content">
+            <h1>Happy Birthday, <span th:text="${name}">Friend 🎂</span>!</h1>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="balloon-container">
+            <span class="balloon-emoji">🎈</span>
+            <span class="balloon-emoji">🎈</span>
+            <span class="balloon-emoji">🎈</span>
+            <span class="balloon-emoji">🎈</span>
+        </div>
+
+        <div class="profile-container">
+            <img class="profile-img" th:src="${profileImg}" alt="Profile Picture"
+                 src="https://via.placeholder.com/150"
+                 onerror="this.src='https://via.placeholder.com/150?text=FCoder'">
+        </div>
+
+        <div class="message">
+            <p>Dear <span class="highlight" th:text="${name}">Friend</span>,</p>
+
+            <p>Today is your special day and we're excited to celebrate with you! 🎉</p>
+
+            <p>Turning <span class="highlight" th:text="${age}">XX</span> today is a wonderful milestone, and we're
+                honored to have you as part of our
+                <span class="highlight" th:text="${applicationName}">FCoder</span> community. You've been with us
+                since
+                <span th:text="${memberSince}">date</span>, and your contributions have been invaluable.
+            </p>
+
+            <p>We hope your day is filled with joy, laughter, great code, and amazing memories with your loved ones!
+            </p>
+
+            <p class="signature">Warmest wishes,<br>
+                The <span th:text="${applicationName}">FCoder</span> Team</p>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="#" class="btn">Visit Community</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; <span id="currentYear">2025</span> <span th:text="${applicationName}">FCoder</span>. All rights
+            reserved.</p>
+        <p>This email was sent to you as a valued member of our community.</p>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</div>
+</body>
+
+</html>

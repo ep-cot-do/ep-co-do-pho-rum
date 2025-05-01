@@ -1,0 +1,142 @@
+<!-- payment-reminder.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Reminder</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .payment-card {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background-color: #8D01FF;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 60px;
+            margin-right: 15px;
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .highlight {
+            color: #8D01FF;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #8D01FF;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            background-color: #f4f4f4;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eaeaea;
+        }
+
+        .signature {
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="payment-card">
+    <div class="header">
+        <img class="logo" src="icon.png" alt="Logo">
+        <div class="header-content">
+            <h1>Quarterly Fund Payment Reminder</h1>
+        </div>
+    </div>
+    <div class="content">
+        <p>Dear <span class="highlight" th:text="${account.fullName}">Student Name</span>,</p>
+
+        <p>This is a reminder that your quarterly fund payment is now due.</p>
+
+        <div class="details">
+            <p><strong>Student Code:</strong> <span th:text="${account.studentCode}">S12345</span></p>
+            <p><strong>Quarter:</strong> <span th:text="${quarter}">Quarter</span></p>
+            <p><strong>Amount Due:</strong> <span
+                    th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">70,000 VND</span>
+            </p>
+            <p><strong>Due Date:</strong> <span th:text="${dueDate}">March 31, 2025</span></p>
+        </div>
+
+        <p>Please complete your payment before the due date to maintain your access to all student services.</p>
+
+        <p>To make your payment, please click the button below:</p>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a th:href="${paymentUrl}" class="button">Pay Now</a>
+        </div>
+
+        <p class="signature">If you have any questions regarding your payment, please contact
+            <a href="mailto:clbfcoder@gmail.com">clbfcoder@gmail.com</a>
+        </p>
+
+        <p class="signature">Thank you for your prompt attention to this matter.</p>
+
+        <p class="signature">Best regards
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+        <p>&copy; <span id="currentYear">2025</span> FCoder. All rights reserved.</p>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</div>
+</body>
+
+</html>

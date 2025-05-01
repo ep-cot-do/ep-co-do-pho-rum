@@ -74,16 +74,20 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtService.generateToken(authentication, JwtTokenType.ACCESS_TOKEN);
         String refreshToken = jwtService.generateToken(authentication, JwtTokenType.REFRESH_TOKEN);
 
-        // Get the first role as a string instead of a list
         String role = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
 
+        String username = authentication.getName();
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new ActionFailedException("User not found"));
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
+                .userId(account.getId())
                 .build();
     }
 
@@ -115,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
+                .userId(account.getId())
                 .build();
     }
 
@@ -122,8 +127,9 @@ public class AuthServiceImpl implements AuthService {
     public void sendForgotConfirmation(String email) {
         var accountEntity = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("Email not found"));
-
-        String resetUrl = String.format("%s/reset-password?email=%s", frontendUrl, email);
+        String token = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set("PASSWORD_RESET:" + email, token, 10, TimeUnit.MINUTES);
+        String resetUrl = String.format("%s/reset-password?email=%s&token=%s", frontendUrl, email, token);
 
         sendEmail(email, "Confirm password reset", forgotEmail(accountEntity.getUsername(), resetUrl));
     }
