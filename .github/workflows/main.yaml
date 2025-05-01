@@ -201,31 +201,19 @@ jobs:
 
               fcoder-forum-frontend:
                 container_name: fcoder-forum-frontend
-                image: ${REGISTRY}/fcoder-forum-frontend:latest
+                image: "${REGISTRY}/fcoder-forum-frontend:latest"
                 restart: always
+                ports:
+                  - "3000:3000"  # Expose port directly for testing
                 labels:
                   - "traefik.enable=true"
                   - "traefik.docker.network=fcoder-networks"
                   - "traefik.constraint=proxy-public"
-
-                  # HTTP router (will redirect to HTTPS)
                   - "traefik.http.routers.fcoder-forum-frontend.rule=Host(`${ROOT_DOMAIN}`)"
                   - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
-                  - "traefik.http.routers.fcoder-forum-frontend.middlewares=redirect-to-https"
-
-                  # HTTPS router
-                  - "traefik.http.routers.fcoder-forum-frontend-secure.rule=Host(`${ROOT_DOMAIN}`)"
-                  - "traefik.http.routers.fcoder-forum-frontend-secure.entrypoints=websecure"
-                  - "traefik.http.routers.fcoder-forum-frontend-secure.tls=true"
-
-                  # HTTP to HTTPS redirect middleware
-                  - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-                  - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-
-                  # Service configuration
                   - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
                 networks:
-                  fcoder-networks:
+                  - fcoder-networks
                 profiles:
                   - prod
 
