@@ -54,7 +54,7 @@ services:
       - REFRESH_ENTRIES=TRUE
       - ENABLE_TRAEFIK_POLL=TRUE
       - TRAEFIK_POLL_URL=http://fcoder-traefik/api
-      - TRAEFIK_FILTER_LABEL=traefik.constraint
+      - TRAEFIK_FILTER_LABEL=traefik.constraint-label
       - TRAEFIK_FILTER=proxy-public
       - CF_TOKEN=${CF_API_TOKEN}
       - DOMAIN1=${ROOT_DOMAIN}
@@ -79,6 +79,7 @@ services:
       - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
     networks:
       fcoder-networks:
+      fcoder-traefik-internal:
     profiles:
       - prod
 
