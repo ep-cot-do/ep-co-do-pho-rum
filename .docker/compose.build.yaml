@@ -1,6 +1,6 @@
 services:
-  fcoder-forum:
-    image: ${REGISTRY}/fcoder-forum:latest
+  fcoder-forum-frontend:
+    image: ${REGISTRY}/fcoder-forum-frontend:latest
     build:
       context: ../frontend
       dockerfile: Dockerfile
@@ -8,3 +8,23 @@ services:
     profiles:
       - build
       - client
+
+  # fcoder-forum-backend:
+  #   image: ${REGISTRY}/fcoder-forum-backend:latest
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+
+  #   profiles:
+  #     - build
+  #     - server
+
+  # fcoder-forum-ai:
+  #   image: ${REGISTRY}/fcoder-forum-ai:latest
+  #   build:
+  #     context: ../ai
+  #     dockerfile: Dockerfile
+
+  #   profiles:
+  #     - build
+  #     - agent

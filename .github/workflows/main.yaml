@@ -65,3 +65,193 @@ jobs:
           # Build and push new image
           docker compose -f .docker/compose.build.yaml --profile build build --parallel --no-cache
           docker compose -f .docker/compose.build.yaml --profile build push
+
+  deploy-website:
+    runs-on: ubuntu-latest
+    needs: build-image
+    env:
+      GIT_REGISTRY: ghcr.io/${{ github.repository }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Convert REGISTRY to lowercase
+        run: echo "REGISTRY=$(echo $GIT_REGISTRY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Create GitHub Token File
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" > github_token.txt
+
+      - name: Copy GitHub Token to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "github_token.txt"
+          target: "~/forum-deployment"
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # Prepare directory
+            mkdir -p ~/forum-deployment/.docker
+
+            # Pull the latest code
+            cd ~/forum-deployment
+            echo "${{ env.REGISTRY }}" > .registry
+
+            # Store GitHub credentials properly
+            GITHUB_TOKEN=$(cat github_token.txt)
+
+            # Create Docker config directory if it doesn't exist
+            mkdir -p ~/.docker
+
+            # Create proper Docker credential configuration
+            echo "{\"auths\":{\"ghcr.io\":{\"auth\":\"$(echo -n "${{ github.actor }}:${GITHUB_TOKEN}" | base64)\"}}}" > ~/.docker/config.json
+
+            # Secure the token file
+            rm github_token.txt
+
+            # Create/update environment file
+            cat > .env << EOF
+            REGISTRY=${{ env.REGISTRY }}
+            ROOT_DOMAIN=${{ secrets.ROOT_DOMAIN }}
+            CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
+            ZONE_ID=${{ secrets.ZONE_ID }}
+            CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+            EOF
+
+            # Also copy environment file to .docker directory for convenience
+            cp .env .docker/.env
+
+            # Copy the docker-compose file content
+            cat > .docker/compose.yaml << 'EOF'
+            services:
+              fcoder-cloudflare-tunnel:
+                container_name: fcoder-cloudflare-tunnel
+                image: cloudflare/cloudflared
+                restart: unless-stopped
+                command: tunnel run
+                profiles:
+                  - prod
+                environment:
+                  - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+                networks:
+                  - fcoder-traefik-internal
+
+              fcoder-traefik:
+                container_name: fcoder-traefik
+                image: traefik:v2.10
+                restart: always
+                command:
+                  - "--log"
+                  - "--entrypoints.web.address=:80"
+                  - "--entrypoints.websecure.address=:443"
+                  - "--api.dashboard=true"
+                  - "--api.insecure=true"
+                  - "--providers.docker=true"
+                  - "--providers.docker.exposedbydefault=false"
+                  - "--log.level=${LOG_LEVEL:-INFO}"
+                  - "--accesslog=true"
+                  - "--serversTransport.insecureSkipVerify=true"
+                ports:
+                  - "80:80"
+                  - "443:443"
+                profiles:
+                  - prod
+                volumes:
+                  - "/var/run/docker.sock:/var/run/docker.sock"
+                environment:
+                  - CF_DNS_API_TOKEN=${CF_API_TOKEN}
+                networks:
+                  - fcoder-networks
+                  - fcoder-traefik-internal
+
+              fcoder-cloudflare-companion:
+                container_name: fcoder-cloudflare-companion
+                image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:latest
+                volumes:
+                  - /var/run/docker.sock:/var/run/docker.sock
+                environment:
+                  - TIMEZONE=Asia/Ho_Chi_Minh
+                  - LOG_TYPE=CONSOLE
+                  - LOG_LEVEL=INFO
+                  - TRAEFIK_VERSION=2
+                  - RC_TYPE=CNAME
+                  - TARGET_DOMAIN=${ROOT_DOMAIN}
+                  - REFRESH_ENTRIES=TRUE
+                  - ENABLE_TRAEFIK_POLL=TRUE
+                  - TRAEFIK_POLL_URL=http://fcoder-traefik/api
+                  - TRAEFIK_FILTER_LABEL=traefik.constraint
+                  - TRAEFIK_FILTER=proxy-public
+                  - CF_TOKEN=${CF_API_TOKEN}
+                  - DOMAIN1=${ROOT_DOMAIN}
+                  - DOMAIN1_ZONE_ID=${ZONE_ID}
+                  - DOMAIN1_PROXIED=TRUE
+                restart: always
+                networks:
+                  - fcoder-traefik-internal
+                profiles:
+                  - prod
+
+              fcoder-forum-frontend:
+                container_name: fcoder-forum-frontend
+                image: "${REGISTRY}/fcoder-forum-frontend:latest"
+                restart: always
+                labels:
+                  - "traefik.enable=true"
+                  - "traefik.docker.network=fcoder-networks"
+                  - "traefik.constraint=proxy-public"
+                  - "traefik.http.routers.fcoder-forum-frontend.rule=Host(`${ROOT_DOMAIN}`)"
+                  - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
+                  - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
+                networks:
+                  - fcoder-networks
+                profiles:
+                  - prod
+
+            networks:
+              fcoder-networks:
+                name: fcoder_networks
+                driver: bridge
+              fcoder-traefik-internal:
+                name: fcoder_traefik_internal
+                driver: bridge
+            EOF
+
+            # Login to GitHub Container Registry with proper method
+            echo "${GITHUB_TOKEN}" | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Copy docker config to root user for sudo operations
+            sudo mkdir -p /root/.docker
+            sudo cp ~/.docker/config.json /root/.docker/config.json
+
+            # Clean up existing containers and images
+            echo "=== Cleaning up existing resources ==="
+            sudo docker compose -f .docker/compose.yaml --env-file .env --profile prod down || true
+            sudo docker system prune -af
+
+            # Try to pull your image directly to verify it works
+            echo "=== Testing Image Pull ==="
+            sudo docker pull ${REGISTRY}/fcoder-forum-frontend:latest
+
+            # Run docker compose with the explicit env-file flag
+            echo "=== Starting Services ==="
+            sudo docker compose -f .docker/compose.yaml --env-file .env --profile prod up -d
+
+            # Check running containers
+            echo "=== Running Containers ==="
+            sudo docker ps
+
+            # Display logs if there's an issue
+            if ! sudo docker ps | grep fcoder-forum-frontend; then
+              echo "=== Forum frontend container failed to start - showing logs ==="
+              sudo docker logs fcoder-forum-frontend || echo "No logs available"
+            else
+              echo "=== Forum frontend container successfully started ==="
+            fi

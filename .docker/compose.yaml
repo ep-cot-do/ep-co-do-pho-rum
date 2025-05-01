@@ -1,0 +1,91 @@
+services:
+  fcoder-cloudflare-tunnel:
+    container_name: fcoder-cloudflare-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    profiles:
+      - prod
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - fcoder-traefik-internal
+
+  fcoder-traefik:
+    container_name: fcoder-traefik
+    image: traefik:v2.10
+    restart: always
+    command:
+      - "--log"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--log.level=${LOG_LEVEL:-INFO}"
+      - "--accesslog=true"
+      - "--serversTransport.insecureSkipVerify=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    profiles:
+      - prod
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_API_TOKEN}
+    networks:
+      - fcoder-networks
+      - fcoder-traefik-internal
+
+  fcoder-cloudflare-companion:
+    container_name: fcoder-cloudflare-companion
+    image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TIMEZONE=Asia/Ho_Chi_Minh
+      - LOG_TYPE=CONSOLE
+      - LOG_LEVEL=INFO
+      - TRAEFIK_VERSION=2
+      - RC_TYPE=CNAME
+      - TARGET_DOMAIN=${ROOT_DOMAIN}
+      - REFRESH_ENTRIES=TRUE
+      - ENABLE_TRAEFIK_POLL=TRUE
+      - TRAEFIK_POLL_URL=http://fcoder-traefik/api
+      - TRAEFIK_FILTER_LABEL=traefik.constraint
+      - TRAEFIK_FILTER=proxy-public
+      - CF_TOKEN=${CF_API_TOKEN}
+      - DOMAIN1=${ROOT_DOMAIN}
+      - DOMAIN1_ZONE_ID=${ZONE_ID}
+      - DOMAIN1_PROXIED=TRUE
+    restart: always
+    networks:
+      - fcoder-traefik-internal
+    profiles:
+      - prod
+
+  fcoder-forum-frontend:
+    container_name: fcoder-forum-frontend
+    image: ${REGISTRY}/fcoder-forum-frontend:latest
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=fcoder-networks"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.fcoder-forum-frontend.rule=Host(`${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
+      - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
+    networks:
+      fcoder-networks:
+    profiles:
+      - prod
+
+networks:
+  fcoder-networks:
+    name: fcoder_networks
+    driver: bridge
+  fcoder-traefik-internal:
+    name: fcoder_traefik_internal
+    driver: bridge
