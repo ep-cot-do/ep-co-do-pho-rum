@@ -1,0 +1,110 @@
+version: "3.8"
+
+services:
+  # Spring Boot Application
+  fcoder-app:
+    container_name: fcoder_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - fcoder-postgres
+      - fcoder-redis
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: fcoder-postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: fcoder-redis
+      SPRING_PROFILE: prod
+      ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
+      REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      SWAGGER_URL: ${SWAGGER_URL}
+      # Add any other environment variables needed by your application
+      PAYMENT_CALLBACK: ${PAYMENT_CALLBACK:-http://localhost:3000/checkout}
+      FORGOT_PASSWORD_CALLBACK: ${FORGOT_PASSWORD_CALLBACK:-http://localhost:3000/forgot-password}
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # PostgreSQL Database
+  fcoder-postgres:
+    container_name: fcoder_postgres
+    image: "postgres:16"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # PgAdmin for database management
+  fcoder-pgadmin4:
+    container_name: fcoder_pgadmin4
+    image: elestio/pgadmin:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: 5050
+    networks:
+      - fcoder-networks
+    ports:
+      - "5050:5050"
+    depends_on:
+      - fcoder-postgres
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  # Redis for caching
+  fcoder-redis:
+    container_name: fcoder_redis
+    image: "redis:latest"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  fcoder-networks:
+    name: fcoder_networks
+
+volumes:
+  postgres-data:
+    name: fcoder_postgres_data
+  pgadmin-data:
+    name: fcoder_pgadmin_data
+  redis-data:
+    name: fcoder_redis_data

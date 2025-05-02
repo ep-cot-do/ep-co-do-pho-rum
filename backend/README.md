@@ -93,3 +93,9 @@ After run the project then enter this link to access swagger API
 http://localhost:8080/api/v1/swagger-ui/index.html
 
 ```
+
+### IF YOU WANT TO RUN THE PROJECT COMPLETELY
+
+```
+docker compose -f compose.prod.yaml --env-file .env -p fcoder-forum up -d
+```
