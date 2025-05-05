@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.ArrayList;
 import java.util.List;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${swagger-url}")
+    @Value("${swagger-url:}")
     private String swaggerUrl;
 
     @Value("${server.servlet.context-path}")
@@ -27,17 +28,22 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         List<Server> serverList = new ArrayList<>();
 
-        // Local server - remove the context path from here since it's already included in Swagger UI
+        // Local server
         var localServer = new Server();
-        localServer.setUrl(String.format("http://localhost:%s", port));
+        localServer.setUrl("http://localhost:" + port);
         localServer.setDescription("Local Development Server");
         serverList.add(localServer);
 
         // Production server if available
-        if (!"null".equals(swaggerUrl)) {
+        if (
+            swaggerUrl != null &&
+            !swaggerUrl.isEmpty() &&
+            !"null".equals(swaggerUrl)
+        ) {
             var server = new Server();
-            // Do not append the context path here
-            server.setUrl(swaggerUrl.replace(contextPath, ""));
+            // Use the base URL without context path
+            String baseUrl = swaggerUrl.replace("/api/v1", "");
+            server.setUrl(baseUrl);
             server.setDescription("Production API Server");
             serverList.add(server);
         }
@@ -62,5 +68,13 @@ public class SwaggerConfig {
 
         openAPI.servers(serverList);
         return openAPI;
+    }
+
+    @Bean
+    public GroupedOpenApi publicApi() {
+        return GroupedOpenApi.builder()
+            .group("public-api")
+            .pathsToMatch("/**")
+            .build();
     }
 }
