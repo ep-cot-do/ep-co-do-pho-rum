@@ -9,15 +9,15 @@ services:
       - build
       - client
 
-  # fcoder-forum-backend:
-  #   image: ${REGISTRY}/fcoder-forum-backend:latest
-  #   build:
-  #     context: ../backend
-  #     dockerfile: Dockerfile
+  fcoder-forum-backend:
+    image: ${REGISTRY}/fcoder-forum-backend:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
 
-  #   profiles:
-  #     - build
-  #     - server
+    profiles:
+      - build
+      - server
 
   # fcoder-forum-ai:
   #   image: ${REGISTRY}/fcoder-forum-ai:latest
