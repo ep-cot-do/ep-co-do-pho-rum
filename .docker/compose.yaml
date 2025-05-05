@@ -23,7 +23,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--log.level=${LOG_LEVEL:-INFO}"
+      - "--log.level=DEBUG" # Change to DEBUG for more info
       - "--accesslog=true"
       - "--serversTransport.insecureSkipVerify=true"
     ports:
@@ -130,33 +130,33 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - fcoder-forum-postgres # Fixed dependency name
-      - fcoder-forum-redis # Fixed dependency name
+      - fcoder-forum-postgres
+      - fcoder-forum-redis
     environment:
-      DB_HOST: fcoder-forum-postgres # Fixed host name
+      DB_HOST: fcoder-forum-postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      REDIS_HOST: fcoder-forum-redis # Fixed host name
+      REDIS_HOST: fcoder-forum-redis
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
       SPRING_PROFILE: prod
       ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
       REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-      SWAGGER_URL: "https://api.${ROOT_DOMAIN}/swagger-ui/index.html" # Removed /api/v1 from URL
+      SWAGGER_URL: "https://api.${ROOT_DOMAIN}/api/v1/swagger-ui/index.html"
       PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
       FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=fcoder-networks"
       - "traefik.constraint=proxy-public"
+      # Updated router rule with fixed name and path prefix
       - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
       - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.fcoder-forum-backend-prefix.addprefix.prefix=/api/v1"
-      - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-forum-backend-prefix"
+      # No middleware needed, keep the request path intact
     networks:
       - fcoder-networks
     healthcheck:

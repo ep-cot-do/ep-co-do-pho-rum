@@ -168,7 +168,7 @@ jobs:
                   - "--api.insecure=true"
                   - "--providers.docker=true"
                   - "--providers.docker.exposedbydefault=false"
-                  - "--log.level=${LOG_LEVEL:-INFO}"
+                  - "--log.level=DEBUG"
                   - "--accesslog=true"
                   - "--serversTransport.insecureSkipVerify=true"
                 ports:
@@ -290,7 +290,7 @@ jobs:
                   REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
                   MAIL_USERNAME: ${MAIL_USERNAME}
                   MAIL_PASSWORD: ${MAIL_PASSWORD}
-                  SWAGGER_URL: "https://api.${ROOT_DOMAIN}/swagger-ui/index.html"
+                  SWAGGER_URL: "https://api.${ROOT_DOMAIN}/api/v1/swagger-ui/index.html"
                   PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
                   FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
                 labels:
@@ -300,8 +300,6 @@ jobs:
                   - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
                   - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
                   - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
-                  - "traefik.http.middlewares.fcoder-forum-backend-prefix.addprefix.prefix=/api/v1"
-                  - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-forum-backend-prefix"
                 networks:
                   - fcoder-networks
                 healthcheck:
