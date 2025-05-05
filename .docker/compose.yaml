@@ -157,6 +157,8 @@ services:
       - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
       - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
       # No middleware needed, keep the request path intact
+      - "traefik.http.middlewares.fcoder-api-strip.stripprefix.prefixes=/api/v1"
+      - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-api-strip@docker"
     networks:
       - fcoder-networks
     healthcheck:
