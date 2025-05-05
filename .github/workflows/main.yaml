@@ -300,8 +300,6 @@ jobs:
                   - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
                   - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
                   - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
-                  - "traefik.http.middlewares.fcoder-api-strip.stripprefix.prefixes=/api/v1"
-                  - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-api-strip@docker"
                 networks:
                   - fcoder-networks
                 healthcheck:
