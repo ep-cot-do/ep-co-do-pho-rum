@@ -155,8 +155,8 @@ services:
       - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
       - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.fcoder-app-stripprefix.stripprefix.prefixes=/api/v1"
-      - "traefik.http.routers.fcoder-app.middlewares=fcoder-app-stripprefix"
+      - "traefik.http.middlewares.fcoder-forum-backend-stripprefix.stripprefix.prefixes=/api/v1"
+      - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-forum-backend-stripprefix"
     networks:
       - fcoder-networks
     healthcheck:
