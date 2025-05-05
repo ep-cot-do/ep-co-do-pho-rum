@@ -51,6 +51,14 @@ springdoc:
     filter: true
     path: /swagger-ui
     url: /api-docs
+    disable-swagger-default-url: true
+    # Add this configuration to set the proper server URL
+    config-url: /api/v1/api-docs/swagger-config
+    # These settings help with URL path construction
+    use-root-path: true
+    display-request-duration: true
+    path-mapping:
+    api: ""
 
 base-urls:
   api: ${BASE_URL_API:null}
