@@ -228,8 +228,8 @@ jobs:
                   - prod
 
               # Backend PostgreSQL Database
-              fcoder-postgres:
-                container_name: fcoder_postgres
+              fcoder-forum-postgres:
+                container_name: fcoder-forum-postgres
                 image: "postgres:16"
                 environment:
                   POSTGRES_DB: ${DB_NAME}
@@ -250,8 +250,8 @@ jobs:
                   - prod
 
               # Redis for caching
-              fcoder-redis:
-                container_name: fcoder_redis
+              fcoder-forum-redis:
+                container_name: fcoder-forum-redis
                 image: "redis:latest"
                 command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
                 restart: always
