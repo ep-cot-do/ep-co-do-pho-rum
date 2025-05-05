@@ -50,7 +50,7 @@ springdoc:
     tags-sorter: alpha
     filter: true
     path: /swagger-ui
-    url: /api/v1/api-docs
+    url: /api-docs
 
 base-urls:
   api: ${BASE_URL_API:null}
