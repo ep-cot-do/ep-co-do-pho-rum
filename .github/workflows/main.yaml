@@ -117,19 +117,31 @@ jobs:
             # Secure the token file
             rm github_token.txt
 
-            # Create/update environment file
+            # Create/update environment file with additional backend variables
             cat > .env << EOF
             REGISTRY=${{ env.REGISTRY }}
             ROOT_DOMAIN=${{ secrets.ROOT_DOMAIN }}
             CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
             ZONE_ID=${{ secrets.ZONE_ID }}
             CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+
+            # Backend database configuration
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+
+            # Application secrets
+            ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
+            REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             EOF
 
             # Also copy environment file to .docker directory for convenience
             cp .env .docker/.env
 
-            # Copy the docker-compose file content
+            # Copy the docker-compose file content with backend services
             cat > .docker/compose.yaml << 'EOF'
             services:
               fcoder-cloudflare-tunnel:
@@ -203,8 +215,6 @@ jobs:
                 container_name: fcoder-forum-frontend
                 image: "${REGISTRY}/fcoder-forum-frontend:latest"
                 restart: always
-                ports:
-                  - "3000:3000"  # Expose port directly for testing
                 labels:
                   - "traefik.enable=true"
                   - "traefik.docker.network=fcoder-networks"
@@ -217,6 +227,88 @@ jobs:
                 profiles:
                   - prod
 
+              # Backend PostgreSQL Database
+              fcoder-postgres:
+                container_name: fcoder_postgres
+                image: "postgres:16"
+                environment:
+                  POSTGRES_DB: ${DB_NAME}
+                  POSTGRES_USER: ${DB_USERNAME}
+                  POSTGRES_PASSWORD: ${DB_PASSWORD}
+                volumes:
+                  - postgres-data:/var/lib/postgresql/data
+                restart: always
+                networks:
+                  - fcoder-networks
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
+                  start_period: 10s
+                profiles:
+                  - prod
+
+              # Redis for caching
+              fcoder-redis:
+                container_name: fcoder_redis
+                image: "redis:latest"
+                command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
+                restart: always
+                volumes:
+                  - redis-data:/data
+                networks:
+                  - fcoder-networks
+                healthcheck:
+                  test: ["CMD", "redis-cli", "ping"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
+                profiles:
+                  - prod
+
+              # Spring Boot Application
+              fcoder-forum-backend:
+                container_name: fcoder-forum-backend
+                image: "${REGISTRY}/fcoder-forum-backend:latest"
+                restart: always
+                depends_on:
+                  - fcoder-postgres
+                  - fcoder-redis
+                environment:
+                  DB_HOST: fcoder-postgres
+                  DB_PORT: 5432
+                  DB_NAME: ${DB_NAME}
+                  DB_USERNAME: ${DB_USERNAME}
+                  DB_PASSWORD: ${DB_PASSWORD}
+                  REDIS_HOST: fcoder-redis
+                  REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+                  SPRING_PROFILE: prod
+                  ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
+                  REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
+                  MAIL_USERNAME: ${MAIL_USERNAME}
+                  MAIL_PASSWORD: ${MAIL_PASSWORD}
+                  SWAGGER_URL: "https://api.${ROOT_DOMAIN}/swagger-ui.html"
+                  PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
+                  FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
+                labels:
+                  - "traefik.enable=true"
+                  - "traefik.docker.network=fcoder-networks"
+                  - "traefik.constraint=proxy-public"
+                  - "traefik.http.routers.fcoder-app.rule=Host(`api.${ROOT_DOMAIN}`)"
+                  - "traefik.http.routers.fcoder-app.entrypoints=web"
+                  - "traefik.http.services.fcoder-app.loadbalancer.server.port=8080"
+                networks:
+                  - fcoder-networks
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 5
+                  start_period: 60s
+                profiles:
+                  - prod
+
             networks:
               fcoder-networks:
                 name: fcoder_networks
@@ -224,6 +316,12 @@ jobs:
               fcoder-traefik-internal:
                 name: fcoder_traefik_internal
                 driver: bridge
+
+            volumes:
+              postgres-data:
+                name: fcoder_postgres_data
+              redis-data:
+                name: fcoder_redis_data
             EOF
 
             # Login to GitHub Container Registry with proper method
@@ -238,9 +336,10 @@ jobs:
             sudo docker compose -f .docker/compose.yaml --env-file .env --profile prod down || true
             sudo docker system prune -af
 
-            # Try to pull your image directly to verify it works
+            # Try to pull your images directly to verify they work
             echo "=== Testing Image Pull ==="
             sudo docker pull ${REGISTRY}/fcoder-forum-frontend:latest
+            sudo docker pull ${REGISTRY}/fcoder-forum-backend:latest
 
             # Run docker compose with the explicit env-file flag
             echo "=== Starting Services ==="
@@ -250,10 +349,17 @@ jobs:
             echo "=== Running Containers ==="
             sudo docker ps
 
-            # Display logs if there's an issue
+            # Display logs if there are issues
             if ! sudo docker ps | grep fcoder-forum-frontend; then
               echo "=== Forum frontend container failed to start - showing logs ==="
               sudo docker logs fcoder-forum-frontend || echo "No logs available"
             else
               echo "=== Forum frontend container successfully started ==="
+            fi
+
+            if ! sudo docker ps | grep fcoder-forum-backend; then
+              echo "=== Forum backend container failed to start - showing logs ==="
+              sudo docker logs fcoder-forum-backend || echo "No logs available"
+            else
+              echo "=== Forum backend container successfully started ==="
             fi

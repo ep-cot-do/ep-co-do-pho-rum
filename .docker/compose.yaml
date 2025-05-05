@@ -68,7 +68,7 @@ services:
 
   fcoder-forum-frontend:
     container_name: fcoder-forum-frontend
-    image: ${REGISTRY}/fcoder-forum-frontend:latest
+    image: "${REGISTRY}/fcoder-forum-frontend:latest"
     restart: always
     labels:
       - "traefik.enable=true"
@@ -78,7 +78,90 @@ services:
       - "traefik.http.routers.fcoder-forum-frontend.entrypoints=web"
       - "traefik.http.services.fcoder-forum-frontend.loadbalancer.server.port=3000"
     networks:
-      fcoder-networks:
+      - fcoder-networks
+    profiles:
+      - prod
+
+  # Backend PostgreSQL Database
+  fcoder-forum-postgres:
+    container_name: fcoder-forum-postgres
+    image: "postgres:16"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles:
+      - prod
+
+  # Redis for caching
+  fcoder-forum-redis:
+    container_name: fcoder-forum-redis
+    image: "redis:latest"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
+    restart: always
+    volumes:
+      - redis-data:/data
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - prod
+
+  # Spring Boot Application
+  fcoder-forum-backend:
+    container_name: fcoder-forum-backend
+    image: "${REGISTRY}/fcoder-forum-backend:latest"
+    restart: always
+    depends_on:
+      - fcoder-postgres
+      - fcoder-redis
+    environment:
+      DB_HOST: fcoder-postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: fcoder-redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
+      SPRING_PROFILE: prod
+      ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
+      REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      SWAGGER_URL: "https://api.${ROOT_DOMAIN}/swagger-ui.html"
+      PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
+      FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=fcoder-networks"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
+      - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
+    networks:
+      - fcoder-networks
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     profiles:
       - prod
 
@@ -89,3 +172,9 @@ networks:
   fcoder-traefik-internal:
     name: fcoder_traefik_internal
     driver: bridge
+
+volumes:
+  postgres-data:
+    name: fcoder_postgres_data
+  redis-data:
+    name: fcoder_redis_data
