@@ -275,22 +275,22 @@ jobs:
                 ports:
                   - "8080:8080"
                 depends_on:
-                  - fcoder-postgres
-                  - fcoder-redis
+                  - fcoder-forum-postgres
+                  - fcoder-forum-redis
                 environment:
-                  DB_HOST: fcoder-postgres
+                  DB_HOST: fcoder-forum-postgres
                   DB_PORT: 5432
                   DB_NAME: ${DB_NAME}
                   DB_USERNAME: ${DB_USERNAME}
                   DB_PASSWORD: ${DB_PASSWORD}
-                  REDIS_HOST: fcoder-redis
+                  REDIS_HOST: fcoder-forum-redis
                   REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
                   SPRING_PROFILE: prod
                   ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
                   REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
                   MAIL_USERNAME: ${MAIL_USERNAME}
                   MAIL_PASSWORD: ${MAIL_PASSWORD}
-                  SWAGGER_URL: "https://api.${ROOT_DOMAIN}/api/v1/swagger-ui/index.html"
+                  SWAGGER_URL: "https://api.${ROOT_DOMAIN}/swagger-ui/index.html"
                   PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
                   FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
                 labels:
@@ -300,8 +300,8 @@ jobs:
                   - "traefik.http.routers.fcoder-forum-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
                   - "traefik.http.routers.fcoder-forum-backend.entrypoints=web"
                   - "traefik.http.services.fcoder-forum-backend.loadbalancer.server.port=8080"
-                  - "traefik.http.middlewares.fcoder-forum-backend-stripprefix.stripprefix.prefixes=/api/v1"
-                  - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-forum-backend-stripprefix"
+                  - "traefik.http.middlewares.fcoder-forum-backend-prefix.addprefix.prefix=/api/v1"
+                  - "traefik.http.routers.fcoder-forum-backend.middlewares=fcoder-forum-backend-prefix"
                 networks:
                   - fcoder-networks
                 healthcheck:
