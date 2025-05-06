@@ -25,9 +25,6 @@ public class CorsConfig {
     @Value("${swagger-url}")
     private String swaggerUrl;
 
-    @Value("${base-urls.root-host:}")
-    private String rootHost;
-
     @Bean
     WebMvcConfigurer corsConfigure() {
         return new WebMvcConfigurer() {
@@ -92,14 +89,8 @@ public class CorsConfig {
     private String[] getCorsAllowed() {
         List<String> corsAllowOrigins = new ArrayList<>();
         corsAllowOrigins.add("http://localhost:3000");
-
-        // add domain and subdomains if root host is defined
-        if (
-            rootHost != null && !rootHost.isEmpty() && !"\"\"".equals(rootHost)
-        ) {
-            corsAllowOrigins.add("https://" + rootHost);
-            corsAllowOrigins.add("https://api." + rootHost);
-        }
+        corsAllowOrigins.add("https://fcoder.io.vn"); // main domain
+        corsAllowOrigins.add("https://api.fcoder.io.vn"); // API subdomain
 
         if (!"null".equals(allowOrigin)) corsAllowOrigins.add(allowOrigin);
         if (!"null".equals(swaggerUrl)) corsAllowOrigins.add(swaggerUrl);
