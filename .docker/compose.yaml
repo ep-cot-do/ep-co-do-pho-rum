@@ -145,7 +145,7 @@ services:
       REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-      SWAGGER_URL: "https://api.${ROOT_DOMAIN}/api/v1/swagger-ui/index.html"
+      SWAGGER_URL: "https://api.${ROOT_DOMAIN}"
       PAYMENT_CALLBACK: "https://${ROOT_DOMAIN}/checkout"
       FORGOT_PASSWORD_CALLBACK: "https://${ROOT_DOMAIN}/forgot-password"
     labels:
