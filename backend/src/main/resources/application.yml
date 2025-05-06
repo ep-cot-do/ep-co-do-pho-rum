@@ -55,7 +55,7 @@ springdoc:
 base-urls:
   api: ${BASE_URL_API:null}
   front-end: ${FRONTEND_URL:null}
-  origin-allows: ${ORIGIN_ALLOWED:""}
+  origin-allows: ${ORIGIN_ALLOWED:"https://fcoder.io.vn"}
   root-host: ${ROOT_HOST:""}
 
 access-token:
