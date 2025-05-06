@@ -26,29 +26,20 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         List<Server> serverList = new ArrayList<>();
-
-        // For local development - use the exact path without concatenating contextPath
         var localServer = new Server();
-        localServer.setUrl(String.format("http://localhost:%s", port));
-        localServer.setDescription("Local Server");
+        localServer.setUrl(
+            String.format("http://localhost:%s%s", port, contextPath)
+        );
         serverList.add(localServer);
-
-        // For production - use the exact server URL without concatenating contextPath
         if (!"null".equals(swaggerUrl)) {
             var server = new Server();
-            // Remove the path concatenation here - API calls will be relative to this base
-            server.setUrl(
-                swaggerUrl.replace("/api/v1/swagger-ui/index.html", "")
-            );
-            server.setDescription("Production Server");
+            server.setUrl(String.format("%s%s", swaggerUrl, contextPath));
             serverList.add(server);
         }
-
         Info info = new Info()
             .title("Fcoder API")
             .version("1.0")
             .description("Fcoder API Documentation");
-
         var openAPI = new OpenAPI()
             .info(info)
             .components(
@@ -61,7 +52,6 @@ public class SwaggerConfig {
                             .name("ACCESS_TOKEN")
                     )
             );
-
         openAPI.servers(serverList);
         return openAPI;
     }
