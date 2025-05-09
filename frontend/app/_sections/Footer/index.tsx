@@ -34,22 +34,22 @@ export default function Footer() {
   ];
 
   return (
-    <footer className={`border-t ${isDark ? 'border-gray-800' : 'border-gray-200'} py-8 mt-auto`}>
-      <div className="max-w-7xl mx-auto px-5">
+    <footer className={`border-t ${isDark ? 'border-zinc-800' : 'border-zinc-200'} py-8 mt-auto`}>
+      <div className="w-full mx-auto px-5">
         <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
           {/* Brand section with logo and description */}
           <div className="flex-1 max-w-md">
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-2 rounded-md ${isDark ? 'bg-blue-900' : 'bg-blue-100'}`}>
+              <div className={`p-2 rounded-md ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}>
                 <IconCode
                   size={20}
-                  className={isDark ? 'text-blue-300' : 'text-blue-700'}
+                  className={isDark ? 'text-violet-300' : 'text-violet-700'}
                   stroke={2}
                 />
               </div>
               <div className="font-bold text-xl">Fcoder</div>
             </div>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
               Empowering developers through community and resources.
               Learn, build, and grow with us.
             </p>
@@ -66,8 +66,8 @@ export default function Footer() {
                     key={socialLink.name}
                     href={socialLink.href}
                     className={`p-2 rounded-md transition-colors flex items-center gap-2 ${isDark
-                      ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
+                      : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
                       }`}
                     title={socialLink.name}
                     aria-label={`Visit our ${socialLink.name} page`}
@@ -84,12 +84,12 @@ export default function Footer() {
         </div>
 
         {/* Copyright section */}
-        <div className={`pt-6 border-t ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col sm:flex-row justify-between items-center gap-4`}>
-          <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+        <div className={`pt-6 border-t ${isDark ? 'border-zinc-800' : 'border-zinc-200'} flex flex-col sm:flex-row justify-between items-center gap-4`}>
+          <p className={`text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             © {new Date().getFullYear()} Fcoder. All rights reserved.
           </p>
           <div className="flex items-center">
-            <span className={`flex items-center text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <span className={`flex items-center text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
               Made with
               <IconHeart
                 size={16}

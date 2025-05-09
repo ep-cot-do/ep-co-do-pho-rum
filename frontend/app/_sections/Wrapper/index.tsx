@@ -45,7 +45,7 @@ export default function LayoutWrapper({
   const isDark = theme === "dark";
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDark ? "bg-gray-900" : "bg-white"}`}>
+    <div className={`flex flex-col min-h-screen ${isDark ? "bg-zinc-900" : "bg-white"}`}>
       {showHeader && <Header />}
 
       <main
