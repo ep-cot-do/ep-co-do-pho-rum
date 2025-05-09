@@ -9,9 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.31.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.10.4",
+    "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
     "typescript": "^5",
@@ -19,7 +23,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.5",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "@eslint/eslintrc": "^3"
