@@ -2,20 +2,20 @@
 
 import { useState } from 'react';
 import LayoutWrapper from "../_sections/Wrapper";
-import AchievementSection, { AchievementItem } from "../_sections/Achievement";
+// import AchievementSection, { AchievementItem } from "../_sections/Achievement";
 import { useTheme } from "../_contexts/ThemeContext";
-import { IconMessageCircle, IconHeart, IconShare3, IconEdit, IconFilter, IconHash } from "@tabler/icons-react";
+import { IconHeart, IconEdit, IconFilter, IconHash } from "@tabler/icons-react";
 // import Image from 'next/image';
 import Modal from "../_components/reusable/modal";
 
 // Sample achievements data
-const achievements: AchievementItem[] = [
-  { name: "Nguyen Hoang Khang", description: "Accepted AI paper", level: "gold" },
-  { name: "Nguyen Vu Nhu Huynh", description: "Accepted AI paper", level: "gold" },
-  { name: "Tran Cong Luan", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Lam Tan Phat", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
-];
+// const achievements: AchievementItem[] = [
+//   { name: "Nguyen Hoang Khang", description: "Accepted AI paper", level: "gold" },
+//   { name: "Nguyen Vu Nhu Huynh", description: "Accepted AI paper", level: "gold" },
+//   { name: "Tran Cong Luan", description: "Second place in FPTU Code Arena", level: "silver" },
+//   { name: "Lam Tan Phat", description: "Second place in FPTU Code Arena", level: "silver" },
+//   { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
+// ];
 
 // Sample forum posts data
 const initialPosts = [
@@ -191,13 +191,8 @@ export default function Forum() {
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-        {/* Achievements Section - Left sidebar */}
-        <div className="w-full lg:w-1/5 order-2 lg:order-1">
-          <AchievementSection achievements={achievements} useGrid={true} />
-        </div>
-
         {/* Forum Feed - Main content */}
-        <div className="w-full lg:w-3/5 order-1 lg:order-2">
+        <div className="w-full order-1 lg:order-2">
           {/* New Post Button */}
           <div className="mb-4">
             <button
@@ -300,18 +295,6 @@ export default function Forum() {
                       />
                       <span>{post.likes}</span>
                     </button>
-
-                    <button className={`flex items-center gap-2 text-sm ${isDark ? 'text-zinc-400 hover:text-zinc-300' : 'text-zinc-500 hover:text-zinc-700'
-                      }`}>
-                      <IconMessageCircle size={18} stroke={1.5} />
-                      <span>{post.comments}</span>
-                    </button>
-
-                    <button className={`flex items-center gap-2 text-sm ${isDark ? 'text-zinc-400 hover:text-zinc-300' : 'text-zinc-500 hover:text-zinc-700'
-                      }`}>
-                      <IconShare3 size={18} stroke={1.5} />
-                      <span>{post.reposts}</span>
-                    </button>
                   </div>
                 </article>
               ))
@@ -328,7 +311,7 @@ export default function Forum() {
 
         {/* Categories Section - Right sidebar */}
         <div className="w-full lg:w-1/5 order-3">
-          <div className={`p-4 rounded-xl sticky top-20 ${isDark ? 'bg-zinc-800/30' : 'bg-white shadow-sm border border-zinc-100'
+          <div className={`p-4 rounded-xl sticky top-30 ${isDark ? 'bg-zinc-800/30' : 'bg-white shadow-sm border border-zinc-100'
             }`}>
             <div className="flex items-center gap-2 mb-4">
               <IconHash size={18} className={isDark ? 'text-violet-400' : 'text-violet-600'} />

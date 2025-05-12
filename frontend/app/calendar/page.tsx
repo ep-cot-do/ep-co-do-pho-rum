@@ -2,19 +2,10 @@
 
 import { useState } from 'react';
 import LayoutWrapper from "../_sections/Wrapper";
-import AchievementSection, { AchievementItem } from "../_sections/Achievement";
+// import AchievementSection, { AchievementItem } from "../_sections/Achievement";
 import { useTheme } from "../_contexts/ThemeContext";
 import Modal from "../_components/reusable/modal";
 import { IconCalendar, IconChevronLeft, IconChevronRight, IconInfoCircle } from "@tabler/icons-react";
-
-// Sample achievements data
-const achievements: AchievementItem[] = [
-  { name: "Nguyen Hoang Khang", description: "Accepted AI paper", level: "gold" },
-  { name: "Nguyen Vu Nhu Huynh", description: "Accepted AI paper", level: "gold" },
-  { name: "Tran Cong Luan", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Lam Tan Phat", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
-];
 
 // Sample events data
 const eventData = [
@@ -182,7 +173,32 @@ export default function Calendar() {
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
         {/* Achievements Section - Grid on mobile, sidebar on desktop */}
         <div className="w-full lg:w-1/5 order-2 lg:order-1">
-          <AchievementSection achievements={achievements} useGrid={true} />
+          <div className={`p-4 rounded-xl ${isDark ? 'bg-zinc-800/30' : 'bg-white shadow-sm border border-zinc-100'}`}>
+            <div className="flex items-center gap-2 mb-4">
+              <IconInfoCircle size={20} className={isDark ? "text-violet-400" : "text-violet-600"} />
+              <h2 className="font-bold text-lg">Upcoming Events</h2>
+            </div>
+
+            <div className="space-y-4">
+              {upcomingEvents.map(event => (
+                <div
+                  key={event.id}
+                  className={`p-4 rounded-lg ${isDark ? 'bg-zinc-800/40' : 'bg-zinc-50'}`}
+                >
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                    <h3 className="font-medium text-lg">{event.title}</h3>
+                    <span className={`text-sm px-2 py-1 rounded inline-block ${isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-200 text-zinc-700'
+                      }`}>
+                      {event.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <p className={`mt-2 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                    {event.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Calendar Section - Main content */}
@@ -280,34 +296,6 @@ export default function Calendar() {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Upcoming Events Section */}
-          <div className={`mt-6 md:mt-8 p-4 rounded-xl ${isDark ? 'bg-zinc-800/30' : 'bg-white shadow-sm border border-zinc-100'}`}>
-            <div className="flex items-center gap-2 mb-4">
-              <IconInfoCircle size={20} className={isDark ? "text-violet-400" : "text-violet-600"} />
-              <h2 className="font-bold text-lg">Upcoming Events</h2>
-            </div>
-
-            <div className="space-y-4">
-              {upcomingEvents.map(event => (
-                <div
-                  key={event.id}
-                  className={`p-4 rounded-lg ${isDark ? 'bg-zinc-800/40' : 'bg-zinc-50'}`}
-                >
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                    <h3 className="font-medium text-lg">{event.title}</h3>
-                    <span className={`text-sm px-2 py-1 rounded inline-block ${isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-200 text-zinc-700'
-                      }`}>
-                      {event.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </span>
-                  </div>
-                  <p className={`mt-2 text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    {event.description}
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
         </div>

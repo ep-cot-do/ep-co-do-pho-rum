@@ -1,18 +1,18 @@
 "use client"
 
 import LayoutWrapper from "./_sections/Wrapper";
-import AchievementSection, { AchievementItem } from "./_sections/Achievement";
+// import AchievementSection, { AchievementItem } from "./_sections/Achievement";
 import { IconUser } from "@tabler/icons-react";
 import { useTheme } from "./_contexts/ThemeContext";
 
 // Fake data for demonstration
-const achievements: AchievementItem[] = [
-  { name: "Nguyen Hoang Khang", description: "Accepted AI paper", level: "gold" },
-  { name: "Nguyen Vu Nhu Huynh", description: "Accepted AI paper", level: "gold" },
-  { name: "Tran Cong Luan", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Lam Tan Phat", description: "Second place in FPTU Code Arena", level: "silver" },
-  { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
-];
+// const achievements: AchievementItem[] = [
+//   { name: "Nguyen Hoang Khang", description: "Accepted AI paper", level: "gold" },
+//   { name: "Nguyen Vu Nhu Huynh", description: "Accepted AI paper", level: "gold" },
+//   { name: "Tran Cong Luan", description: "Second place in FPTU Code Arena", level: "silver" },
+//   { name: "Lam Tan Phat", description: "Second place in FPTU Code Arena", level: "silver" },
+//   { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
+// ];
 
 const coreMembers = [
   { name: "Nguyen Kim Bao Nguyen", role: "President", description: "Current Fcoder's Generation 5 President" },
@@ -28,35 +28,11 @@ export default function Home() {
 
   return (
     <LayoutWrapper maxWidth="w-full">
-      {/* Hero Section */}
-      <section className="mb-8 md:mb-16">
-        <div className={`rounded-xl p-4 md:p-8 mb-6 md:mb-8 ${isDark ? 'bg-zinc-800/50' : 'bg-violet-50'}`}>
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">Welcome to the Fcoder Community</h1>
-            <p className={`text-base md:text-lg mb-4 md:mb-6 ${isDark ? 'text-zinc-300' : 'text-zinc-600'}`}>
-              Learn, build, and grow with fellow developers in a supportive community
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-              <button className={`px-4 md:px-6 py-2 md:py-3 rounded-md font-medium text-sm md:text-base ${isDark ? 'bg-violet-600 text-white hover:bg-violet-700' : 'bg-violet-600 text-white hover:bg-violet-700'}`}>
-                Join the Community
-              </button>
-              <button className={`px-4 md:px-6 py-2 md:py-3 rounded-md font-medium text-sm md:text-base ${isDark ? 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600' : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'}`}>
-                Explore Resources
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Achievements and Core Team - Responsive layout */}
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-        {/* Recent Achievements Section - Grid on mobile, sidebar on desktop */}
-        <div className="w-full lg:w-1/5 order-1 lg:order-1 mb-6 lg:mb-0">
-          <AchievementSection achievements={achievements} useGrid={true} />
-        </div>
-
         {/* Core Team Section - Full width on mobile, 4/5 on desktop */}
-        <section className="w-full lg:w-4/5 order-2 lg:order-2">
+        <section className="w-full">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
               <IconUser className={isDark ? "text-violet-400" : "text-violet-600"} size={22} stroke={1.5} />
@@ -64,7 +40,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
             {coreMembers.map((member, index) => (
               <div
                 key={index}
@@ -96,28 +72,6 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Community Stats Section */}
-      <section className={`mt-8 md:mt-12 p-4 md:p-8 rounded-xl ${isDark ? 'bg-zinc-800/20' : 'bg-zinc-50'}`}>
-        <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-center">Community Impact</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 text-center">
-          <div className="p-2 md:p-3">
-            <div className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>100+</div>
-            <div className={`mt-1 md:mt-2 text-sm md:text-base ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Active Members</div>
-          </div>
-          <div className="p-2 md:p-3">
-            <div className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>1+</div>
-            <div className={`mt-1 md:mt-2 text-sm md:text-base ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Weekly Events</div>
-          </div>
-          <div className="p-2 md:p-3">
-            <div className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>0+</div>
-            <div className={`mt-1 md:mt-2 text-sm md:text-base ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Learning Resources</div>
-          </div>
-          <div className="p-2 md:p-3">
-            <div className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>0+</div>
-            <div className={`mt-1 md:mt-2 text-sm md:text-base ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Partner Companies</div>
-          </div>
-        </div>
-      </section>
     </LayoutWrapper>
   );
 }
