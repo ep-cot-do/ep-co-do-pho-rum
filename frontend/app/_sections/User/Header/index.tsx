@@ -15,7 +15,7 @@ import {
   IconCode,
   IconLogin,
   IconMenu2,
-  IconChartBar,
+  IconHome,
 } from "@tabler/icons-react";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import { useModal } from "@/app/_contexts/ModalContext";
@@ -42,29 +42,29 @@ export default function Header() {
 
   const tabs: Tab[] = [
     {
-      name: "Insight",
-      icon: IconChartBar,
-      route: "/insights",
+      name: "Home",
+      icon: IconHome,
+      route: "/",
     },
     {
-      name: "Schedule",
+      name: "Calendar",
       icon: IconCalendar,
-      route: "/schedules",
+      route: "/calendar",
     },
     {
-      name: "Thread",
+      name: "Forum",
       icon: IconBrandThreads,
-      route: "/threads",
+      route: "/forum",
     },
     {
-      name: "Material",
+      name: "Resources",
       icon: IconFileSmile,
-      route: "/materials",
+      route: "/resources",
     },
     {
-      name: "Accomplishment",
+      name: "Achievement",
       icon: IconTrophy,
-      route: "/accomplishments",
+      route: "/achievement",
     },
   ];
 

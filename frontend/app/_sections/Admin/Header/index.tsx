@@ -40,27 +40,27 @@ export default function Header() {
     {
       name: "Insights",
       icon: IconChartBar,
-      route: "/admin",
+      route: "/admin/insights",
     },
     {
       name: "Schedules",
       icon: IconCalendar,
-      route: "/admin/schedule",
+      route: "/admin/schedules",
     },
     {
       name: "Threads",
       icon: IconBrandThreads,
-      route: "/admin/thread",
+      route: "/admin/threads",
     },
     {
       name: "Materials",
       icon: IconFileSmile,
-      route: "/admin/material",
+      route: "/admin/materials",
     },
     {
       name: "Accomplishments",
       icon: IconTrophy,
-      route: "/admin/accomplishment",
+      route: "/admin/accomplishments",
     },
   ];
 
