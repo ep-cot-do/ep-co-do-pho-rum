@@ -89,6 +89,7 @@ public class CorsConfig {
     private String[] getCorsAllowed() {
         List<String> corsAllowOrigins = new ArrayList<>();
         corsAllowOrigins.add("http://localhost:3000");
+        corsAllowOrigins.add("http://localhost:8080");
         corsAllowOrigins.add("https://fcoder.io.vn"); // main domain
         corsAllowOrigins.add("https://api.fcoder.io.vn"); // API subdomain
 

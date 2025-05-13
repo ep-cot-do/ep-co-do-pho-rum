@@ -38,8 +38,10 @@ public class AuthUtils {
         if (account.getRole() == null || account.getRole().getRoleName() == null) {
             return List.of();
         }
-        String role_name = account.getRole().getRoleName().toUpperCase();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role_name));
+        String roleName = account.getRole().getRoleName().toUpperCase();
+        // Always prefix with ROLE_ if not already present
+        roleName = roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
+        return List.of(new SimpleGrantedAuthority(roleName));
     }
 
     public static List<String> convertUserToRole(AccountEntity account) {

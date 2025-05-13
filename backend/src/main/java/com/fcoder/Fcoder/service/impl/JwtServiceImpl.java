@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,20 +41,27 @@ public class JwtServiceImpl implements JwtService {
         claims.put("user", claimInfo);
         return claims;
     }
-    public String generateToken(String username, List<String> role, JwtTokenType tokenType) {
+    public String generateToken(String username, List<String> roles, JwtTokenType tokenType) {
+        // Add debug logs to verify roles are being properly included
         Date currentDate = new Date(System.currentTimeMillis());
         Date expiryDate = null;
         if(tokenType == JwtTokenType.ACCESS_TOKEN) {
             expiryDate = new Date(currentDate.getTime() + jwtTokenConfig.getJwtExpiration());
-        }else if (tokenType == JwtTokenType.REFRESH_TOKEN) {
+        } else if (tokenType == JwtTokenType.REFRESH_TOKEN) {
             expiryDate = new Date(currentDate.getTime() + jwtTokenConfig.getJwtRefreshExpiration());
         }
+
+        // Ensure roles are prefixed with ROLE_
+        List<String> formattedRoles = roles.stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(currentDate)
                 .setClaims(generateClaims(UserClaims.builder()
                         .username(username)
-                        .roles(role)
+                        .roles(formattedRoles)  // Use the formatted roles
                         .tokenType(tokenType)
                         .build()))
                 .setExpiration(expiryDate)
