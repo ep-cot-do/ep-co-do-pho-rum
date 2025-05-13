@@ -122,6 +122,33 @@ services:
     profiles:
       - prod
 
+  # pgAdmin for PostgreSQL
+  fcoder-forum-pgadmin:
+    container_name: fcoder-forum-pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    ports:
+      - "5050:5050"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=fcoder-networks"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.fcoder-forum-pgadmin.rule=Host(`db.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.fcoder-forum-pgadmin.entrypoints=web"
+      - "traefik.http.services.fcoder-forum-pgadmin.loadbalancer.server.port=5050"
+    networks:
+      - fcoder-networks
+    depends_on:
+      - fcoder-forum-postgres
+    profiles:
+      - prod
+
   # Spring Boot Application
   fcoder-forum-backend:
     container_name: fcoder-forum-backend
@@ -181,3 +208,5 @@ volumes:
     name: fcoder_postgres_data
   redis-data:
     name: fcoder_redis_data
+  pgadmin-data:
+    name: fcoder_pgadmin_data

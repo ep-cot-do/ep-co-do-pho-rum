@@ -129,6 +129,8 @@ jobs:
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+            PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
 
             # Application secrets
@@ -267,6 +269,32 @@ jobs:
                 profiles:
                   - prod
 
+              # pgAdmin for PostgreSQL
+              fcoder-forum-pgadmin:
+                container_name: fcoder-forum-pgadmin
+                image: "dpage/pgadmin4:latest"
+                restart: always
+                ports:
+                  - "5050:5050"
+                environment:
+                  PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+                  PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+                volumes:
+                  - pgadmin-data:/var/lib/pgadmin
+                labels:
+                  - "traefik.enable=true"
+                  - "traefik.docker.network=fcoder-networks"
+                  - "traefik.constraint=proxy-public"
+                  - "traefik.http.routers.fcoder-forum-pgadmin.rule=Host(`db.${ROOT_DOMAIN}`)"
+                  - "traefik.http.routers.fcoder-forum-pgadmin.entrypoints=web"
+                  - "traefik.http.services.fcoder-forum-pgadmin.loadbalancer.server.port=5050"
+                networks:
+                  - fcoder-networks
+                depends_on:
+                  - fcoder-forum-postgres
+                profiles:
+                  - prod
+
               # Spring Boot Application
               fcoder-forum-backend:
                 container_name: fcoder-forum-backend
@@ -318,6 +346,8 @@ jobs:
                 name: fcoder_postgres_data
               redis-data:
                 name: fcoder_redis_data
+              pgadmin-data:
+                name: fcoder_pgadmin_data
             EOF
 
             # Login to GitHub Container Registry with proper method
