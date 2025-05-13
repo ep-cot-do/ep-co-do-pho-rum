@@ -1,12 +1,19 @@
 "use client";
 
 import { ReactNode } from "react";
-import Header from "@/app/_sections/Header";
-import Footer from "@/app/_sections/Footer";
+import UserHeader from "@/app/_sections/User/Header";
+import UserFooter from "@/app/_sections/User/Footer";
+import AdminHeader from "@/app/_sections/Admin/Header";
+import AdminFooter from "@/app/_sections/Admin/Footer";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 
 type LayoutWrapperProps = {
   children: ReactNode;
+  /**
+   * Whether for admin or user layout
+   * @default false
+   */
+  isAdmin?: boolean;
   /**
    * Whether to show the Header component
    * @default true
@@ -35,6 +42,7 @@ type LayoutWrapperProps = {
 
 export default function LayoutWrapper({
   children,
+  isAdmin = false,
   showHeader = true,
   showFooter = true,
   className = "",
@@ -43,6 +51,9 @@ export default function LayoutWrapper({
 }: LayoutWrapperProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const Header = isAdmin ? AdminHeader : UserHeader;
+  const Footer = isAdmin ? AdminFooter : UserFooter;
 
   return (
     <div className={`flex flex-col min-h-screen ${isDark ? "bg-zinc-900" : "bg-white"}`}>

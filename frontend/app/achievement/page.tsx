@@ -4,7 +4,7 @@ import { useState } from 'react';
 import LayoutWrapper from "../_sections/Wrapper";
 import { useTheme } from "../_contexts/ThemeContext";
 import { IconTrophy, IconSearch, IconAdjustments, IconFilter, IconMedal, IconCrown } from "@tabler/icons-react";
-import { AchievementItem } from "../_sections/Achievement";
+import { AchievementItem } from '../_sections/User/Achievement';
 
 // Sample achievements data with more details for the dedicated page
 const achievements: (AchievementItem & {

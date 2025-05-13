@@ -1,13 +1,12 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { FormEvent, ForwardRefExoticComponent, RefAttributes } from "react";
 import {
   Icon,
   IconBrandThreads,
   IconCalendar,
   IconFileSmile,
-  IconHome,
   IconMoon,
   IconProps,
   IconSun,
@@ -16,11 +15,14 @@ import {
   IconCode,
   IconLogin,
   IconMenu2,
+  IconChartBar,
 } from "@tabler/icons-react";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import { useModal } from "@/app/_contexts/ModalContext";
 import Modal from "@/app/_components/reusable/modal";
 import { useState } from "react";
+import { Account } from "@/app/_libs/types";
+import { Signup } from "@/app/_apis/user/auth";
 
 // Define type outside the component to improve clarity
 type Tab = {
@@ -40,41 +42,122 @@ export default function Header() {
 
   const tabs: Tab[] = [
     {
-      name: "Home",
-      icon: IconHome,
-      route: "/",
+      name: "Insight",
+      icon: IconChartBar,
+      route: "/insights",
     },
     {
-      name: "Calendar",
+      name: "Schedule",
       icon: IconCalendar,
-      route: "/calendar",
+      route: "/schedules",
     },
     {
-      name: "Forum",
+      name: "Thread",
       icon: IconBrandThreads,
-      route: "/forum",
+      route: "/threads",
     },
     {
-      name: "Resources",
+      name: "Material",
       icon: IconFileSmile,
-      route: "/resources",
+      route: "/materials",
     },
     {
-      name: "Achievement",
+      name: "Accomplishment",
       icon: IconTrophy,
-      route: "/achievement",
+      route: "/accomplishments",
     },
   ];
+
+  const [signupForm, setSignupForm] = useState<Partial<Account>>({
+    username: "",
+    password: "",
+    rePassword: "",
+    email: "",
+    github: "",
+    studentCode: "",
+    fullName: "",
+    gender: 'MALE', // Default value
+    phone: undefined,
+    major: '',
+    birthday: undefined,
+    profileImg: '',
+    currentTerm: 1,
+  })
+
+  // const [loginForm, setLoginForm] = useState<Partial<Account>>({
+  //   username: "",
+  //   password: "",
+  // });
 
   const handleClickTab = (route: string) => {
     router.push(route);
     setMobileMenuOpen(false);
   };
 
+  const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target as HTMLInputElement;
+
+    setSignupForm((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  }
+
+  // const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value, type } = e.target as HTMLInputElement;
+
+  //   setLoginForm((prev) => ({
+  //     ...prev,
+  //     [name]: type === "number" ? Number(value) : value,
+  //   }));
+  // }
+
+  const handleSignupSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // Validate form
+      if (signupForm.password !== signupForm.rePassword) {
+        return;
+      }
+
+      // Create full registration object with default values for isActive and fundStatus
+      const registrationData = {
+        ...signupForm,
+        fundStatus: false,  // These will be removed by the Signup function
+        isActive: true,     // These will be removed by the Signup function
+        phone: signupForm.phone || 0,
+        birthday: signupForm.birthday ? new Date(signupForm.birthday) : new Date(),
+        currentTerm: signupForm.currentTerm || 1,
+      } as Account;
+
+      const response = await Signup(registrationData);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to sign up');
+      }
+
+      // Success handling
+      closeModal();
+      // You might want to automatically log in the user or redirect them
+      // Or show a success notification
+
+    } catch (error) {
+      console.error("Signup error:", error);
+    } finally {//
+    }
+  };
+
+
   return (
     <>
       <header className={`sticky top-0 z-50 flex flex-row justify-between py-4 px-3 sm:py-6 sm:px-5 items-center border-b ${isDark ? 'border-zinc-800 bg-zinc-900' : 'border-zinc-200 bg-white'}`}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer"
+          onClick={
+            () => handleClickTab("/admin")
+          }
+        >
           <div className={`p-1.5 rounded ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}>
             <IconCode
               size={20}
@@ -339,17 +422,43 @@ export default function Header() {
             </button>
           </div>
 
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={handleSignupSubmit}>
+            {/* Basic Information */}
             <div>
               <label
-                htmlFor="signup-email"
+                htmlFor="username"
+                className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value={signupForm.username || ''}
+                onChange={handleSignupChange}
+                className={`w-full px-3 py-2 border rounded-md ${isDark
+                  ? 'bg-zinc-800 border-zinc-700 text-white'
+                  : 'bg-white border-zinc-300 text-black'
+                  }`}
+                placeholder="Username"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
                 className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
               >
                 Email
               </label>
               <input
-                id="signup-email"
+                id="email"
+                name="email"
                 type="email"
+                value={signupForm.email || ''}
+                onChange={handleSignupChange}
                 className={`w-full px-3 py-2 border rounded-md ${isDark
                   ? 'bg-zinc-800 border-zinc-700 text-white'
                   : 'bg-white border-zinc-300 text-black'
@@ -361,49 +470,234 @@ export default function Header() {
 
             <div>
               <label
-                htmlFor="signup-password"
+                htmlFor="fullName"
                 className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
               >
-                Password
+                Full Name
               </label>
               <input
-                id="signup-password"
-                type="password"
+                id="fullName"
+                name="fullName"
+                type="text"
+                value={signupForm.fullName || ''}
+                onChange={handleSignupChange}
                 className={`w-full px-3 py-2 border rounded-md ${isDark
                   ? 'bg-zinc-800 border-zinc-700 text-white'
                   : 'bg-white border-zinc-300 text-black'
                   }`}
-                placeholder="••••••••"
+                placeholder="Your full name"
                 required
               />
-              <p className={`text-xs mt-1 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                Minimum 8 characters with at least one number
-              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="password"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={signupForm.password || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="rePassword"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Confirm Password
+                </label>
+                <input
+                  id="rePassword"
+                  name="rePassword"
+                  type="password"
+                  value={signupForm.rePassword || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Additional information - can be collapsed/expanded if desired */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="github"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  GitHub Username
+                </label>
+                <input
+                  id="github"
+                  name="github"
+                  type="text"
+                  value={signupForm.github || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="GitHub username"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="studentCode"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Student Code
+                </label>
+                <input
+                  id="studentCode"
+                  name="studentCode"
+                  type="text"
+                  value={signupForm.studentCode || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="Student code"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="gender"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={signupForm.gender || 'male'}
+                  onChange={() => handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                >
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phone"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Phone
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  value={signupForm.phone || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="Phone number"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="major"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Major
+                </label>
+                <input
+                  id="major"
+                  name="major"
+                  type="text"
+                  value={signupForm.major || ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                  placeholder="Your major"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="birthday"
+                  className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
+                >
+                  Birthday
+                </label>
+                <input
+                  id="birthday"
+                  name="birthday"
+                  type="date"
+                  value={signupForm.birthday ? new Date(signupForm.birthday).toISOString().split('T')[0] : ''}
+                  onChange={handleSignupChange}
+                  className={`w-full px-3 py-2 border rounded-md ${isDark
+                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                    : 'bg-white border-zinc-300 text-black'
+                    }`}
+                />
+              </div>
             </div>
 
             <div>
               <label
-                htmlFor="confirm-password"
+                htmlFor="currentTerm"
                 className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
               >
-                Confirm Password
+                Current Term
               </label>
               <input
-                id="confirm-password"
-                type="password"
+                id="currentTerm"
+                name="currentTerm"
+                type="number"
+                min="1"
+                max="10"
+                value={signupForm.currentTerm || 1}
+                onChange={handleSignupChange}
                 className={`w-full px-3 py-2 border rounded-md ${isDark
                   ? 'bg-zinc-800 border-zinc-700 text-white'
                   : 'bg-white border-zinc-300 text-black'
                   }`}
-                placeholder="••••••••"
-                required
+                placeholder="Current term"
               />
             </div>
 
             <div className="mt-2">
               <button
                 type="submit"
-                className={`w-full py-2 px-4 rounded-md text-white font-medium ${isDark ? 'bg-violet-600 hover:bg-violet-700' : 'bg-violet-600 hover:bg-violet-700'
+                className={`w-full py-2 px-4 rounded-md text-white font-medium
+                        ${isDark ? 'bg-violet-600 hover:bg-violet-700' : 'bg-violet-600 hover:bg-violet-700'
                   }`}
               >
                 Create account

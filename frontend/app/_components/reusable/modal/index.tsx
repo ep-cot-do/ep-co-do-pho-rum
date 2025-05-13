@@ -40,7 +40,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       <AnimatePresence>
         {opened && (
           <div
-            className="fixed inset-0 z-40 flex items-center justify-center   backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center   backdrop-blur-sm"
             onClick={onClose}
           >
             <motion.div
