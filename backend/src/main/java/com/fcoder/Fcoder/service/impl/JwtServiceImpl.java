@@ -97,14 +97,16 @@ public class JwtServiceImpl implements JwtService {
                 .orElse(Optional.empty());
     }
 
-    public Cookie tokenCookieWarp (String token, JwtTokenType tokenType) {
+    public Cookie tokenCookieWarp(String token, JwtTokenType tokenType) {
         var cookie = new Cookie(tokenType.toString(), token);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setMaxAge((int) (tokenType == JwtTokenType.ACCESS_TOKEN ? jwtTokenConfig.getJwtExpiration() : jwtTokenConfig.getJwtRefreshExpiration()));
+        cookie.setSecure(true); // Required for SameSite=None
+        cookie.setAttribute("SameSite", "None"); // Cross-domain cookie support
+        cookie.setMaxAge((int) (tokenType == JwtTokenType.ACCESS_TOKEN ? jwtTokenConfig.getJwtExpiration() / 1000 : jwtTokenConfig.getJwtRefreshExpiration() / 1000));
         return cookie;
     }
+
     public void removeAuthToken (HttpServletRequest request,HttpServletResponse response) {
         var authCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals(JwtTokenType.ACCESS_TOKEN.toString()) || cookie.getName().equals(JwtTokenType.REFRESH_TOKEN.name()) ).toList();
         authCookie.forEach(cookie -> {

@@ -1,6 +1,7 @@
 package com.fcoder.Fcoder.config;
 
 import com.fcoder.Fcoder.security.ApplicationAuthenticationEntryPoint;
+import com.fcoder.Fcoder.security.CookieSecurityFilter;
 import com.fcoder.Fcoder.security.JwtAuthenticationFilter;
 import com.fcoder.Fcoder.security.JwtCookieValidationFilter;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class SecurityConfig {
     private final JwtCookieValidationFilter jwtCookieValidationFilter;
     private final CorsConfig corsConfig;
     private final ApplicationAuthenticationEntryPoint applicationAuthenticationEntryPoint;
+    private final CookieSecurityFilter cookieSecurityFilter;
 
     @Bean
     SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
@@ -55,7 +57,11 @@ public class SecurityConfig {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
                 .addFilterBefore(this.jwtCookieValidationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(this.jwtCookieValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+
     }
+
+
 }

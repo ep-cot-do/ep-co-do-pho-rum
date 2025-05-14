@@ -31,19 +31,19 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(@NotNull CorsRegistry corsRegistry) {
                 corsRegistry
-                    .addMapping("/**")
-                    .allowedOrigins(getCorsAllowed())
-                    .allowCredentials(true)
-                    .allowedHeaders("*")
-                    .allowedMethods(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE",
-                        "HEAD",
-                        "PATCH"
-                    )
-                    .exposedHeaders("*");
+                        .addMapping("/**")
+                        .allowedOrigins(getCorsAllowed())
+                        .allowCredentials(true) // Important for cookies
+                        .allowedHeaders("*")
+                        .allowedMethods(
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "DELETE",
+                                "HEAD",
+                                "PATCH"
+                        )
+                        .exposedHeaders("*");
             }
         };
     }
@@ -53,35 +53,36 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(getCorsAllowed()));
         configuration.setAllowedMethods(
-            Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
         );
         configuration.setAllowedHeaders(
-            Arrays.asList(
-                "Accept",
-                "Access-Control-Allow-Headers",
-                "Access-Control-Allow-Methods",
-                "Access-Control-Allow-Origin",
-                "Authorization",
-                "Content-Type",
-                "Origin",
-                "X-Requested-With"
-            )
+                Arrays.asList(
+                        "Accept",
+                        "Access-Control-Allow-Headers",
+                        "Access-Control-Allow-Methods",
+                        "Access-Control-Allow-Origin",
+                        "Authorization",
+                        "Content-Type",
+                        "Origin",
+                        "X-Requested-With"
+                )
         );
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // Essential for cookies
         configuration.setExposedHeaders(
-            Arrays.asList(
-                "Accept",
-                "Access-Control-Allow-Headers",
-                "Access-Control-Allow-Methods",
-                "Access-Control-Allow-Origin",
-                "Authorization",
-                "Content-Type",
-                "Origin",
-                "X-Requested-With"
-            )
+                Arrays.asList(
+                        "Accept",
+                        "Access-Control-Allow-Headers",
+                        "Access-Control-Allow-Methods",
+                        "Access-Control-Allow-Origin",
+                        "Authorization",
+                        "Content-Type",
+                        "Origin",
+                        "X-Requested-With",
+                        "Set-Cookie" // Ensure Set-Cookie header is exposed
+                )
         );
         UrlBasedCorsConfigurationSource source =
-            new UrlBasedCorsConfigurationSource();
+                new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

@@ -25,8 +25,12 @@ import java.util.EnumMap;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailServiceImpl userDetailService;
     private final JwtService jwtService;
+
     @Override
-    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response,@Nonnull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
+        // Set SameSite=None for cross-site requests
+        response.setHeader("Set-Cookie", "SameSite=None; Secure");
+
         EnumMap<JwtTokenType, Cookie> cookieMap = CookieUtils.getCookieMap(request);
         var userClaims = jwtService.getUserClaimsFromJwt(cookieMap);
         if (userClaims.isPresent()) {
