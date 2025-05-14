@@ -4,6 +4,8 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_ENDPOINT=https://api.${ROOT_DOMAIN}
 
     profiles:
       - build

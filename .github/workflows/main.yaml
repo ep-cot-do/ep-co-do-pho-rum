@@ -124,6 +124,7 @@ jobs:
             CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
             ZONE_ID=${{ secrets.ZONE_ID }}
             CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+            NEXT_PUBLIC_API_ENDPOINT=https://api.${{ secrets.ROOT_DOMAIN }}
 
             # Backend database configuration
             DB_NAME=${{ secrets.DB_NAME }}
@@ -217,6 +218,8 @@ jobs:
                 container_name: fcoder-forum-frontend
                 image: "${REGISTRY}/fcoder-forum-frontend:latest"
                 restart: always
+                environment:
+                  - NEXT_PUBLIC_API_ENDPOINT=https://api.${ROOT_DOMAIN}
                 labels:
                   - "traefik.enable=true"
                   - "traefik.docker.network=fcoder-networks"
