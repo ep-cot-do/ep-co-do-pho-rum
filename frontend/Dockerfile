@@ -1,7 +1,6 @@
 FROM node:20-alpine AS base
 
-ARG NEXT_PUBLIC_API_ENDPOINT
-ENV NEXT_PUBLIC_API_ENDPOINT=$NEXT_PUBLIC_API_ENDPOINT
+ENV NEXT_PUBLIC_API_ENDPOINT=https://api.fcoder.io.vn
 
 FROM base AS installer
 WORKDIR /installer
@@ -12,6 +11,9 @@ COPY package.json ./
 
 RUN npm install -g bun && bun install --frozen-lockfile || bun install
 COPY . .
+
+RUN echo "NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}" > .env.production
+
 RUN bun run build
 
 FROM base AS runner
@@ -20,6 +22,7 @@ RUN addgroup --system --gid 1001 fcoder
 RUN adduser --system --uid 1001 fcoder
 USER fcoder
 
+COPY --from=installer --chown=fcoder:fcoder /installer/.env.production ./
 COPY --from=installer --chown=fcoder:fcoder /installer/.next/standalone ./
 COPY --from=installer --chown=fcoder:fcoder /installer/.next/static ./.next/static
 COPY --from=installer --chown=fcoder:fcoder /installer/public ./public
