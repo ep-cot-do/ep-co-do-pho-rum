@@ -10,10 +10,13 @@ COPY package.json ./
 RUN npm install -g bun && bun install --frozen-lockfile || bun install
 COPY . .
 
-# Get the build arg and write it to the env file
+# Get the build arg properly
 ARG NEXT_PUBLIC_API_ENDPOINT
 ENV NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}
+
+# Create proper .env.production file
 RUN echo "NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}" > .env.production
+RUN cat .env.production
 
 RUN bun run build
 
@@ -27,5 +30,7 @@ COPY --from=installer --chown=fcoder:fcoder /installer/.env.production ./
 COPY --from=installer --chown=fcoder:fcoder /installer/.next/standalone ./
 COPY --from=installer --chown=fcoder:fcoder /installer/.next/static ./.next/static
 COPY --from=installer --chown=fcoder:fcoder /installer/public ./public
+
+ENV NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}
 
 ENTRYPOINT [ "node", "server.js" ]

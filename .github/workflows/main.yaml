@@ -62,6 +62,10 @@ jobs:
           # Clean local Docker cache
           docker system prune -af
 
+          # Export ROOT_DOMAIN for the build
+          export ROOT_DOMAIN=${{ secrets.ROOT_DOMAIN }}
+          echo "Using ROOT_DOMAIN=${ROOT_DOMAIN} for build"
+
           # Build and push new image
           docker compose -f .docker/compose.build.yaml --profile build build --parallel --no-cache
           docker compose -f .docker/compose.build.yaml --profile build push
