@@ -1,7 +1,5 @@
 FROM node:20-alpine AS base
 
-ENV NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}
-
 FROM base AS installer
 WORKDIR /installer
 
@@ -12,6 +10,9 @@ COPY package.json ./
 RUN npm install -g bun && bun install --frozen-lockfile || bun install
 COPY . .
 
+# Get the build arg and write it to the env file
+ARG NEXT_PUBLIC_API_ENDPOINT
+ENV NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}
 RUN echo "NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}" > .env.production
 
 RUN bun run build
