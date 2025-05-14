@@ -399,12 +399,12 @@ export default function Calendar() {
                     {selectedEvent.title}
                   </motion.h2>
                   <motion.button
+                    onClick={() => setIsModalOpen(false)}
+                    className={`p-1 rounded-full hover:${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsModalOpen(false)}
-                    className={`p-1 rounded-full ${isDark ? 'hover:bg-zinc-700' : 'hover:bg-zinc-100'}`}
                   >
-                    ✕
+                    &times;
                   </motion.button>
                 </div>
 
