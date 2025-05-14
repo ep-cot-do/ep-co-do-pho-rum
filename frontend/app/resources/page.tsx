@@ -21,7 +21,8 @@ import {
   IconChevronDown,
   IconInfoCircle,
   IconList,
-  IconLayoutGrid
+  IconLayoutGrid,
+  IconX
 } from "@tabler/icons-react";
 
 // Define subject and resource types
@@ -698,7 +699,7 @@ export default function ResourcesPage() {
                 onClick={() => setShowInfoPanel(false)}
                 className={`p-1 rounded-full ${isDark ? 'hover:bg-zinc-700' : 'hover:bg-zinc-200'}`}
               >
-                ✕
+                <IconX size={18} className={isDark ? 'text-zinc-400' : 'text-zinc-600'} />
               </button>
             </div>
             <div className="p-4">
