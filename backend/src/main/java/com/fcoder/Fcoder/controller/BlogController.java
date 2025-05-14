@@ -55,7 +55,7 @@ public class BlogController {
 
     @Operation(summary = "Create a new blog (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<BlogResponse>> createBlog(@RequestBody BlogRequest blogRequest) {
         var blog = blogService.createBlog(blogRequest);
         System.out.println("blog = " + blog);
@@ -69,7 +69,7 @@ public class BlogController {
 
     @Operation(summary = "Update a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<BlogResponse>> updateBlogDetails(@PathVariable Long id,
                                                                     @RequestBody BlogRequest blogRequest) {
         var blog = blogService.updateBlog(id, blogRequest);
@@ -82,7 +82,7 @@ public class BlogController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Update a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<BlogResponse>> updateBlog(@PathVariable Long id, @RequestBody BlogRequest blogRequest) {
         var blog = blogService.updateBlog(id, blogRequest);
@@ -96,7 +96,7 @@ public class BlogController {
 
 
     @PatchMapping("/publish/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Publish a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> publishBlog(@PathVariable Long id) {
         blogService.publishBlog(id);
@@ -108,7 +108,7 @@ public class BlogController {
     }
 
     @PatchMapping("/unpublish/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Unpublish a blog by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> unpublishBlog(@PathVariable Long id) {
         blogService.unpublishBlog(id);

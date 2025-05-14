@@ -52,7 +52,7 @@ public class AchievementController {
             {@SecurityRequirement(name =
             "accessCookie")})
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> createAchievement(@RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.createAchievement(achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -66,7 +66,7 @@ public class AchievementController {
     @Operation(summary = "Update an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name =
             "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<AchievementResponse>> updateAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {
         var achievement = achievementService.updateAchievement(id, achievementRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<AchievementResponse>()
@@ -79,7 +79,7 @@ public class AchievementController {
 
     @Operation(summary = "Delete an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> deleteAchievement(@PathVariable Long id) {
         achievementService.deleteAchievement(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -102,7 +102,7 @@ public class AchievementController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Partially update an achievement by ID (Admin and Header of club only)", security = {@SecurityRequirement(name =
             "accessCookie")})
     public ResponseEntity<ResponseObject<AchievementResponse>> patchAchievement(@PathVariable Long id, @RequestBody AchievementRequest achievementRequest) {

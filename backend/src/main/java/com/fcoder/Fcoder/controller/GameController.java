@@ -101,7 +101,7 @@ public class GameController {
     }
 
     @PatchMapping("/publish/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Publish a game by ID", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<Void>> publishGame(@PathVariable Long id) {
         gameService.showGame(id);

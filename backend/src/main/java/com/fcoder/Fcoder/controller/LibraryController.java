@@ -55,7 +55,7 @@ public class LibraryController {
 
     @Operation(summary = "Create a new library (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<LibraryResponse>> createLibrary(@RequestBody LibraryRequest libraryRequest) {
         var library = libraryService.createLibrary(libraryRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<LibraryResponse>()
@@ -68,7 +68,7 @@ public class LibraryController {
 
     @Operation(summary = "Update a library by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<LibraryResponse>> updateLibraryDetails(@PathVariable Long id,
                                                                                 @RequestBody LibraryRequest libraryRequest) {
         var library = libraryService.updateLibrary(id, libraryRequest);
@@ -81,7 +81,7 @@ public class LibraryController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     @Operation(summary = "Update a library by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     public ResponseEntity<ResponseObject<LibraryResponse>> updateLibrary(@PathVariable Long id,
                                                                          @RequestBody LibraryRequest libraryRequest) {

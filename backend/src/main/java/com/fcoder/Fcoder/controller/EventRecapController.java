@@ -48,7 +48,7 @@ public class EventRecapController {
 
     @Operation(summary = "Create a new event recap (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventRecapResponse>> createEventRecap(@RequestBody EventRecapRequest eventRecapRequest) {
         var eventRecap = eventRecapService.createEventRecap(eventRecapRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<EventRecapResponse>()
@@ -61,7 +61,7 @@ public class EventRecapController {
 
     @Operation(summary = "Update an event recap by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventRecapResponse>> updateEventRecap(@PathVariable Long id, @RequestBody EventRecapRequest eventRecapRequest) {
         var eventRecap = eventRecapService.updateEventRecap(id, eventRecapRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<EventRecapResponse>()
@@ -86,7 +86,7 @@ public class EventRecapController {
 
     @Operation(summary = "Hide an event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/hide")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> hideEventRecap(@PathVariable Long id) {
         eventRecapService.hideEventRecap(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -98,7 +98,7 @@ public class EventRecapController {
 
     @Operation(summary = "Show an event recap by ID", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/show")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> showEventRecap(@PathVariable Long id) {
         eventRecapService.showEventRecap(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -110,7 +110,7 @@ public class EventRecapController {
 
     @Operation(summary = "Update event recap details", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> updateEventRecapDetails(@PathVariable Long id,
                                                                         @RequestParam EventRecapRequest eventRecapRequest) {
         eventRecapService.updateEventRecap(id, eventRecapRequest);

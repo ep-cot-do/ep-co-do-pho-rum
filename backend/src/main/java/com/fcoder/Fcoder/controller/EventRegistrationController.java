@@ -123,7 +123,7 @@ public class EventRegistrationController {
 
     @Operation(summary = "Activate event registration (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> activateRegistration(@PathVariable Long id) {
         eventRegistrationService.activateRegistration(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()

@@ -48,7 +48,7 @@ public class EventController {
 
     @Operation(summary = "Create a new event (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventResponse>> createEvent(@RequestBody EventRequest eventRequest) {
         var event = eventService.createEvent(eventRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<EventResponse>()
@@ -61,7 +61,7 @@ public class EventController {
 
     @Operation(summary = "Update an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<EventResponse>> updateEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest) {
         var event = eventService.updateEvent(id, eventRequest);
         return ResponseEntity.ok(new ResponseObject.Builder<EventResponse>()
@@ -85,7 +85,7 @@ public class EventController {
 
     @Operation(summary = "Hide an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/hide")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> hideEvent(@PathVariable Long id) {
         eventService.hideEvent(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -97,7 +97,7 @@ public class EventController {
 
     @Operation(summary = "Show an event by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
     @PatchMapping("/{id}/show")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> showEvent(@PathVariable Long id) {
         eventService.showEvent(id);
         return ResponseEntity.ok(new ResponseObject.Builder<Void>()
@@ -109,7 +109,7 @@ public class EventController {
 
     @PatchMapping("/{id}")
     @Operation(summary = "Update event details by ID (Admin and Header of club only)", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_HOC')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HOC')")
     public ResponseEntity<ResponseObject<Void>> updateEventDetails(@PathVariable Long id,
                                                                    @RequestBody EventRequest eventRequest) {
         eventService.updateEvent(id, eventRequest);
