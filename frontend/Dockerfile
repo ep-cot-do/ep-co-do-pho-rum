@@ -1,6 +1,6 @@
 FROM node:20-alpine AS base
 
-ENV NEXT_PUBLIC_API_ENDPOINT=https://api.fcoder.io.vn
+ENV NEXT_PUBLIC_API_ENDPOINT=${NEXT_PUBLIC_API_ENDPOINT}
 
 FROM base AS installer
 WORKDIR /installer
