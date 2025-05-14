@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import { Login } from "@/app/_apis/user/auth";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/_contexts/AuthContext";
 
 type LoginFormProps = {
   closeModal: () => void;
@@ -13,6 +14,7 @@ type LoginFormProps = {
 
 export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps) {
   const { theme } = useTheme();
+  const { login } = useAuth();
   const isDark = theme === 'dark';
   const router = useRouter();
 
@@ -48,7 +50,7 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
       const data = await response.json();
 
       // Store the token or user data in localStorage or context
-      localStorage.setItem('token', data.token);
+      await login(data.token);
 
       closeModal();
       router.refresh(); // Refresh the page to update the authentication state

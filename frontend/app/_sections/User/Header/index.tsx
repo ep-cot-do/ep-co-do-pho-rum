@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { ForwardRefExoticComponent, RefAttributes, useEffect, useRef } from "react";
 import {
   Icon,
   IconBrandThreads,
@@ -24,6 +24,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginForm from "./Form/LoginForm";
 import SignupForm from "./Form/SignupForm";
+import { useAuth } from "@/app/_contexts/AuthContext";
 
 // Define type outside the component to improve clarity
 type Tab = {
@@ -36,8 +37,11 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated, user, logout, loading } = useAuth();
   const { modalType, isModalOpen, openModal, closeModal } = useModal();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   const isDark = theme === 'dark';
 
@@ -83,6 +87,27 @@ export default function Header() {
     closeModal();
     setTimeout(() => openModal('signup'), 100);
   };
+
+  const toggleProfileDropdown = () => {
+    setProfileDropdownOpen(!profileDropdownOpen);
+  };
+
+  const closeProfileDropdown = () => {
+    setProfileDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileDropdownRef.current && !(profileDropdownRef.current as Node).contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownRef]);
 
   return (
     <>
@@ -201,57 +226,108 @@ export default function Header() {
             </motion.div>
           </motion.button>
 
-          {/* Auth buttons */}
-          <div className="hidden md:flex items-center gap-2">
-            <motion.button
-              className={`py-1.5 px-3 text-sm rounded-md transition-colors flex items-center gap-1.5 ${isDark
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
-                }`}
-              onClick={() => openModal('login')}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                boxShadow: isDark
-                  ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  : '0 2px 8px rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <IconLogin size={16} stroke={1.5} />
-              Login
-            </motion.button>
-            <motion.button
-              className={`py-1.5 px-3 text-sm rounded-md transition-colors flex items-center gap-1.5 ${isDark
-                ? 'bg-violet-600 text-white hover:bg-violet-700'
-                : 'bg-violet-600 text-white hover:bg-violet-700'
-                }`}
-              onClick={() => openModal('signup')}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
-              }}
-            >
-              Sign up
-            </motion.button>
-          </div>
+          {/* Conditional rendering based on auth state */}
+          {!loading && (
+            <>
+              {!isAuthenticated ? (
+                /* Auth buttons */
+                <div className="hidden md:flex items-center gap-2">
+                  <motion.button
+                    className={`py-1.5 px-3 text-sm rounded-md transition-colors flex items-center gap-1.5 ${isDark
+                      ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
+                      : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
+                      }`}
+                    onClick={() => openModal('login')}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      boxShadow: isDark
+                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                        : '0 2px 8px rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    <IconLogin size={16} stroke={1.5} />
+                    Login
+                  </motion.button>
+                  <motion.button
+                    className={`py-1.5 px-3 text-sm rounded-md transition-colors flex items-center gap-1.5 ${isDark
+                      ? 'bg-violet-600 text-white hover:bg-violet-700'
+                      : 'bg-violet-600 text-white hover:bg-violet-700'
+                      }`}
+                    onClick={() => openModal('signup')}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
+                    }}
+                  >
+                    Sign up
+                  </motion.button>
+                </div>
+              ) : (
+                /* User Profile Button with dropdown */
+                <div className="relative" ref={profileDropdownRef}>
+                  <motion.button
+                    className={`p-2 rounded-md transition-colors ${isDark ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700' : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
+                      }`}
+                    title={user?.fullName || "User profile"}
+                    aria-label="User profile"
+                    onClick={toggleProfileDropdown}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{
+                      boxShadow: isDark
+                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                        : '0 2px 8px rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    {user?.profileImg ? (
+                      <img
+                        src={user.profileImg}
+                        alt={user.fullName || "Profile"}
+                        className="w-5 h-5 rounded-full object-cover"
+                      />
+                    ) : (
+                      <IconUser size={20} stroke={1.5} />
+                    )}
+                  </motion.button>
 
-          {/* User Profile Button */}
-          <motion.button
-            className={`p-2 rounded-md transition-colors ${isDark ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700' : 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
-              }`}
-            title="User profile"
-            aria-label="User profile"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{
-              boxShadow: isDark
-                ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                : '0 2px 8px rgba(0, 0, 0, 0.05)'
-            }}
-          >
-            <IconUser size={20} stroke={1.5} />
-          </motion.button>
+                  {/* Profile Dropdown Menu */}
+                  <AnimatePresence>
+                    {profileDropdownOpen && (
+                      <motion.div
+                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg overflow-hidden z-50 ${isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-200'
+                          }`}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="px-4 py-3 border-b border-zinc-700/50">
+                          <p className="text-sm font-medium">{user?.fullName || "User"}</p>
+                          <p className="text-xs text-zinc-500 truncate">{user?.email || ""}</p>
+                        </div>
+                        <div className="py-1">
+                          <motion.button
+                            className={`flex items-center w-full px-4 py-2 text-sm text-left ${isDark ? 'hover:bg-zinc-700 text-zinc-200' : 'hover:bg-zinc-100 text-zinc-800'
+                              }`}
+                            onClick={() => {
+                              logout();
+                              closeProfileDropdown();
+                            }}
+                            whileHover={{ x: 5 }}
+                          >
+                            <IconLogin size={16} className="mr-2 rotate-180" />
+                            Logout
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </motion.header>
 
@@ -318,40 +394,65 @@ export default function Header() {
                   {isDark ? <IconSun size={20} stroke={1.5} /> : <IconMoon size={20} stroke={1.5} />}
                 </motion.button>
 
-                <div className="flex gap-2">
-                  <motion.button
-                    className={`py-1.5 px-3 text-sm rounded-md transition-colors ${isDark
-                      ? 'bg-zinc-800 text-zinc-200'
-                      : 'bg-zinc-100 text-zinc-800'}`}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      openModal('login');
-                    }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      boxShadow: isDark
-                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                        : '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}
-                  >
-                    Login
-                  </motion.button>
-                  <motion.button
-                    className={`py-1.5 px-3 text-sm rounded-md transition-colors bg-violet-600 text-white`}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      openModal('signup');
-                    }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
-                    }}
-                  >
-                    Sign up
-                  </motion.button>
-                </div>
+                {!loading && (
+                  <>
+                    {!isAuthenticated ? (
+                      <div className="flex gap-2">
+                        <motion.button
+                          className={`py-1.5 px-3 text-sm rounded-md transition-colors ${isDark
+                            ? 'bg-zinc-800 text-zinc-200'
+                            : 'bg-zinc-100 text-zinc-800'}`}
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            openModal('login');
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          style={{
+                            boxShadow: isDark
+                              ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                              : '0 2px 8px rgba(0, 0, 0, 0.1)'
+                          }}
+                        >
+                          Login
+                        </motion.button>
+                        <motion.button
+                          className={`py-1.5 px-3 text-sm rounded-md transition-colors bg-violet-600 text-white`}
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            openModal('signup');
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          style={{
+                            boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
+                          }}
+                        >
+                          Sign up
+                        </motion.button>
+                      </div>
+                    ) : (
+                      <motion.button
+                        className={`py-1.5 px-3 text-sm rounded-md transition-colors ${isDark
+                          ? 'bg-zinc-800 text-zinc-200'
+                          : 'bg-zinc-100 text-zinc-800'}`}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          logout();
+                        }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          boxShadow: isDark
+                            ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                            : '0 2px 8px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        Logout
+                      </motion.button>
+                    )}
+                  </>
+                )}
               </motion.div>
             </div>
           </motion.div>
