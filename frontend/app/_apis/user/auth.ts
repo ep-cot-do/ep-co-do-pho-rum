@@ -1,6 +1,6 @@
 import { Account } from "@/app/_libs/types";
 
-const endpoint = process.env.NEXT_PUBLIC_API_ENDPOINT;
+const endpoint = `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/v1`;
 
 export async function Login(username: string, password: string) {
   return await fetch(`${endpoint}/auth/login`, {
