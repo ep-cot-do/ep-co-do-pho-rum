@@ -101,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
                 .major(request.getMajor())
                 .studentCode(request.getStudentCode())
                 .fundStatus(false)
-                .role(roleRepository.findByRoleName("MEMBER")
+                .role(roleRepository.findByRoleName("ROLE_MEMBER")
                         .orElseThrow(() -> new ValidationException("Default member role not found")))
                 .lastLogin(LocalDateTime.now())
                 .isActive(true)
@@ -123,7 +123,7 @@ public class AccountServiceImpl implements AccountService {
 
     private AccountEntity buildAccountEntity(MemberAccountDetailRegisterRequest request) {
 
-        RoleEntity memberRole = roleRepository.findByRoleName("MEMBER")
+        RoleEntity memberRole = roleRepository.findByRoleName("ROLE_MEMBER")
                 .orElseThrow(() -> new ValidationException("Default member role not found"));
 
         return AccountEntity.builder()
