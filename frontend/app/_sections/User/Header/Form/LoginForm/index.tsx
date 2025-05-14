@@ -159,10 +159,10 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
         <motion.button
           type="submit"
           className={`w-full py-2 px-4 rounded-md text-white font-medium ${isLoading
-              ? 'bg-violet-400 cursor-not-allowed'
-              : isDark
-                ? 'bg-violet-600 hover:bg-violet-700'
-                : 'bg-violet-600 hover:bg-violet-700'
+            ? 'bg-violet-400 cursor-not-allowed'
+            : isDark
+              ? 'bg-violet-600 hover:bg-violet-700'
+              : 'bg-violet-600 hover:bg-violet-700'
             }`}
           whileHover={!isLoading ? { scale: 1.02 } : {}}
           whileTap={!isLoading ? { scale: 0.98 } : {}}
