@@ -6,8 +6,8 @@ import {
   IconBrandDiscord,
   IconHeart,
   IconMailFilled,
-  IconCode,
 } from "@tabler/icons-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -40,11 +40,18 @@ export default function Footer() {
           {/* Brand section with logo and description */}
           <div className="flex-1 max-w-md">
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-2 rounded-md ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}>
-                <IconCode
+              <div className={`rounded-md ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}>
+                {/* <IconCode
                   size={20}
                   className={isDark ? 'text-violet-300' : 'text-violet-700'}
                   stroke={2}
+                /> */}
+                <Image
+                  src="/icon.png"
+                  alt="Logo"
+                  width={40}
+                  height={40}
+                  className={`${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}
                 />
               </div>
               <div className="font-bold text-xl">Fcoder</div>

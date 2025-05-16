@@ -11,11 +11,9 @@ import {
   IconProps,
   IconSun,
   IconTrophy,
-  IconUser,
-  IconCode,
-  IconLogin,
+  IconUser, IconLogin,
   IconMenu2,
-  IconHome,
+  IconHome
 } from "@tabler/icons-react";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import { useModal } from "@/app/_contexts/ModalContext";
@@ -25,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoginForm from "./Form/LoginForm";
 import SignupForm from "./Form/SignupForm";
 import { useAuth } from "@/app/_contexts/AuthContext";
+import Image from "next/image";
 
 // Define type outside the component to improve clarity
 type Tab = {
@@ -130,16 +129,23 @@ export default function Header() {
           whileTap={{ scale: 0.97 }}
         >
           <motion.div
-            className={`p-1.5 rounded ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}
+            className={`rounded ${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}
             initial={{ rotate: -10 }}
             animate={{ rotate: 0 }}
             whileHover={{ rotate: 10, y: -2 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <IconCode
+            {/* <IconCode
               size={20}
               className={isDark ? 'text-violet-300' : 'text-violet-700'}
               stroke={2}
+            /> */}
+            <Image
+              src="/icon.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              className={`${isDark ? 'bg-violet-900' : 'bg-violet-100'}`}
             />
           </motion.div>
           <div className="text-xl font-bold">
