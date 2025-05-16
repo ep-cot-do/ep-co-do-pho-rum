@@ -6,7 +6,7 @@ export default function Insights() {
     <LayoutWrapper maxWidth="w-full" isAdmin={true} showFooter={false}>
 
       <div className="">
-
+        co gi hot
       </div>
     </LayoutWrapper>
   );
