@@ -23,4 +23,10 @@ public interface CodeExecutionService {
             int timeLimit,
             int memoryLimit);
     void cleanup(String workingDirectory);
+
+    // Compiler management methods
+    java.util.Map<SubmissionEntity.ProgrammingLanguage, String> getCompilerInfo();
+    boolean isCompilerAvailable(SubmissionEntity.ProgrammingLanguage language);
+    SubmissionEntity.ProgrammingLanguage[] getSupportedLanguages();
+    java.util.Map<SubmissionEntity.ProgrammingLanguage, Boolean> checkSystemRequirements();
 }

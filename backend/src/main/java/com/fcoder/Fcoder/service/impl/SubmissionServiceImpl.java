@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -76,18 +77,34 @@ public class SubmissionServiceImpl implements SubmissionService {
             submission.setMemoryUsed((int) result.getMemoryUsed());
             submission.setCompileError(result.getErrorMessage());
 
-            // Calculate score
-            int passedTests = (int) result.getTestResults().stream()
-                    .mapToLong(tr -> tr.isPassed() ? 1 : 0)
-                    .sum();
+            // Calculate score - FIX: Handle null testResults
+            List<TestCaseResult> testResults = result.getTestResults();
+            int passedTests = 0;
             int totalTests = testCases.size();
-            submission.setScore((double) passedTests / totalTests * 100);
+
+            if (testResults != null && !testResults.isEmpty()) {
+                passedTests = (int) testResults.stream()
+                        .mapToLong(tr -> tr.isPassed() ? 1 : 0)
+                        .sum();
+                totalTests = testResults.size(); // Use actual test results size
+            }
+
+            // Set test counts
+            submission.setPassedTests(passedTests);
+            submission.setTotalTests(totalTests);
+
+            // Calculate score (avoid division by zero)
+            double score = totalTests > 0 ? (double) passedTests / totalTests * 100 : 0.0;
+            submission.setScore(score);
 
             submission = submissionRepository.save(submission);
 
         } catch (Exception e) {
             submission.setStatus(SubmissionEntity.SubmissionStatus.SYSTEM_ERROR);
             submission.setCompileError("System error: " + e.getMessage());
+            submission.setPassedTests(0);
+            submission.setTotalTests(testCases.size());
+            submission.setScore(0.0);
             submission = submissionRepository.save(submission);
         }
 
@@ -128,7 +145,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
     public PaginationWrapper<List<SubmissionResponse>> getSubmissionsByUserAndProblem(Long userId, Long problemId,
-            Pageable pageable) {
+                                                                                      Pageable pageable) {
         Page<SubmissionEntity> submissions = submissionRepository
                 .findByUser_IdAndProblem_IdOrderByCreatedDateDesc(userId, problemId, pageable);
         List<SubmissionResponse> responseList = submissions.getContent().stream()
@@ -153,7 +170,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public SubmissionResponse getLatestAcceptedSubmission(Long userId, Long problemId) {
         return submissionRepository.findFirstByUser_IdAndProblem_IdAndStatusOrderByCreatedDateDesc(
-                userId, problemId, SubmissionEntity.SubmissionStatus.ACCEPTED)
+                        userId, problemId, SubmissionEntity.SubmissionStatus.ACCEPTED)
                 .map(this::convertToResponse)
                 .orElse(null);
     }
@@ -162,6 +179,11 @@ public class SubmissionServiceImpl implements SubmissionService {
     public void processSubmission(Long submissionId) {
         // Implementation for processing a specific submission
         // This would typically involve judging the submission
+        SubmissionEntity submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Submission not found: " + submissionId));
+
+        // TODO: Implement actual submission processing logic
+        // This might involve re-running the code execution service
     }
 
     @Override
