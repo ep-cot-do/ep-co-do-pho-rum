@@ -5,6 +5,7 @@ import com.fcoder.Fcoder.model.dto.response.PaginationWrapper;
 import com.fcoder.Fcoder.model.dto.response.ResponseObject;
 import com.fcoder.Fcoder.model.dto.response.SubmissionResponse;
 import com.fcoder.Fcoder.model.dto.response.UserSubmissionStatsResponse;
+import com.fcoder.Fcoder.model.entity.SubmissionEntity;
 import com.fcoder.Fcoder.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,14 +31,38 @@ public class SubmissionController {
     public ResponseEntity<ResponseObject<SubmissionResponse>> submitSolution(
             @Valid @RequestBody SubmissionRequest request,
             Authentication authentication) {
-        String username = authentication.getName();
-        SubmissionResponse result = submissionService.submitSolution(request, username);
-        return ResponseEntity.ok(new ResponseObject.Builder<SubmissionResponse>()
-                .success(true)
-                .code("SUCCESS")
-                .content(result)
-                .message("Solution submitted successfully")
-                .build());
+
+        try {
+            String username = authentication.getName();
+
+            SubmissionResponse result = submissionService.submitSolution(request, username);
+
+
+            return ResponseEntity.ok(new ResponseObject.Builder<SubmissionResponse>()
+                    .success(true)
+                    .code("SUCCESS")
+                    .content(result)
+                    .message("Solution submitted successfully")
+                    .build());
+
+        } catch (Exception e) {
+
+            // Return error response instead of hanging
+            SubmissionResponse errorResponse = SubmissionResponse.builder()
+                    .status(SubmissionEntity.SubmissionStatus.SYSTEM_ERROR)
+                    .compileError("Controller error: " + e.getMessage())
+                    .passedTests(0)
+                    .totalTests(0)
+                    .score(0.0)
+                    .build();
+
+            return ResponseEntity.ok(new ResponseObject.Builder<SubmissionResponse>()
+                    .success(false)
+                    .code("ERROR")
+                    .content(errorResponse)
+                    .message("Submission failed: " + e.getMessage())
+                    .build());
+        }
     }
 
     @GetMapping("/{id}")
