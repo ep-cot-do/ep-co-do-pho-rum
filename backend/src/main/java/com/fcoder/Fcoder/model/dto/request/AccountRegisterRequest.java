@@ -12,4 +12,5 @@ public class AccountRegisterRequest {
     private String major;
     private boolean fundStatus;
     private boolean isActive;
+    private Integer currentTerm;
 }

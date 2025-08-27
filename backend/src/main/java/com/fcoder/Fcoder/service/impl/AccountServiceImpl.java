@@ -101,10 +101,11 @@ public class AccountServiceImpl implements AccountService {
                 .major(request.getMajor())
                 .studentCode(request.getStudentCode())
                 .fundStatus(false)
-                .role(roleRepository.findByRoleName("ROLE_MEMBER")
+                .role(roleRepository.findByRoleName("MEMBER")
                         .orElseThrow(() -> new ValidationException("Default member role not found")))
                 .lastLogin(LocalDateTime.now())
                 .isActive(true)
+                .currentTerm(request.getCurrentTerm() != null ? request.getCurrentTerm() : 1)
                 .build();
 
         return saveAccountRegisterAndBuildResponse(account);
@@ -122,15 +123,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private AccountEntity buildAccountEntity(MemberAccountDetailRegisterRequest request) {
+        RoleEntity role;
 
-        RoleEntity memberRole = roleRepository.findByRoleName("ROLE_MEMBER")
-                .orElseThrow(() -> new ValidationException("Default member role not found"));
+        if (request.getRoleId() != null) {
+            role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new ValidationException("Role not found with ID: " + request.getRoleId()));
+        } else {
+            // Fallback to default MEMBER role
+            role = roleRepository.findByRoleName("MEMBER")
+                    .orElseThrow(() -> new ValidationException("Default member role not found"));
+        }
 
         return AccountEntity.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
-                .role(memberRole)
+                .role(role)  // Sử dụng role từ request thay vì cứng MEMBER
                 .fullName(request.getFullName())
                 .gender(request.getGender())
                 .phone(request.getPhone())
@@ -229,8 +237,8 @@ public class AccountServiceImpl implements AccountService {
         var account = accountRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Account not found"));
 
-        if (!account.getIsActive()) {
-            throw new ValidationException("Account is already able");
+        if (account.getIsActive()) {  // Sửa logic check
+            throw new ValidationException("Account is already enabled");
         }
 
         account.setIsActive(true);
@@ -239,7 +247,7 @@ public class AccountServiceImpl implements AccountService {
         try {
             accountRepository.save(account);
         } catch (Exception ex) {
-            throw new ActionFailedException("Failed to disable account", ex);
+            throw new ActionFailedException("Failed to enable account", ex);  // Sửa message
         }
     }
 

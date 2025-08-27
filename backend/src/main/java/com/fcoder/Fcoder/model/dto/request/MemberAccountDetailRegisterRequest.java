@@ -2,6 +2,8 @@ package com.fcoder.Fcoder.model.dto.request;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -13,7 +15,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+@Schema(description = "Request for registering a member account with full details")
 public class MemberAccountDetailRegisterRequest {
+    @NotNull(message = "Role ID shouldn't be empty")
+    private Long roleId;
+
     @NotBlank(message = "Username shouldn't be empty")
     private String username;
 
@@ -30,8 +36,8 @@ public class MemberAccountDetailRegisterRequest {
     @NotBlank(message = "Github shouldn't be empty")
     private String github;
 
-    @NotBlank(message = "Student code  shouldn't be empty")
-    @Size(min = 8, max = 8, message = "Student code  must be exactly 8 characters")
+    @NotBlank(message = "Student code shouldn't be empty")
+    @Size(min = 8, max = 8, message = "Student code must be exactly 8 characters")
     private String studentCode;
 
     @NotBlank(message = "Full Name shouldn't be empty")
@@ -62,5 +68,4 @@ public class MemberAccountDetailRegisterRequest {
 
     private Boolean fundStatus = true;
     private Boolean isActive = true;
-
 }

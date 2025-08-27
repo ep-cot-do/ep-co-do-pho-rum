@@ -3,12 +3,9 @@ services:
     container_name: fcoder_postgres
     image: 'postgres:latest'
     environment:
-      DB_NAME: ${DB_NAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     restart: always
@@ -40,6 +37,32 @@ services:
     networks:
       fcoder-networks:
 
+  fcoder-compiler:
+    container_name: fcoder_compiler
+    build:
+      context: .
+      dockerfile: Dockerfile.compiler
+    restart: always
+    volumes:
+      - compiler_workspace:/workspace/code-execution
+      - /tmp/fcoder-submissions:/tmp/fcoder-submissions
+    networks:
+      fcoder-networks:
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
+    cpus: 1.0
+    user: coderunner
+    stdin_open: true
+    tty: true
+    command: ["tail", "-f", "/dev/null"]
+
 networks:
   fcoder-networks:
     name: fcoder_networks
+
+volumes:
+  compiler_workspace:
+    name: fcoder_compiler_workspace

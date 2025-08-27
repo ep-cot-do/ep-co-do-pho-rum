@@ -24,7 +24,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @Operation(summary = "Get All Roles", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<ResponseObject<List<RoleResponse>>> getAllRoles(
             @RequestParam(required = false) String query,
@@ -49,7 +49,7 @@ public class RoleController {
 
 
     @Operation(summary = "Get Role By ID", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("{roleId}")
     public ResponseEntity<ResponseObject<RoleResponse>> getRoleById(@PathVariable Long roleId) {
         var role = roleService.getRole(roleId);
@@ -62,7 +62,7 @@ public class RoleController {
     }
 
     @Operation(summary = "Create New Role", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<ResponseObject<RoleResponse>> createRole(@RequestBody RoleRequest roleRequest) {
         var role = roleService.createRole(roleRequest);
@@ -75,7 +75,7 @@ public class RoleController {
     }
 
     @Operation(summary = "Update Role", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("{roleId}")
     public ResponseEntity<ResponseObject<RoleResponse>> updateRole(@PathVariable Long roleId, @RequestBody RoleRequest roleRequest) {
         var role = roleService.updateRole(roleRequest);
@@ -88,7 +88,7 @@ public class RoleController {
     }
 
     @Operation(summary = "Delete Role", security = {@SecurityRequirement(name = "accessCookie")})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("{roleId}")
     public ResponseEntity<ResponseObject<Void>> deleteRole(@PathVariable Long roleId) {
         roleService.deleteRole(roleId);
