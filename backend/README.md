@@ -41,11 +41,11 @@ docker compose -f compose.db.yaml --env-file .env -p fcoder up -d
 
 - Host name/ address : fcoder_postgres
 
-- Port : 5432 - Maintenace : fcoder
+- Port : 5432 - Maintenace : fcoder_db
 
 - Username: fcoder
 
-- Password : fcoderpass
+- Password : fcoderpassword
 
   click "save password?"
   then click save

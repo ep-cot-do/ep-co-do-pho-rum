@@ -1,5 +1,7 @@
 package com.fcoder.Fcoder.service.impl;
 
+import com.fcoder.Fcoder.compiler.CompilerFactory;
+import com.fcoder.Fcoder.compiler.BaseCompiler;
 import com.fcoder.Fcoder.model.entity.SubmissionEntity;
 import com.fcoder.Fcoder.model.entity.TestCaseEntity;
 import com.fcoder.Fcoder.model.other.CompilationResult;
@@ -23,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class CodeExecutionServiceImpl implements CodeExecutionService {
 
     private static final String WORKSPACE_BASE = System.getProperty("java.io.tmpdir") + "/code-execution/";
+    
+    private final CompilerFactory compilerFactory;
 
     @Override
     public ExecutionResult executeCode(String sourceCode,
@@ -89,27 +93,22 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     public CompilationResult compileCode(String sourceCode,
             SubmissionEntity.ProgrammingLanguage language) {
         try {
+            // Get the appropriate compiler for the language
+            BaseCompiler compiler = compilerFactory.getCompiler(language);
+            
+            // Check if compiler is available
+            if (!compilerFactory.isCompilerAvailable(language)) {
+                return new CompilationResult(false, null, "Compiler not available for language: " + language);
+            }
+
             // Create temporary workspace
             Path workspace = createWorkspace();
 
-            String fileName = getFileName(language);
-            Path sourceFile = workspace.resolve(fileName);
-
-            // Write source code to file
-            Files.write(sourceFile, sourceCode.getBytes());
-
-            // Compile based on language
-            return switch (language) {
-                case JAVA -> compileJava(sourceFile, workspace);
-                case CPP -> compileCpp(sourceFile, workspace);
-                case C -> compileC(sourceFile, workspace);
-                case PYTHON -> new CompilationResult(true, "python", null); // Python doesn't need compilation
-                case GO -> compileGo(sourceFile, workspace);
-                case JAVASCRIPT -> new CompilationResult(true, "node", null); // JavaScript doesn't need compilation
-                case CSHARP -> compileCSharp(sourceFile, workspace);
-                default -> new CompilationResult(false, null, "Unsupported language: " + language);
-            };
+            // Use the compiler to compile the source code
+            return compiler.compile(sourceCode, workspace);
+            
         } catch (Exception e) {
+            log.error("Error during compilation for language {}: {}", language, e.getMessage());
             return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
         }
     }
@@ -197,138 +196,35 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
         return workspace;
     }
 
-    private String getFileName(SubmissionEntity.ProgrammingLanguage language) {
-        return switch (language) {
-            case JAVA -> "Solution.java";
-            case CPP -> "solution.cpp";
-            case C -> "solution.c";
-            case PYTHON -> "solution.py";
-            case GO -> "solution.go";
-            case JAVASCRIPT -> "solution.js";
-            case CSHARP -> "Solution.cs";
-            default -> "solution.txt";
-        };
+    /**
+     * Get compiler information for all supported languages
+     */
+    public java.util.Map<SubmissionEntity.ProgrammingLanguage, String> getCompilerInfo() {
+        return compilerFactory.getCompilerInfo();
     }
 
-    private CompilationResult compileJava(Path sourceFile, Path workspace) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("javac", sourceFile.getFileName().toString());
-            pb.directory(workspace.toFile());
-            Process process = pb.start();
-
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return new CompilationResult(false, null, "Compilation timeout");
-            }
-
-            if (process.exitValue() != 0) {
-                String error = readProcessOutput(process);
-                return new CompilationResult(false, null, error);
-            }
-
-            return new CompilationResult(true, "java", null);
-        } catch (Exception e) {
-            return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
-        }
+    /**
+     * Check if compiler is available for a specific language
+     */
+    public boolean isCompilerAvailable(SubmissionEntity.ProgrammingLanguage language) {
+        return compilerFactory.isCompilerAvailable(language);
     }
 
-    private CompilationResult compileCpp(Path sourceFile, Path workspace) {
-        try {
-            String executablePath = workspace.resolve("solution").toString();
-            ProcessBuilder pb = new ProcessBuilder("g++", "-o", "solution", sourceFile.getFileName().toString());
-            pb.directory(workspace.toFile());
-            Process process = pb.start();
-
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return new CompilationResult(false, null, "Compilation timeout");
-            }
-
-            if (process.exitValue() != 0) {
-                String error = readProcessOutput(process);
-                return new CompilationResult(false, null, error);
-            }
-
-            return new CompilationResult(true, executablePath, null);
-        } catch (Exception e) {
-            return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
-        }
+    /**
+     * Get all supported programming languages
+     */
+    public SubmissionEntity.ProgrammingLanguage[] getSupportedLanguages() {
+        return compilerFactory.getSupportedLanguages();
     }
 
-    private CompilationResult compileC(Path sourceFile, Path workspace) {
-        try {
-            String executablePath = workspace.resolve("solution").toString();
-            ProcessBuilder pb = new ProcessBuilder("gcc", "-o", "solution", sourceFile.getFileName().toString());
-            pb.directory(workspace.toFile());
-            Process process = pb.start();
-
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return new CompilationResult(false, null, "Compilation timeout");
-            }
-
-            if (process.exitValue() != 0) {
-                String error = readProcessOutput(process);
-                return new CompilationResult(false, null, error);
-            }
-
-            return new CompilationResult(true, executablePath, null);
-        } catch (Exception e) {
-            return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
-        }
+    /**
+     * Check system requirements for all compilers
+     */
+    public java.util.Map<SubmissionEntity.ProgrammingLanguage, Boolean> checkSystemRequirements() {
+        return compilerFactory.checkSystemRequirements();
     }
 
-    private CompilationResult compileGo(Path sourceFile, Path workspace) {
-        try {
-            String executablePath = workspace.resolve("solution").toString();
-            ProcessBuilder pb = new ProcessBuilder("go", "build", "-o", "solution",
-                    sourceFile.getFileName().toString());
-            pb.directory(workspace.toFile());
-            Process process = pb.start();
 
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return new CompilationResult(false, null, "Compilation timeout");
-            }
-
-            if (process.exitValue() != 0) {
-                String error = readProcessOutput(process);
-                return new CompilationResult(false, null, error);
-            }
-
-            return new CompilationResult(true, executablePath, null);
-        } catch (Exception e) {
-            return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
-        }
-    }
-
-    private CompilationResult compileCSharp(Path sourceFile, Path workspace) {
-        try {
-            String executablePath = workspace.resolve("solution.exe").toString();
-            ProcessBuilder pb = new ProcessBuilder("csc", "/out:solution.exe", sourceFile.getFileName().toString());
-            pb.directory(workspace.toFile());
-            Process process = pb.start();
-
-            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return new CompilationResult(false, null, "Compilation timeout");
-            }
-
-            if (process.exitValue() != 0) {
-                String error = readProcessOutput(process);
-                return new CompilationResult(false, null, error);
-            }
-
-            return new CompilationResult(true, executablePath, null);
-        } catch (Exception e) {
-            return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
-        }
-    }
 
     private String readProcessOutput(Process process) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {

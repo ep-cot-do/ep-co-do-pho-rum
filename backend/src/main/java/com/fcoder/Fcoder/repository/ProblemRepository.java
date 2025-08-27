@@ -35,4 +35,22 @@ public interface ProblemRepository extends BaseRepository<ProblemEntity, Long> {
 
     @Query("SELECT COUNT(s) FROM SubmissionEntity s WHERE s.problem.id = :problemId AND s.status = 'ACCEPTED'")
     Integer countAcceptedSubmissionsByProblemId(@Param("problemId") Long problemId);
+
+    // Thêm vào ProblemRepository
+    List<ProblemEntity> findByCreatedBy_IdOrderByCreatedDateDesc(Long userId);
+
+    @Query("SELECT p FROM ProblemEntity p WHERE " +
+            "(:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND " +
+            "(:category IS NULL OR LOWER(p.category) LIKE LOWER(CONCAT('%', :category, '%'))) AND " +
+            "(:difficulty IS NULL OR p.difficulty = :difficulty) AND " +
+            "(:tag IS NULL OR p.tags LIKE CONCAT('%', :tag, '%')) AND " +
+            "(:isActive IS NULL OR p.isActive = :isActive) AND " +
+            "(:authorId IS NULL OR p.createdBy.id = :authorId)")
+    List<ProblemEntity> findProblemsWithFilters(@Param("title") String title,
+                                                @Param("category") String category,
+                                                @Param("difficulty") ProblemEntity.ProblemDifficulty difficulty,
+                                                @Param("tag") String tag,
+                                                @Param("isActive") Boolean isActive,
+                                                @Param("authorId") Long authorId);
+
 }

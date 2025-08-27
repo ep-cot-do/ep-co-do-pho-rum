@@ -22,6 +22,7 @@ public class ProblemResponse {
     private Boolean isActive;
     private String createdBy;
     private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
     private List<TestCaseResponse> sampleTestCases;
     private Integer totalSubmissions;
     private Integer acceptedSubmissions;
