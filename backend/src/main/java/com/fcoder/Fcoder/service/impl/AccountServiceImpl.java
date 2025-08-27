@@ -105,6 +105,7 @@ public class AccountServiceImpl implements AccountService {
                         .orElseThrow(() -> new ValidationException("Default member role not found")))
                 .lastLogin(LocalDateTime.now())
                 .isActive(true)
+                .currentTerm(request.getCurrentTerm() != null ? request.getCurrentTerm() : 1)
                 .build();
 
         return saveAccountRegisterAndBuildResponse(account);

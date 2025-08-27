@@ -72,5 +72,5 @@ tasks.register('run', JavaExec) {
 }
 
 springBoot {
-	mainClass.set("com.fcoder.fcoder.FcoderApplication")
+	mainClass.set("com.fcoder.Fcoder.FcoderApplication")
 }
