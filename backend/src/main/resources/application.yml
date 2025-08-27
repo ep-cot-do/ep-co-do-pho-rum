@@ -2,9 +2,9 @@ spring:
   application:
     name: Fcoder
   datasource:
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:12345}
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USERNAME:fcoder}
+    password: ${DB_PASSWORD:fcoderpassword}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:fcoder_db}
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:test}
-    password: ${MAIL_PASSWORD:test}
+    username: ${MAIL_USERNAME:claimrequestsystem@gmail.com}
+    password: ${MAIL_PASSWORD:ihss oorb exus dcph}
     properties:
       mail:
         smtp:
