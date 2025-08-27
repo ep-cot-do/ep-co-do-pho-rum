@@ -31,6 +31,12 @@ MAIL_PASSWORD=fcoder_fcoderpassword
 docker compose -f compose.db.yaml --env-file .env -p fcoder up -d
 ```
 
+This will start the following containers:
+- **fcoder_postgres**: PostgreSQL database
+- **fcoder_pgadmin4**: PgAdmin for database management
+- **fcoder_redis**: Redis cache
+- **fcoder_compiler**: Multi-language compiler container (Java, C++, C, Python, Go, JavaScript, C#)
+
 ### Open docker and run all container name "fcoder", then run "http://localhost:5050/login?next=/" and sign in with account in .env file
 
 ### Click to server (at the left corner) then register a server
@@ -84,6 +90,31 @@ If you want see the database lick the arrow down of "public"
 ```
 
 then run the project in intelliji
+
+### Compiler Container
+
+The compiler container supports the following programming languages:
+- **Java 21**: OpenJDK with javac compiler
+- **C/C++**: GCC compiler (gcc/g++)
+- **Python 3**: Python interpreter with pip
+- **Go**: Go compiler and runtime
+- **JavaScript**: Node.js runtime and npm
+- **C#**: .NET 8.0 SDK and runtime
+
+To access the compiler container for debugging:
+```
+docker exec -it fcoder_compiler bash
+```
+
+To check compiler versions:
+```
+docker exec fcoder_compiler gcc --version
+docker exec fcoder_compiler python --version
+docker exec fcoder_compiler java -version
+docker exec fcoder_compiler go version
+docker exec fcoder_compiler node --version
+docker exec fcoder_compiler dotnet --version
+```
 
 ### Swagger UI
 

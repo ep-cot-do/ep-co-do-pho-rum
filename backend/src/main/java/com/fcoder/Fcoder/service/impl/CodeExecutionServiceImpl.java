@@ -9,7 +9,8 @@ import com.fcoder.Fcoder.model.other.ExecutionResult;
 import com.fcoder.Fcoder.model.other.TestCaseResult;
 import com.fcoder.Fcoder.service.CodeExecutionService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -21,11 +22,12 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CodeExecutionServiceImpl implements CodeExecutionService {
 
-    private static final String WORKSPACE_BASE = System.getProperty("java.io.tmpdir") + "/code-execution/";
-    
+    private static final Logger log = LoggerFactory.getLogger(CodeExecutionServiceImpl.class);
+
+    private static final String WORKSPACE_BASE = System.getProperty("java.io.tmpdir").replace("\\", "/") + "/code-execution/";
+
     private final CompilerFactory compilerFactory;
 
     @Override
@@ -91,11 +93,15 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
 
     @Override
     public CompilationResult compileCode(String sourceCode,
-            SubmissionEntity.ProgrammingLanguage language) {
+                                         SubmissionEntity.ProgrammingLanguage language) {
         try {
+            // Set timeout cho compilation
+            long startTime = System.currentTimeMillis();
+            long compilationTimeout = 30000; // 30 seconds
+
             // Get the appropriate compiler for the language
             BaseCompiler compiler = compilerFactory.getCompiler(language);
-            
+
             // Check if compiler is available
             if (!compilerFactory.isCompilerAvailable(language)) {
                 return new CompilationResult(false, null, "Compiler not available for language: " + language);
@@ -105,10 +111,19 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             Path workspace = createWorkspace();
 
             // Use the compiler to compile the source code
-            return compiler.compile(sourceCode, workspace);
-            
+            CompilationResult result = compiler.compile(sourceCode, workspace);
+
+            // Check compilation timeout
+            long compilationTime = System.currentTimeMillis() - startTime;
+            if (compilationTime > compilationTimeout) {
+                log.warn("Compilation timeout for language {}: {}ms", language, compilationTime);
+                return new CompilationResult(false, null, "Compilation timeout exceeded");
+            }
+
+            return result;
+
         } catch (Exception e) {
-            log.error("Error during compilation for language {}: {}", language, e.getMessage());
+            log.error("Error during compilation for language {}: {}", language, e.getMessage(), e);
             return new CompilationResult(false, null, "Compilation error: " + e.getMessage());
         }
     }
@@ -119,7 +134,26 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             int timeLimit,
             int memoryLimit) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(executablePath);
+            // Get the compiler for execution
+            Path executableFilePath = Paths.get(executablePath);
+            Path workspace = executableFilePath.getParent();
+
+            // Determine language from executable path and get execution command
+            SubmissionEntity.ProgrammingLanguage language = determineLanguageFromPath(executablePath);
+            BaseCompiler compiler = compilerFactory.getCompiler(language);
+            String[] executionCommand = compiler.getExecutionCommand();
+
+            // Update Docker volume mount to use the correct workspace
+            for (int i = 0; i < executionCommand.length; i++) {
+                if (executionCommand[i].contains("%WORKSPACE%")) {
+                    executionCommand[i] = executionCommand[i].replace(
+                            "%WORKSPACE%",
+                            workspace.toString().replace("\\", "/"));
+                }
+            }
+
+            ProcessBuilder pb = new ProcessBuilder(executionCommand);
+            pb.directory(workspace.toFile());
             pb.redirectErrorStream(true);
 
             long startTime = System.currentTimeMillis();
@@ -199,6 +233,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     /**
      * Get compiler information for all supported languages
      */
+    @Override
     public java.util.Map<SubmissionEntity.ProgrammingLanguage, String> getCompilerInfo() {
         return compilerFactory.getCompilerInfo();
     }
@@ -206,6 +241,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     /**
      * Check if compiler is available for a specific language
      */
+    @Override
     public boolean isCompilerAvailable(SubmissionEntity.ProgrammingLanguage language) {
         return compilerFactory.isCompilerAvailable(language);
     }
@@ -213,6 +249,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     /**
      * Get all supported programming languages
      */
+    @Override
     public SubmissionEntity.ProgrammingLanguage[] getSupportedLanguages() {
         return compilerFactory.getSupportedLanguages();
     }
@@ -220,11 +257,10 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     /**
      * Check system requirements for all compilers
      */
+    @Override
     public java.util.Map<SubmissionEntity.ProgrammingLanguage, Boolean> checkSystemRequirements() {
         return compilerFactory.checkSystemRequirements();
     }
-
-
 
     private String readProcessOutput(Process process) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -234,6 +270,24 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                 output.append(line).append("\n");
             }
             return output.toString();
+        }
+    }
+
+    /**
+     * Determine programming language from executable path
+     */
+    private SubmissionEntity.ProgrammingLanguage determineLanguageFromPath(String executablePath) {
+        if (executablePath.endsWith(".class") || executablePath.contains("Main.class")) {
+            return SubmissionEntity.ProgrammingLanguage.JAVA;
+        } else if (executablePath.endsWith(".py") || executablePath.contains("main.py")) {
+            return SubmissionEntity.ProgrammingLanguage.PYTHON;
+        } else if (executablePath.endsWith(".js") || executablePath.contains("main.js")) {
+            return SubmissionEntity.ProgrammingLanguage.JAVASCRIPT;
+        } else if (executablePath.contains("main.cpp")
+                || (!executablePath.contains(".") && executablePath.contains("cpp"))) {
+            return SubmissionEntity.ProgrammingLanguage.CPP;
+        } else {
+            return SubmissionEntity.ProgrammingLanguage.C; // Default to C for compiled executables
         }
     }
 }

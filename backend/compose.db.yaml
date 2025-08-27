@@ -37,6 +37,32 @@ services:
     networks:
       fcoder-networks:
 
+  fcoder-compiler:
+    container_name: fcoder_compiler
+    build:
+      context: .
+      dockerfile: Dockerfile.compiler
+    restart: always
+    volumes:
+      - compiler_workspace:/workspace/code-execution
+      - /tmp/fcoder-submissions:/tmp/fcoder-submissions
+    networks:
+      fcoder-networks:
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
+    cpus: 1.0
+    user: coderunner
+    stdin_open: true
+    tty: true
+    command: ["tail", "-f", "/dev/null"]
+
 networks:
   fcoder-networks:
     name: fcoder_networks
+
+volumes:
+  compiler_workspace:
+    name: fcoder_compiler_workspace
