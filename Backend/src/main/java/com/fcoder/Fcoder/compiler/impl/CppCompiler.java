@@ -35,13 +35,16 @@ public class CppCompiler extends BaseCompiler {
 
             // Get compile command and replace workspace placeholder
             String[] compileCommand = getCompileCommand();
+            String normalizedWorkspace = workspace.toString().replace("\\", "/");
+            log.info("Normalized workspace path: {}", normalizedWorkspace);
+            
             for (int i = 0; i < compileCommand.length; i++) {
                 if (compileCommand[i].contains("%WORKSPACE%")) {
-                    compileCommand[i] = compileCommand[i].replace(
-                            "%WORKSPACE%",
-                            workspace.toString().replace("\\", "/"));
+                    compileCommand[i] = compileCommand[i].replace("%WORKSPACE%", normalizedWorkspace);
                 }
             }
+            
+            log.info("Docker compile command: {}", String.join(" ", compileCommand));
 
             // Run compilation in Docker container
             ProcessBuilder pb = new ProcessBuilder(compileCommand);
@@ -61,12 +64,16 @@ public class CppCompiler extends BaseCompiler {
             }
 
             // Wait for compilation to complete
+            log.info("Waiting for compilation to complete (timeout: {}s)", COMPILE_TIMEOUT);
             boolean finished = process.waitFor(COMPILE_TIMEOUT, TimeUnit.SECONDS);
 
             if (!finished) {
+                log.error("Compilation timeout after {}s", COMPILE_TIMEOUT);
                 process.destroyForcibly();
                 return new CompilationResult(false, null, "Compilation timeout");
             }
+            
+            log.info("Compilation process finished with exit code: {}", process.exitValue());
 
             if (process.exitValue() == 0) {
                 // Compilation successful

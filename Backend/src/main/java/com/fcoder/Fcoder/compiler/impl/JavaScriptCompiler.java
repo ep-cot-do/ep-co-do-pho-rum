@@ -32,7 +32,7 @@ public class JavaScriptCompiler extends BaseCompiler {
             // JavaScript doesn't need compilation, just syntax check
             ProcessBuilder pb = new ProcessBuilder(
                     "docker", "run", "--rm",
-                    "-v", workspace.toString() + ":/workspace",
+                    "-v", workspace.toString().replace("\\", "/") + ":/workspace",
                     "-w", "/workspace",
                     "--memory=512m",
                     "--cpus=1",
@@ -82,7 +82,7 @@ public class JavaScriptCompiler extends BaseCompiler {
         // JavaScript doesn't need compilation
         return new String[] {
                 "docker", "run", "--rm",
-                "-v", System.getProperty("user.dir") + ":/workspace",
+                "-v", "%WORKSPACE%:/workspace",
                 "-w", "/workspace",
                 "--memory=512m",
                 "--cpus=1",
@@ -96,7 +96,7 @@ public class JavaScriptCompiler extends BaseCompiler {
     public String[] getExecutionCommand() {
         return new String[] {
                 "docker", "run", "--rm",
-                "-v", System.getProperty("user.dir") + ":/workspace",
+                "-v", "%WORKSPACE%:/workspace",
                 "-w", "/workspace",
                 "--memory=512m",
                 "--cpus=1",

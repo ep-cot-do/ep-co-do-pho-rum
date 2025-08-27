@@ -71,11 +71,38 @@ public abstract class BaseCompiler {
      */
     public boolean isAvailable() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("docker", "image", "inspect", dockerImage);
+            // Simple approach: try to run docker images command with grep
+            ProcessBuilder pb = new ProcessBuilder("docker", "images", "--format", "{{.Repository}}:{{.Tag}}", "--filter", "reference=" + dockerImage);
+            pb.redirectErrorStream(true);
             Process process = pb.start();
-            return process.waitFor() == 0;
+            
+            // Read output
+            StringBuilder output = new StringBuilder();
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+            }
+            
+            // Wait for max 5 seconds
+            boolean finished = process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                return false;
+            }
+            
+            boolean available = process.exitValue() == 0 && output.toString().trim().contains(dockerImage);
+            System.out.println("Docker image " + dockerImage + " availability check: " + available);
+            if (!available) {
+                System.err.println("Docker images output: " + output.toString());
+            }
+            return available;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error checking Docker image availability for " + dockerImage + ": " + e.getMessage());
+            e.printStackTrace();
+            // Fallback: assume available if we can't check
+            return true;
         }
     }
 

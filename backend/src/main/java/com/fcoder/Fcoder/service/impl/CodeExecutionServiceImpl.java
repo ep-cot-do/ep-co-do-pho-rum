@@ -95,6 +95,9 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     public CompilationResult compileCode(String sourceCode,
                                          SubmissionEntity.ProgrammingLanguage language) {
         try {
+            log.info("Starting compilation for language: {}", language);
+            log.debug("Source code length: {} characters", sourceCode.length());
+            
             // Set timeout cho compilation
             long startTime = System.currentTimeMillis();
             long compilationTimeout = 30000; // 30 seconds
@@ -104,14 +107,17 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
 
             // Check if compiler is available
             if (!compilerFactory.isCompilerAvailable(language)) {
+                log.error("Compiler not available for language: {}", language);
                 return new CompilationResult(false, null, "Compiler not available for language: " + language);
             }
 
             // Create temporary workspace
             Path workspace = createWorkspace();
+            log.info("Created workspace: {}", workspace);
 
             // Use the compiler to compile the source code
             CompilationResult result = compiler.compile(sourceCode, workspace);
+            log.info("Compilation result - Success: {}, Error: {}", result.isSuccess(), result.getErrorMessage());
 
             // Check compilation timeout
             long compilationTime = System.currentTimeMillis() - startTime;
@@ -134,12 +140,16 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             int timeLimit,
             int memoryLimit) {
         try {
+            log.info("Running test case for executable: {}", executablePath);
+            
             // Get the compiler for execution
             Path executableFilePath = Paths.get(executablePath);
             Path workspace = executableFilePath.getParent();
 
             // Determine language from executable path and get execution command
             SubmissionEntity.ProgrammingLanguage language = determineLanguageFromPath(executablePath);
+            log.info("Determined language: {} for path: {}", language, executablePath);
+            
             BaseCompiler compiler = compilerFactory.getCompiler(language);
             String[] executionCommand = compiler.getExecutionCommand();
 
@@ -152,6 +162,10 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                 }
             }
 
+            log.info("Execution command: {}", String.join(" ", executionCommand));
+            log.info("Workspace: {}", workspace);
+            log.info("Test case input: {}", testCase.getInput());
+            
             ProcessBuilder pb = new ProcessBuilder(executionCommand);
             pb.directory(workspace.toFile());
             pb.redirectErrorStream(true);
@@ -186,6 +200,12 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             String expectedOutput = testCase.getExpectedOutput().trim();
             actualOutput = actualOutput.trim();
 
+            log.info("Test case execution completed:");
+            log.info("  Expected output: '{}'", expectedOutput);
+            log.info("  Actual output: '{}'", actualOutput);
+            log.info("  Execution time: {}ms", executionTime);
+            log.info("  Process exit code: {}", process.exitValue());
+
             // Compare outputs
             boolean passed = expectedOutput.equals(actualOutput);
 
@@ -196,6 +216,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             result.setExecutionTime(executionTime);
             result.setMemoryUsed(0); // Memory measurement would require native tools
 
+            log.info("Test case result: {}", passed ? "PASSED" : "FAILED");
             return result;
 
         } catch (Exception e) {
