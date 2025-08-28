@@ -78,7 +78,7 @@ export default function Home() {
                     }`}
                   >
                     <div
-                      className={`h-56 sm:h-64 relative ${
+                      className={`relative h-56 sm:h-64 ${
                         isDark ? "bg-zinc-700" : "bg-zinc-100"
                       }`}
                     >
@@ -87,7 +87,7 @@ export default function Home() {
                           src={member.image}
                           alt={member.name}
                           fill
-                          className="object-cover object-top"
+                          className="object-cover object-center"
                           onError={() => handleImageError(index, genIndex)}
                         />
                       ) : (
@@ -181,7 +181,7 @@ export default function Home() {
                       src={selectedMember.image}
                       alt={selectedMember.name}
                       fill
-                      className="object-cover object-top"
+                      className="object-cover object-center"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
