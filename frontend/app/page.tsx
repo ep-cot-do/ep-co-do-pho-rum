@@ -11,7 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { useTheme } from "./_contexts/ThemeContext";
 import { coreMembersData, CoreMember, ImageErrorState } from "./_data/coreMembers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import "./animation.css"; // Import the new animation CSS file
 
@@ -24,12 +24,19 @@ import "./animation.css"; // Import the new animation CSS file
 //   { name: "Doan Vo Quoc Thai", description: "Second place in FPTU Code Arena", level: "silver" },
 // ];
 
+// Group images for rotating carousel
+const groupImages = [
+  "/images/group/main.jpg",
+  "/images/group/main1.jpg"
+];
+
 export default function Home() {
   const { theme } = useTheme();
   const isDark: boolean = theme === "dark";
   const [imageErrors, setImageErrors] = useState<ImageErrorState>({});
   const [selectedMember, setSelectedMember] = useState<CoreMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
   const handleImageError = (memberIndex: number, genIndex: number): void => {
     setImageErrors((prev: ImageErrorState) => ({
@@ -48,24 +55,114 @@ export default function Home() {
     setTimeout(() => setSelectedMember(null), 300); // Wait for animation
   };
 
+  // Auto-rotate group images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % groupImages.length);
+    }, 4000); // Change image every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <LayoutWrapper maxWidth="w-full">
       {/* Club header / introduction */}
-      <header className={`w-full mb-8 rounded-xl p-6 md:p-8 ${isDark ? "bg-zinc-900/60" : "bg-gradient-to-r from-violet-50 to-white border border-zinc-100"} animate-fade-in`}> {/* Added animation class */}
-        <div className="w-full"> {/* Left-aligned content */}
-          <h1 className={`text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-600 to-violet-800 animate-slide-in-left`}> {/* Added slide-in-left animation */}
-            FCoder Club
-          </h1>
-          <p className={`mt-3 text-base md:text-lg leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-600"} animate-fade-in-delayed`}> {/* Added delayed fade-in animation */}
-            FCoder is a programming club for students, focusing on learning, collaboration, and real-world project development. We organize workshops, coding challenges, and community events to help members enhance their skills and contribute to the open-source community.
-          </p>
+      <header className="relative w-full mb-8 p-6 md:p-8 lg:p-10 animate-fade-in-up">
+
+        {/* Main content */}
+        <div className="relative z-10 stagger-children">
+          <div className="flex flex-col lg:flex-row items-center lg:items-center gap-8 lg:gap-12">
+            {/* Left side - Text content */}
+            <div className="flex-1 lg:max-w-2xl w-full lg:text-left">
+              {/* Title with enhanced styling */}
+              <div className="mb-4">
+                <h1 className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-2 leading-tight ${isDark ? "text-gradient-animated" : "text-gradient-animated"
+                  }`}>
+                  FCoder
+                </h1>
+                <div className={`h-1 w-20 rounded-full animate-gradient ${isDark
+                  ? "bg-gradient-to-r from-violet-400 to-purple-500"
+                  : "bg-gradient-to-r from-violet-500 to-purple-600"
+                  }`}></div>
+              </div>
+
+              {/* Subtitle */}
+              <p className={`text-lg md:text-xl font-semibold mb-4 ${isDark ? "text-violet-300" : "text-violet-700"
+                }`}>
+                Empowering Student Developers
+              </p>
+
+              {/* Description with better typography */}
+              <p className={`text-sm md:text-base lg:text-lg leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"
+                }`}>
+                FCoder is a vibrant programming club dedicated to fostering innovation and collaboration among students.
+                We create an ecosystem where aspiring developers can learn, grow, and build impactful projects together.
+                Through workshops, coding challenges, and community events, we bridge the gap between academic learning
+                and real-world software development.
+              </p>
+            </div>
+
+            {/* Right side - Group Images Carousel */}
+            <div className="flex-shrink-0 lg:flex-1 w-full lg:w-auto flex justify-center">
+              <div className="relative w-full max-w-md lg:max-w-none flex justify-center">
+                <div className={`absolute inset-0 rounded-2xl blur-xl opacity-20 animate-pulse-glow ${isDark ? "bg-violet-500" : "bg-violet-400"
+                  }`}></div>
+                <div className="relative p-4 lg:p-8">
+                  <div className="relative w-64 h-48 md:w-80 md:h-56 lg:w-96 lg:h-72 xl:w-[28rem] xl:h-80 rounded-2xl overflow-hidden shadow-2xl">
+                    {groupImages.map((imageSrc, index) => (
+                      <div
+                        key={index}
+                        className={`absolute inset-0 transition-opacity duration-1000 ${index === currentImageIndex ? "opacity-100" : "opacity-0"
+                          }`}
+                      >
+                        <Image
+                          src={imageSrc}
+                          alt={`FCoder Group Photo ${index + 1}`}
+                          fill
+                          className="object-cover animate-float"
+                          style={{ animationDelay: `${index * 0.5}s` }}
+                          priority={index === 0}
+                        />
+                      </div>
+                    ))}
+                    {/* Image overlay with gradient */}
+                    <div className={`absolute inset-0 bg-gradient-to-t ${isDark
+                      ? "from-zinc-900/20 via-transparent to-violet-900/10"
+                      : "from-white/10 via-transparent to-violet-100/10"
+                      }`}></div>
+                  </div>
+
+                  {/* Image indicators */}
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {groupImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentImageIndex
+                          ? isDark ? "bg-violet-400 w-6" : "bg-violet-600 w-6"
+                          : isDark ? "bg-zinc-600 hover:bg-zinc-500" : "bg-zinc-300 hover:bg-zinc-400"
+                          }`}
+                        aria-label={`View group photo ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
       {/* Committee / leadership per generation */}
-      <section className="w-full">
-        <div className="w-full">
-          <h2 className={`text-xl md:text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>Committee / Leadership per Generation</h2>
+      <section className="w-full animate-fade-in-up">
+        <div className="w-full mb-8">
+          <h2 className={`text-2xl md:text-3xl font-bold mb-3 ${isDark ? "text-white" : "text-zinc-800"}`}>
+            Committee / Leadership per Generation
+          </h2>
+          <div className={`h-0.5 w-32 rounded-full ${isDark
+            ? "bg-gradient-to-r from-violet-400 to-purple-500"
+            : "bg-gradient-to-r from-violet-500 to-purple-600"
+            }`}></div>
         </div>
       </section>
       {/* Achievements and Core Team - Responsive layout */}
@@ -73,27 +170,34 @@ export default function Home() {
         {/* Core Team Section - Full width on mobile, 4/5 on desktop */}
         <section className="w-full">
           {coreMembersData.map((generation, genIndex: number) => (
-            <div key={genIndex} className="mb-8">
-              <div className="flex items-center justify-between mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
-                  <IconUser
-                    className={isDark ? "text-violet-400" : "text-violet-600"}
-                    size={22}
-                    stroke={1.5}
-                  />
-                  {generation.title}
-                </h2>
+            <div key={genIndex} className="mb-12 animate-fade-in-up" style={{ animationDelay: `${genIndex * 0.2}s` }}>
+              <div className="flex items-center justify-between mb-6 md:mb-8">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${isDark ? "bg-violet-500/20 text-violet-400" : "bg-violet-100 text-violet-600"
+                    }`}>
+                    <IconUser size={24} stroke={1.5} />
+                  </div>
+                  <div>
+                    <h2 className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-zinc-800"}`}>
+                      {generation.title}
+                    </h2>
+                    <div className={`h-0.5 w-16 rounded-full mt-1 ${isDark
+                      ? "bg-gradient-to-r from-violet-400 to-purple-500"
+                      : "bg-gradient-to-r from-violet-500 to-purple-600"
+                      }`}></div>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 stagger-children">
                 {generation.members.map((member, index: number) => (
                   <div
                     key={index}
-                    className={`flex flex-col rounded-xl overflow-hidden transition-transform hover:-translate-y-1 ${isDark
-                      ? "bg-zinc-800/40"
-                      : "bg-white border border-zinc-100 shadow-sm"
+                    className={`flex flex-col rounded-xl overflow-hidden cursor-pointer hover-scale hover-glow transition-all duration-300 ${isDark
+                      ? "bg-zinc-800/60 border border-zinc-700/50 shadow-lg"
+                      : "bg-white border border-zinc-200/80 shadow-md hover:shadow-xl"
                       }`}
-                    onClick={() => openMemberProfile(member)} // Correctly using the function here
+                    onClick={() => openMemberProfile(member)}
                   >
                     <div
                       className={`relative h-56 sm:h-64 ${isDark ? "bg-zinc-700" : "bg-zinc-100"

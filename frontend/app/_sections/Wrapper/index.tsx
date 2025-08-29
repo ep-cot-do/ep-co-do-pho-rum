@@ -6,6 +6,7 @@ import UserFooter from "@/app/_sections/User/Footer";
 import AdminHeader from "@/app/_sections/Admin/Header";
 import AdminFooter from "@/app/_sections/Admin/Footer";
 import { useTheme } from "@/app/_contexts/ThemeContext";
+import "@/app/animation.css";
 
 type LayoutWrapperProps = {
   children: ReactNode;
@@ -56,11 +57,24 @@ export default function LayoutWrapper({
   const Footer = isAdmin ? AdminFooter : UserFooter;
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDark ? "bg-zinc-900" : "bg-white"}`}>
+    <div className={`relative flex flex-col min-h-screen overflow-hidden ${isDark
+      ? "bg-gradient-to-br from-zinc-900/95 via-zinc-800/90 to-violet-900/50"
+      : "bg-gradient-to-br from-white via-violet-50/70 to-violet-100/40"
+      }`}>
+      {/* Decorative background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-10 animate-float ${isDark ? "bg-violet-600" : "bg-violet-300"
+          }`}></div>
+        <div className={`absolute top-1/2 -left-32 w-64 h-64 rounded-full opacity-8 animate-float ${isDark ? "bg-purple-600" : "bg-purple-300"
+          }`} style={{ animationDelay: '1s' }}></div>
+        <div className={`absolute -bottom-40 right-1/4 w-96 h-96 rounded-full opacity-5 animate-float ${isDark ? "bg-indigo-600" : "bg-indigo-300"
+          }`} style={{ animationDelay: '2s' }}></div>
+      </div>
+
       {showHeader && <Header />}
 
       <main
-        className={`flex-grow w-full ${maxWidth} mx-auto ${withPadding ? "px-4 sm:px-6 py-8" : ""
+        className={`relative z-10 flex-grow w-full ${maxWidth} mx-auto ${withPadding ? "px-4 sm:px-6 py-8" : ""
           } ${className}`}
       >
         {children}
