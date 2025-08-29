@@ -1,0 +1,33 @@
+/* Animation for modal opening */
+@keyframes modal-open {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Class to apply the animation */
+.animate-modal-open {
+  animation: modal-open 0.3s ease-out;
+}
+
+/* Animation for modal opening with scaling effect */
+@keyframes modal-scale-open {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Class to apply the scaling animation */
+.animate-modal-scale-open {
+  animation: modal-scale-open 0.3s ease-out;
+}

@@ -10,10 +10,10 @@ import {
   IconSchool,
 } from "@tabler/icons-react";
 import { useTheme } from "./_contexts/ThemeContext";
-import { coreMembersData, CoreMember } from "./_data/coreMembers";
+import { coreMembersData, CoreMember, ImageErrorState } from "./_data/coreMembers";
 import { useState } from "react";
 import Image from "next/image";
-import { ImageErrorState } from "./_data/coreMembers";
+import "./animation.css"; // Import the new animation CSS file
 
 // Fake data for demonstration
 // const achievements: AchievementItem[] = [
@@ -50,6 +50,24 @@ export default function Home() {
 
   return (
     <LayoutWrapper maxWidth="w-full">
+      {/* Club header / introduction */}
+      <header className={`w-full mb-8 rounded-xl p-6 md:p-8 ${isDark ? "bg-zinc-900/60" : "bg-gradient-to-r from-violet-50 to-white border border-zinc-100"} animate-fade-in`}> {/* Added animation class */}
+        <div className="w-full"> {/* Left-aligned content */}
+          <h1 className={`text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-violet-600 to-violet-800 animate-slide-in-left`}> {/* Added slide-in-left animation */}
+            FCoder Club
+          </h1>
+          <p className={`mt-3 text-base md:text-lg leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-600"} animate-fade-in-delayed`}> {/* Added delayed fade-in animation */}
+            FCoder is a programming club for students, focusing on learning, collaboration, and real-world project development. We organize workshops, coding challenges, and community events to help members enhance their skills and contribute to the open-source community.
+          </p>
+        </div>
+      </header>
+
+      {/* Committee / leadership per generation */}
+      <section className="w-full">
+        <div className="w-full">
+          <h2 className={`text-xl md:text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>Committee / Leadership per Generation</h2>
+        </div>
+      </section>
       {/* Achievements and Core Team - Responsive layout */}
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
         {/* Core Team Section - Full width on mobile, 4/5 on desktop */}
@@ -71,16 +89,15 @@ export default function Home() {
                 {generation.members.map((member, index: number) => (
                   <div
                     key={index}
-                    className={`flex flex-col rounded-xl overflow-hidden transition-transform hover:-translate-y-1 ${
-                      isDark
-                        ? "bg-zinc-800/40"
-                        : "bg-white border border-zinc-100 shadow-sm"
-                    }`}
+                    className={`flex flex-col rounded-xl overflow-hidden transition-transform hover:-translate-y-1 ${isDark
+                      ? "bg-zinc-800/40"
+                      : "bg-white border border-zinc-100 shadow-sm"
+                      }`}
+                    onClick={() => openMemberProfile(member)} // Correctly using the function here
                   >
                     <div
-                      className={`relative h-56 sm:h-64 ${
-                        isDark ? "bg-zinc-700" : "bg-zinc-100"
-                      }`}
+                      className={`relative h-56 sm:h-64 ${isDark ? "bg-zinc-700" : "bg-zinc-100"
+                        }`}
                     >
                       {member.image && !imageErrors[`${genIndex}-${index}`] ? (
                         <Image
@@ -94,9 +111,8 @@ export default function Home() {
                         <div className="absolute inset-0 flex items-center justify-center">
                           <IconUser
                             size={48}
-                            className={`${
-                              isDark ? "text-zinc-600" : "text-zinc-300"
-                            }`}
+                            className={`${isDark ? "text-zinc-600" : "text-zinc-300"
+                              }`}
                             stroke={1}
                           />
                         </div>
@@ -107,31 +123,17 @@ export default function Home() {
                         {member.name}
                       </h3>
                       <p
-                        className={`text-xs md:text-sm font-medium ${
-                          isDark ? "text-violet-400" : "text-violet-600"
-                        }`}
+                        className={`text-xs md:text-sm font-medium ${isDark ? "text-violet-400" : "text-violet-600"
+                          }`}
                       >
                         {member.role}
                       </p>
                       <p
-                        className={`mt-1 md:mt-2 text-xs md:text-sm ${
-                          isDark ? "text-zinc-400" : "text-zinc-600"
-                        }`}
+                        className={`mt-1 md:mt-2 text-xs md:text-sm ${isDark ? "text-zinc-400" : "text-zinc-600"
+                          }`}
                       >
                         {member.description}
                       </p>
-                      <div className="mt-3 md:mt-4 flex items-center">
-                        <button
-                          onClick={() => openMemberProfile(member)}
-                          className={`px-2 md:px-3 py-1 text-xs rounded-md transition-colors ${
-                            isDark
-                              ? "bg-zinc-700 hover:bg-zinc-600 text-zinc-300 hover:text-white"
-                              : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900"
-                          }`}
-                        >
-                          View Profile
-                        </button>
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -152,18 +154,15 @@ export default function Home() {
 
           {/* Modal Content */}
           <div
-            className={`relative w-full max-w-md mx-4 rounded-xl overflow-hidden shadow-2xl transform transition-all ${
-              isDark ? "bg-zinc-900" : "bg-white"
-            }`}
+            className={`relative w-full max-w-md mx-4 rounded-xl overflow-hidden shadow-2xl transform transition-all ${isDark ? "bg-zinc-900" : "bg-white"} animate-modal-scale-open`}
           >
             {/* Close Button */}
             <button
               onClick={closeMemberProfile}
-              className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-colors ${
-                isDark
-                  ? "bg-black/20 hover:bg-black/40 text-white"
-                  : "bg-white/20 hover:bg-white/40 text-black"
-              }`}
+              className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-colors ${isDark
+                ? "bg-black/20 hover:bg-black/40 text-white"
+                : "bg-white/20 hover:bg-white/40 text-black"
+                }`}
             >
               <IconX size={20} />
             </button>
@@ -172,9 +171,8 @@ export default function Home() {
               <>
                 {/* Profile Image */}
                 <div
-                  className={`h-64 relative ${
-                    isDark ? "bg-zinc-800" : "bg-zinc-100"
-                  }`}
+                  className={`h-64 relative ${isDark ? "bg-zinc-800" : "bg-zinc-100"
+                    }`}
                 >
                   {selectedMember.image ? (
                     <Image
@@ -200,16 +198,14 @@ export default function Home() {
                     {selectedMember.name}
                   </h2>
                   <p
-                    className={`text-lg font-medium mb-4 ${
-                      isDark ? "text-violet-400" : "text-violet-600"
-                    }`}
+                    className={`text-lg font-medium mb-4 ${isDark ? "text-violet-400" : "text-violet-600"
+                      }`}
                   >
                     {selectedMember.role}
                   </p>
                   <p
-                    className={`text-sm mb-6 ${
-                      isDark ? "text-zinc-400" : "text-zinc-600"
-                    }`}
+                    className={`text-sm mb-6 ${isDark ? "text-zinc-400" : "text-zinc-600"
+                      }`}
                   >
                     {selectedMember.description}
                   </p>
@@ -224,16 +220,14 @@ export default function Home() {
                         />
                         <div>
                           <p
-                            className={`text-sm ${
-                              isDark ? "text-zinc-400" : "text-zinc-500"
-                            }`}
+                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
+                              }`}
                           >
                             Student Code
                           </p>
                           <p
-                            className={`font-medium ${
-                              isDark ? "text-white" : "text-black"
-                            }`}
+                            className={`font-medium ${isDark ? "text-white" : "text-black"
+                              }`}
                           >
                             {selectedMember.studentCode}
                           </p>
@@ -249,19 +243,17 @@ export default function Home() {
                         />
                         <div>
                           <p
-                            className={`text-sm ${
-                              isDark ? "text-zinc-400" : "text-zinc-500"
-                            }`}
+                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
+                              }`}
                           >
                             Email
                           </p>
                           <a
                             href={`mailto:${selectedMember.email}`}
-                            className={`font-medium transition-colors ${
-                              isDark
-                                ? "text-violet-400 hover:text-violet-300"
-                                : "text-violet-600 hover:text-violet-700"
-                            }`}
+                            className={`font-medium transition-colors ${isDark
+                              ? "text-violet-400 hover:text-violet-300"
+                              : "text-violet-600 hover:text-violet-700"
+                              }`}
                           >
                             {selectedMember.email}
                           </a>
@@ -277,9 +269,8 @@ export default function Home() {
                         />
                         <div>
                           <p
-                            className={`text-sm ${
-                              isDark ? "text-zinc-400" : "text-zinc-500"
-                            }`}
+                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
+                              }`}
                           >
                             Facebook
                           </p>
@@ -287,11 +278,10 @@ export default function Home() {
                             href={selectedMember.facebook}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`font-medium transition-colors ${
-                              isDark
-                                ? "text-violet-400 hover:text-violet-300"
-                                : "text-violet-600 hover:text-violet-700"
-                            }`}
+                            className={`font-medium transition-colors ${isDark
+                              ? "text-violet-400 hover:text-violet-300"
+                              : "text-violet-600 hover:text-violet-700"
+                              }`}
                           >
                             View Profile
                           </a>
