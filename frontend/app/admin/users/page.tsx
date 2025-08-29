@@ -1,0 +1,379 @@
+'use client';
+
+import LayoutWrapper from "@/app/_sections/Wrapper";
+import { withAdminAuth } from "@/app/_contexts/AdminContext";
+import { useTheme } from "@/app/_contexts/ThemeContext";
+import {
+    IconPlus,
+    IconSearch,
+    IconEdit,
+    IconTrash,
+    IconUser,
+    IconMail,
+    IconCalendar,
+    IconShield,
+    IconFilter,
+    IconDownload,
+} from "@tabler/icons-react";
+import { useState, useEffect } from "react";
+import { adminApi } from "@/app/_libs/adminApi";
+
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    fullName: string;
+    role: string;
+    status: 'active' | 'inactive' | 'banned';
+    createdAt: string;
+    lastLogin: string;
+    submissions: number;
+}
+
+function UsersManagement() {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedRole, setSelectedRole] = useState('all');
+    const [selectedStatus, setSelectedStatus] = useState('all');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
+
+    // Load users from API
+    useEffect(() => {
+        const loadUsers = async () => {
+            setIsLoading(true);
+            try {
+                const response = await adminApi.getUsers({
+                    page: currentPage,
+                    size: 20,
+                    search: searchTerm || undefined,
+                    role: selectedRole !== 'all' ? selectedRole : undefined,
+                    status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                });
+
+                if (response.success && response.data) {
+                    setUsers(response.data.users);
+                    setTotalPages(response.data.totalPages);
+                    setTotalElements(response.data.totalElements);
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadUsers();
+    }, [currentPage, searchTerm, selectedRole, selectedStatus]);
+
+    // Since filtering is now done on backend, we use users directly
+    const filteredUsers = users;
+
+    const StatusBadge = ({ status }: { status: string }) => {
+        const colors = {
+            active: isDark ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-800',
+            inactive: isDark ? 'bg-yellow-900/50 text-yellow-300' : 'bg-yellow-100 text-yellow-800',
+            banned: isDark ? 'bg-red-900/50 text-red-300' : 'bg-red-100 text-red-800',
+        };
+
+        return (
+            <span className={`px-2 py-1 text-xs font-medium rounded capitalize ${colors[status as keyof typeof colors]}`}>
+                {status}
+            </span>
+        );
+    };
+
+    const RoleBadge = ({ role }: { role: string }) => {
+        const colors = {
+            ADMIN: isDark ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-800',
+            MODERATOR: isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800',
+            MEMBER: isDark ? 'bg-gray-900/50 text-gray-300' : 'bg-gray-100 text-gray-800',
+        };
+
+        return (
+            <span className={`px-2 py-1 text-xs font-medium rounded ${colors[role as keyof typeof colors]}`}>
+                {role}
+            </span>
+        );
+    };
+
+    const handleDeleteUser = async (userId: string) => {
+        if (confirm('Are you sure you want to delete this user?')) {
+            try {
+                const response = await adminApi.deleteUser(userId);
+                if (response.success) {
+                    setUsers(users.filter(user => user.id !== userId));
+                }
+            } catch (error) {
+                console.error('Failed to delete user:', error);
+                alert('Failed to delete user. Please try again.');
+            }
+        }
+    };
+
+    const handleStatusChange = async (userId: string, newStatus: string) => {
+        try {
+            const response = await adminApi.updateUserStatus(userId, newStatus);
+            if (response.success) {
+                setUsers(users.map(user =>
+                    user.id === userId ? { ...user, status: newStatus as 'active' | 'inactive' | 'banned' } : user
+                ));
+            }
+        } catch (error) {
+            console.error('Failed to update user status:', error);
+            alert('Failed to update user status. Please try again.');
+        }
+    };
+
+    return (
+        <LayoutWrapper maxWidth="w-full" isAdmin={true} showFooter={false}>
+            <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            Users Management
+                        </h1>
+                        <p className={`mt-1 ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
+                            Manage user accounts, roles, and permissions
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isDark
+                                ? 'bg-violet-600 text-white hover:bg-violet-700'
+                                : 'bg-violet-600 text-white hover:bg-violet-700'
+                            }`}
+                    >
+                        <IconPlus size={20} />
+                        Add User
+                    </button>
+                </div>
+
+                {/* Filters and Search */}
+                <div className={`p-4 rounded-xl border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                    } shadow-sm`}>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="relative">
+                            <IconSearch className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-zinc-400' : 'text-gray-400'
+                                }`} size={20} />
+                            <input
+                                type="text"
+                                placeholder="Search users..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={`w-full pl-10 pr-4 py-2 border rounded-lg ${isDark
+                                        ? 'bg-zinc-800 border-zinc-700 text-white placeholder-zinc-400'
+                                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                                    } focus:ring-2 focus:ring-violet-500 focus:border-violet-500`}
+                            />
+                        </div>
+
+                        <select
+                            value={selectedRole}
+                            onChange={(e) => setSelectedRole(e.target.value)}
+                            className={`px-3 py-2 border rounded-lg ${isDark
+                                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                                    : 'bg-white border-gray-300 text-gray-900'
+                                } focus:ring-2 focus:ring-violet-500 focus:border-violet-500`}
+                        >
+                            <option value="all">All Roles</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="MODERATOR">Moderator</option>
+                            <option value="MEMBER">Member</option>
+                        </select>
+
+                        <select
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            className={`px-3 py-2 border rounded-lg ${isDark
+                                    ? 'bg-zinc-800 border-zinc-700 text-white'
+                                    : 'bg-white border-gray-300 text-gray-900'
+                                } focus:ring-2 focus:ring-violet-500 focus:border-violet-500`}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="banned">Banned</option>
+                        </select>
+
+                        <button
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${isDark
+                                    ? 'border-zinc-700 text-zinc-300 hover:bg-zinc-800'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            <IconDownload size={20} />
+                            Export
+                        </button>
+                    </div>
+                </div>
+
+                {/* Users Table */}
+                <div className={`rounded-xl border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                    } shadow-sm overflow-hidden`}>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className={isDark ? 'bg-zinc-800/50' : 'bg-gray-50'}>
+                                    <tr>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            User
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Email
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Role
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Status
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Submissions
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Last Login
+                                        </th>
+                                        <th className={`text-left px-6 py-4 text-sm font-medium ${isDark ? 'text-zinc-300' : 'text-gray-700'
+                                            }`}>
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className={`divide-y ${isDark ? 'divide-zinc-800' : 'divide-gray-200'}`}>
+                                    {filteredUsers.map((user) => (
+                                        <tr key={user.id} className={`hover:${isDark ? 'bg-zinc-800/30' : 'bg-gray-50'} transition-colors`}>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-full ${isDark ? 'bg-violet-900/50' : 'bg-violet-100'
+                                                        }`}>
+                                                        <IconUser size={16} className={isDark ? 'text-violet-300' : 'text-violet-600'} />
+                                                    </div>
+                                                    <div>
+                                                        <div className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                            {user.fullName}
+                                                        </div>
+                                                        <div className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-500'}`}>
+                                                            @{user.username}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className={`px-6 py-4 text-sm ${isDark ? 'text-zinc-300' : 'text-gray-700'}`}>
+                                                {user.email}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <RoleBadge role={user.role} />
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <StatusBadge status={user.status} />
+                                            </td>
+                                            <td className={`px-6 py-4 text-sm ${isDark ? 'text-zinc-300' : 'text-gray-700'}`}>
+                                                {user.submissions}
+                                            </td>
+                                            <td className={`px-6 py-4 text-sm ${isDark ? 'text-zinc-300' : 'text-gray-700'}`}>
+                                                {user.lastLogin}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedUser(user)}
+                                                        className={`p-1.5 rounded hover:${isDark ? 'bg-zinc-700' : 'bg-gray-100'
+                                                            } transition-colors`}
+                                                        title="Edit user"
+                                                    >
+                                                        <IconEdit size={16} className={isDark ? 'text-zinc-400' : 'text-gray-600'} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteUser(user.id)}
+                                                        className={`p-1.5 rounded hover:${isDark ? 'bg-red-900/50' : 'bg-red-100'
+                                                            } transition-colors`}
+                                                        title="Delete user"
+                                                    >
+                                                        <IconTrash size={16} className="text-red-500" />
+                                                    </button>
+                                                    <select
+                                                        value={user.status}
+                                                        onChange={(e) => handleStatusChange(user.id, e.target.value)}
+                                                        className={`text-xs px-2 py-1 rounded border ${isDark
+                                                                ? 'bg-zinc-800 border-zinc-700 text-zinc-300'
+                                                                : 'bg-white border-gray-300 text-gray-700'
+                                                            }`}
+                                                    >
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">Inactive</option>
+                                                        <option value="banned">Banned</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                        }`}>
+                        <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {users.length}
+                        </div>
+                        <div className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
+                            Total Users
+                        </div>
+                    </div>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                        }`}>
+                        <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {users.filter(u => u.status === 'active').length}
+                        </div>
+                        <div className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
+                            Active Users
+                        </div>
+                    </div>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                        }`}>
+                        <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {users.filter(u => u.role === 'ADMIN').length}
+                        </div>
+                        <div className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
+                            Administrators
+                        </div>
+                    </div>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
+                        }`}>
+                        <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {users.reduce((total, user) => total + user.submissions, 0)}
+                        </div>
+                        <div className={`text-sm ${isDark ? 'text-zinc-400' : 'text-gray-600'}`}>
+                            Total Submissions
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </LayoutWrapper>
+    );
+}
+
+export default withAdminAuth(UsersManagement);

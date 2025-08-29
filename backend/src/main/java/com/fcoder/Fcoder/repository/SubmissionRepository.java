@@ -37,4 +37,9 @@ public interface SubmissionRepository extends BaseRepository<SubmissionEntity, L
 
     boolean existsByUser_IdAndProblem_IdAndStatus(Long userId, Long problemId,
             SubmissionEntity.SubmissionStatus status);
+    
+    // Admin-specific methods
+    long countByUser(com.fcoder.Fcoder.model.entity.AccountEntity user);
+    long countByProblem(com.fcoder.Fcoder.model.entity.ProblemEntity problem);
+    long countByProblemAndStatus(com.fcoder.Fcoder.model.entity.ProblemEntity problem, SubmissionEntity.SubmissionStatus status);
 }

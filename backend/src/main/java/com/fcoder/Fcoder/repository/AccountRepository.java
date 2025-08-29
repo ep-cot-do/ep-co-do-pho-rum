@@ -22,4 +22,9 @@ public interface AccountRepository extends BaseRepository<AccountEntity, Long> {
 
     @Query("SELECT a FROM AccountEntity a WHERE a.isActive = true AND a.lastLogin < :thresholdDate")
     List<AccountEntity> findInactiveUsers(@Param("thresholdDate") LocalDateTime thresholdDate);
+    
+    // Admin-specific methods
+    long countByIsActive(Boolean isActive);
+    long countByCreatedDateAfter(LocalDateTime date);
+    long countByCreatedDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

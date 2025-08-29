@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "./_contexts/ThemeContext";
 import { ModalProvider } from "./_contexts/ModalContext";
 import { AuthProvider } from "./_contexts/AuthContext";
+import { AdminProvider } from "./_contexts/AdminContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,11 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <ModalProvider>
-              {children}
-            </ModalProvider>
+            <AdminProvider>
+              <ModalProvider>
+                {children}
+              </ModalProvider>
+            </AdminProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

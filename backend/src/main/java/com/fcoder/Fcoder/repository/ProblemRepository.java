@@ -38,6 +38,9 @@ public interface ProblemRepository extends BaseRepository<ProblemEntity, Long> {
 
     // Thêm vào ProblemRepository
     List<ProblemEntity> findByCreatedBy_IdOrderByCreatedDateDesc(Long userId);
+    
+    // Admin-specific methods
+    long countByIsActive(Boolean isActive);
 
     @Query("SELECT p FROM ProblemEntity p WHERE " +
             "(:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND " +
