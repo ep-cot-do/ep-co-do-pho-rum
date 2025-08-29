@@ -249,7 +249,7 @@ export default function Home() {
 
       {/* Member Profile Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -258,7 +258,8 @@ export default function Home() {
 
           {/* Modal Content */}
           <div
-            className={`relative w-full max-w-md mx-4 rounded-xl overflow-hidden shadow-2xl transform transition-all ${isDark ? "bg-zinc-900" : "bg-white"} animate-modal-scale-open`}
+            className={`relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl transform transition-all ${isDark ? "bg-zinc-900" : "bg-white"
+              } animate-modal-scale-open`}
           >
             {/* Close Button */}
             <button
@@ -272,129 +273,178 @@ export default function Home() {
             </button>
 
             {selectedMember && (
-              <>
-                {/* Profile Image */}
-                <div
-                  className={`h-64 relative ${isDark ? "bg-zinc-800" : "bg-zinc-100"
-                    }`}
-                >
-                  {selectedMember.image ? (
-                    <Image
-                      src={selectedMember.image}
-                      alt={selectedMember.name}
-                      fill
-                      className="object-cover object-center"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <IconUser
-                        size={64}
-                        className={isDark ? "text-zinc-600" : "text-zinc-300"}
-                        stroke={1}
+              <div className="flex flex-col lg:flex-row">
+                {/* Left Side - Profile Image */}
+                <div className="w-full lg:w-1/2">
+                  <div
+                    className={`relative ${isDark ? "bg-zinc-800" : "bg-zinc-100"}`}
+                  >
+                    {selectedMember.image ? (
+                      <Image
+                        src={selectedMember.image}
+                        alt={selectedMember.name}
+                        width={600}
+                        height={800}
+                        className="w-full h-auto object-contain"
                       />
-                    </div>
-                  )}
-                </div>
-
-                {/* Profile Info */}
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {selectedMember.name}
-                  </h2>
-                  <p
-                    className={`text-lg font-medium mb-4 ${isDark ? "text-violet-400" : "text-violet-600"
-                      }`}
-                  >
-                    {selectedMember.role}
-                  </p>
-                  <p
-                    className={`text-sm mb-6 ${isDark ? "text-zinc-400" : "text-zinc-600"
-                      }`}
-                  >
-                    {selectedMember.description}
-                  </p>
-
-                  {/* Contact Information */}
-                  <div className="space-y-3">
-                    {selectedMember.studentCode && (
-                      <div className="flex items-center gap-3">
-                        <IconSchool
-                          size={20}
-                          className={isDark ? "text-zinc-400" : "text-zinc-500"}
+                    ) : (
+                      <div className="flex items-center justify-center min-h-[400px]">
+                        <IconUser
+                          size={80}
+                          className={isDark ? "text-zinc-600" : "text-zinc-300"}
+                          stroke={1}
                         />
-                        <div>
-                          <p
-                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
-                              }`}
-                          >
-                            Student Code
-                          </p>
-                          <p
-                            className={`font-medium ${isDark ? "text-white" : "text-black"
-                              }`}
-                          >
-                            {selectedMember.studentCode}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedMember.email && (
-                      <div className="flex items-center gap-3">
-                        <IconMail
-                          size={20}
-                          className={isDark ? "text-zinc-400" : "text-zinc-500"}
-                        />
-                        <div>
-                          <p
-                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
-                              }`}
-                          >
-                            Email
-                          </p>
-                          <a
-                            href={`mailto:${selectedMember.email}`}
-                            className={`font-medium transition-colors ${isDark
-                              ? "text-violet-400 hover:text-violet-300"
-                              : "text-violet-600 hover:text-violet-700"
-                              }`}
-                          >
-                            {selectedMember.email}
-                          </a>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedMember.facebook && (
-                      <div className="flex items-center gap-3">
-                        <IconBrandFacebook
-                          size={20}
-                          className={isDark ? "text-zinc-400" : "text-zinc-500"}
-                        />
-                        <div>
-                          <p
-                            className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"
-                              }`}
-                          >
-                            Facebook
-                          </p>
-                          <a
-                            href={selectedMember.facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`font-medium transition-colors ${isDark
-                              ? "text-violet-400 hover:text-violet-300"
-                              : "text-violet-600 hover:text-violet-700"
-                              }`}
-                          >
-                            View Profile
-                          </a>
-                        </div>
                       </div>
                     )}
                   </div>
                 </div>
-              </>
+
+                {/* Right Side - Profile Info */}
+                <div className="w-full lg:w-1/2 p-6 lg:p-8">
+                  <div className="h-full flex flex-col justify-center">
+                    {/* Name and Role */}
+                    <div className="mb-6">
+                      <h2 className="text-3xl lg:text-4xl font-bold mb-3">
+                        {selectedMember.name}
+                      </h2>
+                      <div
+                        className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${isDark
+                          ? "bg-violet-500/20 text-violet-400 border border-violet-500/30"
+                          : "bg-violet-100 text-violet-700 border border-violet-200"
+                          }`}
+                      >
+                        {selectedMember.role}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mb-8">
+                      <p
+                        className={`text-base lg:text-lg leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"
+                          }`}
+                      >
+                        {selectedMember.description}
+                      </p>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="space-y-4">
+                      {selectedMember.studentCode && (
+                        <div
+                          className={`flex items-center gap-4 p-3 rounded-lg transition-colors hover:bg-opacity-50 ${isDark
+                            ? "bg-zinc-800/50 hover:bg-zinc-800/70"
+                            : "bg-zinc-50 hover:bg-zinc-100"
+                            }`}
+                        >
+                          <div
+                            className={`p-2 rounded-lg ${isDark ? "bg-violet-500/20" : "bg-violet-100"
+                              }`}
+                          >
+                            <IconSchool
+                              size={20}
+                              className={
+                                isDark ? "text-violet-400" : "text-violet-600"
+                              }
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p
+                              className={`text-xs font-medium uppercase tracking-wide ${isDark ? "text-zinc-400" : "text-zinc-500"
+                                }`}
+                            >
+                              Student Code
+                            </p>
+                            <p
+                              className={`font-semibold text-lg ${isDark ? "text-white" : "text-black"
+                                }`}
+                            >
+                              {selectedMember.studentCode}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedMember.email && (
+                        <div
+                          className={`flex items-center gap-4 p-3 rounded-lg transition-colors hover:bg-opacity-50 ${isDark
+                            ? "bg-zinc-800/50 hover:bg-zinc-800/70"
+                            : "bg-zinc-50 hover:bg-zinc-100"
+                            }`}
+                        >
+                          <div
+                            className={`p-2 rounded-lg ${isDark ? "bg-violet-500/20" : "bg-violet-100"
+                              }`}
+                          >
+                            <IconMail
+                              size={20}
+                              className={
+                                isDark ? "text-violet-400" : "text-violet-600"
+                              }
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p
+                              className={`text-xs font-medium uppercase tracking-wide ${isDark ? "text-zinc-400" : "text-zinc-500"
+                                }`}
+                            >
+                              Email
+                            </p>
+                            <a
+                              href={`mailto:${selectedMember.email}`}
+                              className={`font-semibold text-lg transition-colors ${isDark
+                                ? "text-violet-400 hover:text-violet-300"
+                                : "text-violet-600 hover:text-violet-700"
+                                }`}
+                            >
+                              {selectedMember.email}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedMember.facebook && (
+                        <div
+                          className={`flex items-center gap-4 p-3 rounded-lg transition-colors hover:bg-opacity-50 ${isDark
+                            ? "bg-zinc-800/50 hover:bg-zinc-800/70"
+                            : "bg-zinc-50 hover:bg-zinc-100"
+                            }`}
+                        >
+                          <div
+                            className={`p-2 rounded-lg ${isDark ? "bg-violet-500/20" : "bg-violet-100"
+                              }`}
+                          >
+                            <IconBrandFacebook
+                              size={20}
+                              className={
+                                isDark ? "text-violet-400" : "text-violet-600"
+                              }
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p
+                              className={`text-xs font-medium uppercase tracking-wide ${isDark ? "text-zinc-400" : "text-zinc-500"
+                                }`}
+                            >
+                              Facebook
+                            </p>
+                            <a
+                              href={selectedMember.facebook}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`font-semibold text-lg transition-colors ${isDark
+                                ? "text-violet-400 hover:text-violet-300"
+                                : "text-violet-600 hover:text-violet-700"
+                                }`}
+                            >
+                              View Profile
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
