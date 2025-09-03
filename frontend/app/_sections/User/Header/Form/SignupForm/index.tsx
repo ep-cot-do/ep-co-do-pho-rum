@@ -173,7 +173,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
         phone: signupForm.phone || "",
         birthday: signupForm.birthday ? new Date(signupForm.birthday) : new Date(),
         currentTerm: signupForm.currentTerm || 1,
-        roleId: 2 // Add default roleId to fix the backend validation error
+        roleId: 4 // Add default roleId to fix the backend validation error
       } as Account & { roleId: number };
 
       const response = await Signup(registrationData);

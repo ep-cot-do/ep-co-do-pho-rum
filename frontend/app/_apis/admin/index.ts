@@ -1,5 +1,5 @@
 // Admin API service functions using existing endpoints
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 interface ApiResponse<T> {
   success: boolean;
