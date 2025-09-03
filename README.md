@@ -36,8 +36,14 @@ The FCD Website is a comprehensive platform designed for club members to engage 
   - Limited access to public events and resources.
   - Can request membership or contact admins for inquiries.
 - **Admins**
+
   - Manage user accounts, permissions, and overall platform maintenance.
   - Ensure the platform runs smoothly and securely.
+
+  ID : 1 --> ADMIN
+  ID : 2 --> BCN
+  ID : 3 --> HOC
+  ID : 4 --> MEMBER
 
 ## Features
 

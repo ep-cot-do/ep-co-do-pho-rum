@@ -18,12 +18,12 @@ export default function Footer() {
   const socialLinks = [
     {
       name: "GitHub",
-      href: "https://github.com/SvnFrs",
+      href: "https://github.com/ep-cot-do/ep-co-do-pho-rum",
       icon: IconBrandGithub,
     },
     {
       name: "Discord",
-      href: "https://discord.gg/fcoder",
+      href: "https://discord.gg/BAm6AwSM",
       icon: IconBrandDiscord,
     },
     {
