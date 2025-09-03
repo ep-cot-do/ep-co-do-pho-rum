@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Admin API service functions using existing endpoints
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8080/api/v1';
 
@@ -65,7 +66,7 @@ class AdminApiService {
       };
 
       return { success: true, data: stats };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Failed to load dashboard stats' };
     }
   }
@@ -110,7 +111,7 @@ class AdminApiService {
   // User Management APIs - Using AccountController
   async getUsers(params?: { page?: number; size?: number; search?: string; role?: string; status?: string }) {
     const queryString = params ? '?' + new URLSearchParams(
-      Object.entries(params).filter(([_, value]) => value !== undefined && value !== '').map(([key, value]) => [key, String(value)])
+      Object.entries(params).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => [key, String(value)])
     ).toString() : '';
 
     const response = await this.request<any>(`/accounts${queryString}`);
@@ -193,6 +194,7 @@ class AdminApiService {
     // ProblemController doesn't have status update endpoint
     // This would need to be implemented or we return success for UI
     console.warn('Problem status update not implemented in backend');
+    console.log(problemId, status)
     return { success: true, data: { message: 'Status update simulated' } };
   }
 

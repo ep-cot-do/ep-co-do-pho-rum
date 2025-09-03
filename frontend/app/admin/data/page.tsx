@@ -4,17 +4,15 @@ import LayoutWrapper from "@/app/_sections/Wrapper";
 import { withAdminAuth } from "@/app/_contexts/AdminContext";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import {
-  IconDatabase,
-  IconRefresh,
-  IconDownload,
-  IconUpload,
-  IconTrash,
-  IconAlertTriangle,
-  IconCheck,
-  IconX,
-  IconServer,
-  IconCloudDownload,
-  IconSettings,
+    IconDatabase,
+    IconRefresh,
+    IconDownload, IconTrash,
+    IconAlertTriangle,
+    IconCheck,
+    IconX,
+    IconServer,
+    IconCloudDownload,
+    IconSettings
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { adminApi } from "@/app/_libs/adminApi";
@@ -51,7 +49,17 @@ function DataManagement() {
       try {
         const response = await adminApi.getDatabaseStats();
         if (response.success && response.data) {
-          setTables(response.data.tables || []);
+          const tablesData = response.data.tables || [];
+          // Ensure all required properties are present
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const normalizedTables: DatabaseTable[] = tablesData.map((table: any) => ({
+            name: table.name || '',
+            records: table.records || 0,
+            size: table.size || '0 MB',
+            lastUpdated: table.lastUpdated || new Date().toISOString().split('T')[0],
+            status: table.status || 'healthy'
+          }));
+          setTables(normalizedTables);
         }
       } catch (error) {
         console.error('Failed to load database stats:', error);

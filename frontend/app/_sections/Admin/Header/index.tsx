@@ -1,27 +1,17 @@
 import { usePathname, useRouter } from "next/navigation";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import {
-  Icon,
-  IconBrandThreads,
-  IconCalendar,
-  IconFileSmile,
-  IconMoon,
-  IconProps,
-  IconSun,
-  IconTrophy,
-  IconUser,
-  IconCode,
-  IconLogin,
-  IconMenu2,
-  IconChartBar,
-  IconLogout,
-  IconDatabase,
-  IconSettings,
+    Icon, IconCalendar, IconMoon,
+    IconProps,
+    IconSun, IconUser,
+    IconCode, IconMenu2,
+    IconChartBar,
+    IconLogout,
+    IconDatabase
 } from "@tabler/icons-react";
 import { useTheme } from "@/app/_contexts/ThemeContext";
-import { useModal } from "@/app/_contexts/ModalContext";
+// import { useModal } from "@/app/_contexts/ModalContext";
 import { useAdmin } from "@/app/_contexts/AdminContext";
-import Modal from "@/app/_components/reusable/modal";
 import { useState } from "react";
 
 // Define type outside the component to improve clarity
@@ -35,7 +25,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const { modalType, isModalOpen, openModal, closeModal } = useModal();
+  // const { modalType, isModalOpen, openModal, closeModal } = useModal();
   const { user, logout } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -155,7 +145,7 @@ export default function Header() {
             }`}>
               Welcome, {user}
             </div>
-            
+
             <button
               className={`py-1.5 px-3 text-sm rounded-md transition-colors flex items-center gap-1.5 ${isDark
                 ? 'bg-red-900/50 text-red-200 hover:bg-red-800/50'

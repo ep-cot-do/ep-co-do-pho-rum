@@ -4,18 +4,12 @@ import LayoutWrapper from "@/app/_sections/Wrapper";
 import { withAdminAuth } from "@/app/_contexts/AdminContext";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import {
-  IconPlus,
-  IconSearch,
-  IconEdit,
-  IconTrash,
-  IconCalendar,
-  IconUsers,
-  IconTrophy,
-  IconClock,
-  IconMapPin,
-  IconEye,
-  IconFilter,
-  IconDownload,
+    IconPlus,
+    IconSearch,
+    IconEdit,
+    IconTrash,
+    IconCalendar, IconMapPin,
+    IconEye, IconDownload
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { adminApi } from "@/app/_libs/adminApi";

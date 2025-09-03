@@ -4,16 +4,14 @@ import LayoutWrapper from "@/app/_sections/Wrapper";
 import { withAdminAuth } from "@/app/_contexts/AdminContext";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import {
-  IconUsers,
-  IconCode,
-  IconCalendar,
-  IconTrophy,
-  IconDatabase,
-  IconApi,
-  IconChartLine,
-  IconActivity,
-  IconArrowUp,
-  IconArrowDown,
+    IconUsers,
+    IconCode,
+    IconCalendar,
+    IconTrophy, IconApi,
+    IconChartLine,
+    IconActivity,
+    IconArrowUp,
+    IconArrowDown
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { adminApi } from "@/app/_libs/adminApi";
@@ -79,6 +77,7 @@ function AdminDashboard() {
     loadDashboardData();
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const StatCard = ({ icon: Icon, title, value, change, changeType }: any) => (
     <div className={`p-6 rounded-xl border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-gray-200'
       } shadow-sm`}>

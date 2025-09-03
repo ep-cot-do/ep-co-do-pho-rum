@@ -9,10 +9,6 @@ import {
     IconEdit,
     IconTrash,
     IconUser,
-    IconMail,
-    IconCalendar,
-    IconShield,
-    IconFilter,
     IconDownload,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
@@ -36,14 +32,14 @@ function UsersManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRole, setSelectedRole] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [, setIsCreateModalOpen] = useState(false);
+    const [, setSelectedUser] = useState<User | null>(null);
 
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [, setTotalPages] = useState(0);
+    const [, setTotalElements] = useState(0);
+    const [currentPage, ] = useState(0);
 
     // Load users from API
     useEffect(() => {
