@@ -33,7 +33,6 @@ public class MemberAccountDetailRegisterRequest {
     @NotBlank(message = "Email shouldn't be empty")
     private String email;
 
-    @NotBlank(message = "Github shouldn't be empty")
     private String github;
 
     @NotBlank(message = "Student code shouldn't be empty")
