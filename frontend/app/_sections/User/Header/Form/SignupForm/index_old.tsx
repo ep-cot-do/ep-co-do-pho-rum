@@ -6,9 +6,9 @@ import Image from "next/image";
 import { useTheme } from "@/app/_contexts/ThemeContext";
 import { Account } from "@/app/_libs/types";
 import { Signup } from "@/app/_apis/user/auth";
-import {
-  validateSignupForm,
-  ValidationError,
+import { 
+  validateSignupForm, 
+  ValidationError, 
   hasFieldError,
   handleServerValidationErrors,
   validators,
@@ -28,8 +28,6 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [signupForm, setSignupForm] = useState<SignupFormData>({
     username: "",
@@ -46,14 +44,19 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
     profileImg: '',
     currentTerm: 1,
   });
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     let processedValue: string | number | undefined = value;
 
-    // Handle number fields
-    if (type === 'number') {
-      processedValue = value === '' ? undefined : parseInt(value, 10);
+    // Process value based on type
+    if (type === "number") {
+      processedValue = value === '' ? undefined : Number(value);
+    } else if (name === 'birthday' && value) {
+      processedValue = value;
     }
 
     // Update form data
@@ -67,90 +70,87 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
 
     // Real-time validation for touched fields
     if (touched[name] || value === '') {
-      const newErrors = [...validationErrors];
-
-      // Remove existing errors for this field
-      const filteredErrors = newErrors.filter(error => error.field !== name);
-
-      // Validate the field if we have validators for it
-      let fieldValidation;
-      switch (name) {
-        case 'username':
-          fieldValidation = validators.username(value);
-          break;
-        case 'email':
-          fieldValidation = validators.email(value);
-          break;
-        case 'password':
-          fieldValidation = validators.password(value);
-          break;
-        case 'rePassword':
-          // Check if passwords match
-          fieldValidation = validators.confirmPassword(value, signupForm.password || '');
-          break;
-        case 'fullName':
-          fieldValidation = validators.fullName(value);
-          break;
-        case 'github':
-          if (value.trim() !== '') {
-            fieldValidation = validators.github(value);
-          } else {
-            fieldValidation = { isValid: true, errors: [] };
-          }
-          break;
-        case 'studentCode':
-          if (value.trim() !== '') {
-            fieldValidation = validators.studentCode(value);
-          } else {
-            fieldValidation = { isValid: true, errors: [] };
-          }
-          break;
-        case 'phone':
-          if (value.trim() !== '') {
-            fieldValidation = validators.phone(value);
-          } else {
-            fieldValidation = { isValid: true, errors: [] };
-          }
-          break;
-        case 'currentTerm':
-          fieldValidation = validators.currentTerm(processedValue as number);
-          break;
-        default:
-          fieldValidation = { isValid: true, errors: [] };
-      }
-
-      if (fieldValidation && !fieldValidation.isValid) {
-        filteredErrors.push(...fieldValidation.errors);
-      }
-
-      setValidationErrors(filteredErrors);
+      validateField(name, processedValue);
     }
   };
 
+  const validateField = (fieldName: string, value: string | number | undefined) => {
+    const newErrors = [...validationErrors];
+    const filteredErrors = newErrors.filter(error => error.field !== fieldName);
+
+    let fieldValidation;
+    const currentForm = { ...signupForm, [fieldName]: value };
+
+    switch (fieldName) {
+      case 'username':
+        fieldValidation = validators.username(String(value || ''));
+        break;
+      case 'email':
+        fieldValidation = validators.email(String(value || ''));
+        break;
+      case 'password':
+        fieldValidation = validators.password(String(value || ''));
+        // Also revalidate confirm password if it's been touched
+        if (touched.rePassword) {
+          const confirmValidation = validators.confirmPassword(String(value || ''), String(currentForm.rePassword || ''));
+          if (!confirmValidation.isValid) {
+            const otherErrors = filteredErrors.filter(error => error.field !== 'rePassword');
+            otherErrors.push(...confirmValidation.errors);
+            setValidationErrors([...otherErrors, ...fieldValidation.errors]);
+            return;
+          }
+        }
+        break;
+      case 'rePassword':
+        fieldValidation = validators.confirmPassword(String(currentForm.password || ''), String(value || ''));
+        break;
+      case 'fullName':
+        fieldValidation = validators.fullName(String(value || ''));
+        break;
+      case 'phone':
+        fieldValidation = validators.phone(String(value || ''), false);
+        break;
+      case 'studentCode':
+        fieldValidation = validators.studentCode(String(value || ''), false);
+        break;
+      case 'github':
+        fieldValidation = validators.github(String(value || ''), false);
+        break;
+      case 'currentTerm':
+        fieldValidation = validators.currentTerm(typeof value === 'number' ? value : undefined);
+        break;
+      case 'birthday':
+        fieldValidation = validators.birthday(typeof value === 'string' ? value : undefined, false);
+        break;
+      case 'gender':
+        fieldValidation = validators.gender(String(value || ''));
+        break;
+      case 'major':
+        fieldValidation = validators.major(String(value || ''));
+        break;
+      default:
+        fieldValidation = { isValid: true, errors: [] };
+    }
+
+    if (fieldValidation && !fieldValidation.isValid) {
+      filteredErrors.push(...fieldValidation.errors);
+    }
+
+    setValidationErrors(filteredErrors);
+  };
+
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
-
-    // Trigger validation when field loses focus
-    const event = {
-      target: {
-        name,
-        value: e.target.value,
-        type: e.target.type
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-
-    handleSignupChange(event);
+    validateField(name, value);
   };
 
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     // Mark all fields as touched
-    const touchedState = Object.keys(signupForm).reduce((acc, key) => {
-      acc[key] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+    const allFieldNames = Object.keys(signupForm);
+    const touchedState = allFieldNames.reduce((acc, field) => ({ ...acc, [field]: true }), {});
     setTouched(touchedState);
 
     // Validate entire form
@@ -211,11 +211,12 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
         <div className="space-y-3">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-violet-600' : 'bg-violet-600'
-              } shadow-lg`}>
-              <Image
-                src="/icon.png"
-                alt="Fcoder Logo"
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              isDark ? 'bg-violet-600' : 'bg-violet-600'
+            } shadow-lg`}>
+              <Image 
+                src="/icon.png" 
+                alt="Fcoder Logo" 
                 width={24}
                 height={24}
                 className="object-contain"
@@ -225,14 +226,16 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
               Fcoder
             </span>
           </div>
-
+          
           <div>
-            <h1 className={`text-xl font-semibold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'
-              }`}>
+            <h1 className={`text-xl font-semibold tracking-tight ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
               Create Account
             </h1>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+            <p className={`text-sm ${
+              isDark ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               Join the Fcoder community
             </p>
           </div>
@@ -257,13 +260,13 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
       <ErrorDisplay errors={validationErrors} />
 
       {/* Signup Form */}
-      <form className="space-y-6" onSubmit={handleSignupSubmit}>
+      <form className="space-y-5" onSubmit={handleSignupSubmit}>
         {/* Basic Information Section */}
         <div className="space-y-4">
           <h3 className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} pb-1`}>
             Basic Information
           </h3>
-
+          
           {/* Username */}
           <div className="space-y-2">
             <label
@@ -282,8 +285,8 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                 }
               `}>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <input
@@ -312,63 +315,76 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
             <ErrorDisplay errors={validationErrors} fieldName="username" className="mt-1" />
           </div>
 
-          {/* Email & Full Name */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Email
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <div className="relative">
-                <div className={`
-                  absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4
-                  ${hasFieldError(validationErrors, 'email')
-                    ? 'text-red-500'
-                    : isDark ? 'text-gray-500' : 'text-gray-400'
-                  }
-                `}>
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={signupForm.email || ''}
-                  onChange={handleSignupChange}
-                  onBlur={handleBlur}
-                  className={`
-                    w-full pl-10 pr-4 py-2.5 border rounded-lg
-                    transition-colors duration-150 ease-in-out
-                    placeholder:text-sm
-                    ${hasFieldError(validationErrors, 'email')
-                      ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                      : isDark
-                        ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                        : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                    }
-                  `}
-                  placeholder="your@email.com"
-                  required
-                  autoComplete="email"
-                />
+          {/* Email */}
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+            >
+              Email
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <div className="relative">
+              <div className={`
+                absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4
+                ${hasFieldError(validationErrors, 'email')
+                  ? 'text-red-500'
+                  : isDark ? 'text-gray-500' : 'text-gray-400'
+                }
+              `}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
               </div>
-              <ErrorDisplay errors={validationErrors} fieldName="email" className="mt-1" />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={signupForm.email || ''}
+                onChange={handleSignupChange}
+                onBlur={handleBlur}
+                className={`
+                  w-full pl-10 pr-4 py-2.5 border rounded-lg
+                  transition-colors duration-150 ease-in-out
+                  placeholder:text-sm
+                  ${hasFieldError(validationErrors, 'email')
+                    ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : isDark
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                  }
+                `}
+                placeholder="your@email.com"
+                required
+                autoComplete="email"
+              />
             </div>
+            <ErrorDisplay errors={validationErrors} fieldName="email" className="mt-1" />
+          </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="fullName"
-                className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Full Name
-                <span className="text-red-500 ml-1">*</span>
-              </label>
+          {/* Full Name */}
+          <div className="space-y-2">
+            <label
+              htmlFor="fullName"
+              className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+            >
+              Full Name
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <div className="relative">
+              <div className={`
+                absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4
+                ${hasFieldError(validationErrors, 'fullName')
+                  ? 'text-red-500'
+                  : isDark ? 'text-gray-500' : 'text-gray-400'
+                }
+              `}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
               <input
                 id="fullName"
                 name="fullName"
@@ -377,7 +393,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                 onChange={handleSignupChange}
                 onBlur={handleBlur}
                 className={`
-                  w-full px-3 py-2.5 border rounded-lg
+                  w-full pl-10 pr-4 py-2.5 border rounded-lg
                   transition-colors duration-150 ease-in-out
                   placeholder:text-sm
                   ${hasFieldError(validationErrors, 'fullName')
@@ -391,9 +407,11 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                 required
                 autoComplete="name"
               />
-              <ErrorDisplay errors={validationErrors} fieldName="fullName" className="mt-1" />
             </div>
+            <ErrorDisplay errors={validationErrors} fieldName="fullName" className="mt-1" />
           </div>
+        </div>
+
         </div>
 
         {/* Security Section */}
@@ -401,7 +419,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
           <h3 className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} pb-1`}>
             Security
           </h3>
-
+          
           <div className="grid grid-cols-2 gap-4">
             {/* Password */}
             <div className="space-y-2">
@@ -421,8 +439,8 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                   }
                 `}>
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <input
@@ -443,7 +461,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                         : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
                     }
                   `}
-                  placeholder="8+ chars, upper, lower, number"
+                  placeholder="8+ chars, uppercase, lowercase, number"
                   required
                   autoComplete="new-password"
                 />
@@ -458,15 +476,15 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                 >
                   {showPassword ? (
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                     </svg>
                   ) : (
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   )}
                 </button>
@@ -492,8 +510,8 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                   }
                 `}>
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <input
@@ -529,15 +547,15 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
                 >
                   {showConfirmPassword ? (
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                     </svg>
                   ) : (
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   )}
                 </button>
@@ -552,9 +570,9 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
           <h3 className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'} border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} pb-1`}>
             Additional Information
           </h3>
-
+          
           <div className="grid grid-cols-2 gap-4">
-            {/* GitHub & Student Code */}
+            {/* GitHub */}
             <div className="space-y-2">
               <label
                 htmlFor="github"
@@ -585,6 +603,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
               <ErrorDisplay errors={validationErrors} fieldName="github" className="mt-1" />
             </div>
 
+            {/* Student Code */}
             <div className="space-y-2">
               <label
                 htmlFor="studentCode"
@@ -616,7 +635,7 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {/* Gender */}
             <div className="space-y-2">
               <label
@@ -650,6 +669,40 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
               <ErrorDisplay errors={validationErrors} fieldName="gender" className="mt-1" />
             </div>
 
+            {/* Phone */}
+            <div className="space-y-2">
+              <label
+                htmlFor="phone"
+                className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+              >
+                Phone
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="text"
+                value={signupForm.phone || ''}
+                onChange={handleSignupChange}
+                onBlur={handleBlur}
+                className={`
+                  w-full px-3 py-2.5 border rounded-lg
+                  transition-colors duration-150 ease-in-out
+                  placeholder:text-sm
+                  ${hasFieldError(validationErrors, 'phone')
+                    ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : isDark
+                      ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                  }
+                `}
+                placeholder="Vietnamese phone number"
+                autoComplete="tel"
+              />
+              <ErrorDisplay errors={validationErrors} fieldName="phone" className="mt-1" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             {/* Major */}
             <div className="space-y-2">
               <label
@@ -684,74 +737,6 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
               <ErrorDisplay errors={validationErrors} fieldName="major" className="mt-1" />
             </div>
 
-            {/* Current Term */}
-            <div className="space-y-2">
-              <label
-                htmlFor="currentTerm"
-                className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Current Term
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                id="currentTerm"
-                name="currentTerm"
-                type="number"
-                min="1"
-                max="10"
-                value={signupForm.currentTerm || 1}
-                onChange={handleSignupChange}
-                onBlur={handleBlur}
-                className={`
-                  w-full px-3 py-2.5 border rounded-lg
-                  transition-colors duration-150 ease-in-out
-                  placeholder:text-sm
-                  ${hasFieldError(validationErrors, 'currentTerm')
-                    ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                    : isDark
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                  }
-                `}
-                placeholder="1-10"
-              />
-              <ErrorDisplay errors={validationErrors} fieldName="currentTerm" className="mt-1" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Phone */}
-            <div className="space-y-2">
-              <label
-                htmlFor="phone"
-                className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
-              >
-                Phone
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                value={signupForm.phone || ''}
-                onChange={handleSignupChange}
-                onBlur={handleBlur}
-                className={`
-                  w-full px-3 py-2.5 border rounded-lg
-                  transition-colors duration-150 ease-in-out
-                  placeholder:text-sm
-                  ${hasFieldError(validationErrors, 'phone')
-                    ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                    : isDark
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                      : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                  }
-                `}
-                placeholder="Vietnamese phone number"
-                autoComplete="tel"
-              />
-              <ErrorDisplay errors={validationErrors} fieldName="phone" className="mt-1" />
-            </div>
-
             {/* Birthday */}
             <div className="space-y-2">
               <label
@@ -780,6 +765,40 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
               />
               <ErrorDisplay errors={validationErrors} fieldName="birthday" className="mt-1" />
             </div>
+          </div>
+
+          {/* Current Term */}
+          <div className="space-y-2">
+            <label
+              htmlFor="currentTerm"
+              className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
+            >
+              Current Term
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <input
+              id="currentTerm"
+              name="currentTerm"
+              type="number"
+              min="1"
+              max="10"
+              value={signupForm.currentTerm || 1}
+              onChange={handleSignupChange}
+              onBlur={handleBlur}
+              className={`
+                w-full px-3 py-2.5 border rounded-lg
+                transition-colors duration-150 ease-in-out
+                placeholder:text-sm
+                ${hasFieldError(validationErrors, 'currentTerm')
+                  ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                  : isDark
+                    ? 'bg-gray-800 border-gray-600 text-white placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                    : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                }
+              `}
+              placeholder="Current term (1-10)"
+            />
+            <ErrorDisplay errors={validationErrors} fieldName="currentTerm" className="mt-1" />
           </div>
         </div>
 
@@ -828,8 +847,8 @@ export default function SignupForm({ closeModal, switchToLogin }: SignupFormProp
           onClick={switchToLogin}
           className={`
             text-sm font-medium transition-colors duration-150
-            ${isDark
-              ? 'text-violet-400 hover:text-violet-300'
+            ${isDark 
+              ? 'text-violet-400 hover:text-violet-300' 
               : 'text-violet-600 hover:text-violet-500'
             }
           `}
