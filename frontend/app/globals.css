@@ -34,3 +34,266 @@ body {
   scrollbar-width: none;
   /* Firefox */
 }
+
+/* Login Form Glass Morphism Effects */
+.login-glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+[data-theme="dark"] .login-glass-effect {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Animated Gradients */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Glow Effects */
+.glow-purple {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Input Focus Ring Enhancement */
+.input-focus-ring {
+  position: relative;
+}
+
+.input-focus-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(147, 51, 234, 0.1),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.input-focus-ring:focus-within::before {
+  opacity: 1;
+}
+
+[data-theme="dark"] .input-focus-ring::before {
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(147, 51, 234, 0.3),
+    transparent
+  );
+}
+
+/* Button Ripple Effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse Animation Enhancement */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Modal Backdrop Enhancement */
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* Text Gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="dark"] .text-gradient {
+  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth Transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form Field Enhancement */
+.form-field {
+  position: relative;
+}
+
+.form-field::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #a855f7, #3b82f6);
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+.form-field:focus-within::after {
+  width: 100%;
+}
+
+/* Modern Input Styling */
+.modern-input {
+  @apply w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all duration-300 ease-in-out placeholder:text-sm font-medium focus:outline-none focus:ring-0 hover:shadow-lg;
+}
+
+.modern-input.light {
+  @apply bg-white/80 border-gray-200 text-gray-900 placeholder:text-gray-500 focus:border-blue-400 focus:bg-white backdrop-blur-sm shadow-sm;
+}
+
+.modern-input.dark {
+  @apply bg-white/5 border-white/10 text-white placeholder:text-gray-400 focus:border-purple-400/50 focus:bg-white/10 backdrop-blur-sm;
+}
+
+.modern-input.error {
+  @apply border-red-300 bg-red-50/30 focus:border-red-400 shadow-red-100/50 shadow-lg;
+}
+
+/* Input Icon Styling */
+.input-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 z-10 transition-colors duration-200;
+}
+
+.input-icon.light {
+  @apply text-gray-500;
+}
+
+.input-icon.dark {
+  @apply text-gray-400;
+}
+
+.input-icon.error {
+  @apply text-red-400;
+}
+
+.input-icon.focused.light {
+  @apply text-blue-500;
+}
+
+.input-icon.focused.dark {
+  @apply text-purple-400;
+}
+
+/* Form Section Headers */
+.form-section-header {
+  @apply text-sm font-bold border-b-2 pb-2 mb-4;
+}
+
+.form-section-header.light {
+  @apply text-blue-700 border-blue-300;
+}
+
+.form-section-header.dark {
+  @apply text-purple-300 border-purple-500/30;
+}
+
+/* Custom Scrollbar for Modal Content */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+[data-theme="dark"] .modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
