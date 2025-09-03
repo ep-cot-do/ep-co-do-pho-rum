@@ -6,6 +6,14 @@ import { useTheme } from "@/app/_contexts/ThemeContext";
 import { Login } from "@/app/_apis/user/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_contexts/AuthContext";
+import {
+  validateLoginForm,
+  ValidationError,
+  hasFieldError,
+  handleServerValidationErrors,
+  validators
+} from "@/app/_libs/validationUtils";
+import ErrorDisplay from "@/app/_components/reusable/ErrorDisplay";
 
 type LoginFormProps = {
   closeModal: () => void;
@@ -23,27 +31,98 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // Update form data
     setLoginForm((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Mark field as touched
+    setTouched(prev => ({ ...prev, [name]: true }));
+
+    // Real-time validation for touched fields
+    if (touched[name] || value === '') {
+      const newErrors = [...validationErrors];
+
+      // Remove existing errors for this field
+      const filteredErrors = newErrors.filter(error => error.field !== name);
+
+      // Validate the field
+      let fieldValidation;
+      if (name === 'username') {
+        fieldValidation = validators.username(value);
+      } else if (name === 'password') {
+        if (value.trim() === '') {
+          fieldValidation = {
+            isValid: false,
+            errors: [{ field: name, message: 'Mật khẩu là bắt buộc' }]
+          };
+        } else {
+          fieldValidation = { isValid: true, errors: [] };
+        }
+      } if (fieldValidation && !fieldValidation.isValid) {
+        filteredErrors.push(...fieldValidation.errors);
+      }
+
+      setValidationErrors(filteredErrors);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+
+    // Trigger validation when field loses focus
+    const event = {
+      target: {
+        name,
+        value: e.target.value
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    handleLoginChange(event);
   };
 
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched
+    setTouched({ username: true, password: true });
+
+    // Validate form
+    const validation = validateLoginForm(loginForm);
+
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      return;
+    }
+
     setIsLoading(true);
-    setError("");
+    setValidationErrors([]);
 
     try {
       const response = await Login(loginForm.username, loginForm.password);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to login');
+
+        // Handle specific login errors
+        if (response.status === 401 || response.status === 403) {
+          setValidationErrors([{
+            field: 'general',
+            message: 'Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.'
+          }]);
+        } else {
+          const serverErrors = handleServerValidationErrors(errorData);
+          setValidationErrors(serverErrors);
+        }
+        return;
       }
 
       // Success handling
@@ -56,7 +135,26 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
       router.refresh(); // Refresh the page to update the authentication state
     } catch (error) {
       console.error("Login error:", error);
-      setError(error instanceof Error ? error.message : "Failed to login");
+
+      // Handle network or other errors
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          setValidationErrors([{
+            field: 'general',
+            message: "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+          }]);
+        } else {
+          setValidationErrors([{
+            field: 'general',
+            message: "Đăng nhập thất bại. Vui lòng thử lại."
+          }]);
+        }
+      } else {
+        setValidationErrors([{
+          field: 'general',
+          message: "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại."
+        }]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -89,15 +187,8 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
         </motion.button>
       </div>
 
-      {error && (
-        <motion.div
-          className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded-md text-sm"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {error}
-        </motion.div>
-      )}
+      {/* General error display */}
+      <ErrorDisplay errors={validationErrors} />
 
       <motion.form
         className="flex flex-col gap-4"
@@ -115,7 +206,7 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
             htmlFor="username"
             className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
           >
-            Username
+            Username <span className="text-red-500">*</span>
           </label>
           <input
             id="username"
@@ -123,13 +214,17 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
             type="text"
             value={loginForm.username}
             onChange={handleLoginChange}
-            className={`w-full px-3 py-2 border rounded-md ${isDark
-              ? 'bg-zinc-800 border-zinc-700 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
-              : 'bg-white border-zinc-300 text-black focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
+            onBlur={handleBlur}
+            className={`w-full px-3 py-2 border rounded-md transition-colors ${hasFieldError(validationErrors, 'username')
+              ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+              : isDark
+                ? 'bg-zinc-800 border-zinc-700 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
+                : 'bg-white border-zinc-300 text-black focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
               }`}
             placeholder="Username"
             required
           />
+          <ErrorDisplay errors={validationErrors} fieldName="username" className="mt-1" />
         </motion.div>
 
         <motion.div
@@ -141,7 +236,7 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
             htmlFor="password"
             className={`block text-sm font-medium mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}
           >
-            Password
+            Password <span className="text-red-500">*</span>
           </label>
           <input
             id="password"
@@ -149,31 +244,35 @@ export default function LoginForm({ closeModal, switchToSignup }: LoginFormProps
             type="password"
             value={loginForm.password}
             onChange={handleLoginChange}
-            className={`w-full px-3 py-2 border rounded-md ${isDark
-              ? 'bg-zinc-800 border-zinc-700 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
-              : 'bg-white border-zinc-300 text-black focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
+            onBlur={handleBlur}
+            className={`w-full px-3 py-2 border rounded-md transition-colors ${hasFieldError(validationErrors, 'password')
+              ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+              : isDark
+                ? 'bg-zinc-800 border-zinc-700 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
+                : 'bg-white border-zinc-300 text-black focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
               }`}
             placeholder="••••••••"
             required
           />
+          <ErrorDisplay errors={validationErrors} fieldName="password" className="mt-1" />
         </motion.div>
 
         <motion.button
           type="submit"
-          className={`w-full py-2 px-4 rounded-md text-white font-medium ${isLoading
+          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${isLoading || validationErrors.length > 0
             ? 'bg-violet-400 cursor-not-allowed'
             : isDark
               ? 'bg-violet-600 hover:bg-violet-700'
               : 'bg-violet-600 hover:bg-violet-700'
             }`}
-          whileHover={!isLoading ? { scale: 1.02 } : {}}
-          whileTap={!isLoading ? { scale: 0.98 } : {}}
+          whileHover={!isLoading && validationErrors.length === 0 ? { scale: 1.02 } : {}}
+          whileTap={!isLoading && validationErrors.length === 0 ? { scale: 0.98 } : {}}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
           disabled={isLoading}
           style={{
-            boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)'
+            boxShadow: validationErrors.length === 0 ? '0 4px 14px rgba(124, 58, 237, 0.4)' : 'none'
           }}
         >
           {isLoading ? "Logging in..." : "Log in"}
