@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
 type Theme = "dark" | "light";
 
@@ -19,18 +19,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isSystemTheme, setIsSystemTheme] = useState(false);
 
   // Function to get system theme preference
-  const getSystemTheme = (): Theme => {
+  const getSystemTheme = useCallback((): Theme => {
     if (typeof window === 'undefined') return 'dark';
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  };
+  }, []);
 
   // Apply theme to document
-  const applyTheme = (newTheme: Theme) => {
+  const applyTheme = useCallback((newTheme: Theme) => {
     setTheme(newTheme);
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute("data-theme", newTheme);
     }
-  };
+  }, []);
 
   // Initial theme setup - runs only once on component mount
   useEffect(() => {
@@ -58,14 +58,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, [applyTheme, getSystemTheme, isSystemTheme]);
 
   // Update theme when isSystemTheme changes
   useEffect(() => {
     if (isSystemTheme && theme !== null) {
       applyTheme(getSystemTheme());
     }
-  }, [isSystemTheme]);
+  }, [isSystemTheme, theme, applyTheme, getSystemTheme]);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";

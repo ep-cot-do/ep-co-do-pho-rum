@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import Image from "next/image";
 import LayoutWrapper from "../_sections/Wrapper";
 import { useTheme } from "../_contexts/ThemeContext";
 import {
@@ -93,7 +94,7 @@ export default function ResourcesPage() {
   }, [resources]);
 
   // Fetch API
-  const fetchResources = async (page: number = 0) => {
+  const fetchResources = useCallback(async (page: number = 0) => {
     setLoading(true);
     setError(null);
 
@@ -163,12 +164,12 @@ export default function ResourcesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSemester, selectedMajor, selectedType]);
 
   // Initial load
   useEffect(() => {
     fetchResources(0);
-  }, [selectedSemester, selectedMajor, selectedType]);
+  }, [fetchResources]);
 
   const filteredResources = useMemo(() => {
     if (!searchTerm) return resources;
@@ -728,9 +729,11 @@ export default function ResourcesPage() {
                         }`}
                       >
                         {resource.thumbnail ? (
-                          <img
+                          <Image
                             src={resource.thumbnail}
                             alt={resource.description}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-cover rounded"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -795,9 +798,11 @@ export default function ResourcesPage() {
                         }`}
                       >
                         {resource.thumbnail ? (
-                          <img
+                          <Image
                             src={resource.thumbnail}
                             alt={resource.description}
+                            width={24}
+                            height={24}
                             className="w-6 h-6 object-cover rounded"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -1001,9 +1006,11 @@ export default function ResourcesPage() {
                   }`}
                 >
                   {selectedResource.thumbnail ? (
-                    <img
+                    <Image
                       src={selectedResource.thumbnail}
                       alt={selectedResource.description}
+                      width={24}
+                      height={24}
                       className="w-6 h-6 object-cover rounded"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;

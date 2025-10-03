@@ -361,12 +361,11 @@ export const validateSignupForm = (
   allErrors.push(...currentTermResult.errors);
 
   // Validate optional fields
-  const phoneResult = validators.phone(formData.phone || "", false);
+  const phoneResult = validators.phone(formData.phone || "");
   allErrors.push(...phoneResult.errors);
 
   const studentCodeResult = validators.studentCode(
-    formData.studentCode || "",
-    false
+    formData.studentCode || ""
   );
   allErrors.push(...studentCodeResult.errors);
 

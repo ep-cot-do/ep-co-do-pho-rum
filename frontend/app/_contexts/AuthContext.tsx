@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { getProfile } from "@/app/_apis/user/account";
 
 interface AuthContextType {
@@ -25,28 +25,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthContextType["user"]>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is authenticated on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-
-      if (token) {
-        try {
-          await fetchUserProfile();
-        } catch (error) {
-          console.error("Authentication error:", error);
-          logout();
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
+  // Logout function
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setIsAuthenticated(false);
   }, []);
 
   // Fetch user profile data
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getProfile();
@@ -84,18 +72,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  // Check if user is authenticated on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        try {
+          await fetchUserProfile();
+        } catch (error) {
+          console.error("Authentication error:", error);
+          logout();
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [fetchUserProfile, logout]);
 
   const login = async (token: string) => {
     localStorage.setItem("token", token);
     await fetchUserProfile();
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsAuthenticated(false);
   };
 
   return (
