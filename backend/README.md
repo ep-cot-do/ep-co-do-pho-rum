@@ -89,7 +89,7 @@ If you want see the database lick the arrow down of "public"
 ./gradlew clean build --refresh-dependencies
 ```
 
-then run the project in intelliji
+then run the project in intelliJ
 
 ### Compiler Container
 
