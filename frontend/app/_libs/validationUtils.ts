@@ -50,8 +50,9 @@ export const VALIDATION_MESSAGES = {
   AGE_INVALID: "Bạn phải từ 16 tuổi trở lên",
   ROLE_ID_REQUIRED: "ID vai trò là bắt buộc",
   LOGIN_FAILED: "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
-  NETWORK_ERROR: "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.",
-  GENERAL_ERROR: "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại."
+  NETWORK_ERROR:
+    "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.",
+  GENERAL_ERROR: "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
 };
 
 // Individual field validators
@@ -149,10 +150,10 @@ export const validators = {
     return { isValid: errors.length === 0, errors };
   },
 
-  phone: (value: string, required: boolean = false): ValidationResult => {
+  phone: (value: string): ValidationResult => {
     const errors: ValidationError[] = [];
 
-    if (required && (!value || value.trim() === "")) {
+    if (!value || value.trim() === "") {
       errors.push({
         field: "phone",
         message: VALIDATION_MESSAGES.REQUIRED("Số điện thoại"),
@@ -171,10 +172,10 @@ export const validators = {
     return { isValid: errors.length === 0, errors };
   },
 
-  studentCode: (value: string, required: boolean = false): ValidationResult => {
+  studentCode: (value: string): ValidationResult => {
     const errors: ValidationError[] = [];
 
-    if (required && (!value || value.trim() === "")) {
+    if (!value || value.trim() === "") {
       errors.push({
         field: "studentCode",
         message: VALIDATION_MESSAGES.REQUIRED("Student Code"),
@@ -407,13 +408,15 @@ export const handleServerValidationErrors = (
         field: "roleId",
         message: VALIDATION_MESSAGES.ROLE_ID_REQUIRED,
       });
-    } else if (serverResponse.message.includes("Bad credentials") || 
-               serverResponse.message.includes("Invalid credentials") ||
-               serverResponse.message.includes("Authentication failed") ||
-               serverResponse.message.includes("Unauthorized")) {
-      errors.push({ 
-        field: "general", 
-        message: "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại." 
+    } else if (
+      serverResponse.message.includes("Bad credentials") ||
+      serverResponse.message.includes("Invalid credentials") ||
+      serverResponse.message.includes("Authentication failed") ||
+      serverResponse.message.includes("Unauthorized")
+    ) {
+      errors.push({
+        field: "general",
+        message: "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
       });
     } else if (serverResponse.message.includes("username")) {
       errors.push({ field: "username", message: serverResponse.message });
@@ -423,11 +426,14 @@ export const handleServerValidationErrors = (
       // Translate common error messages to Vietnamese
       let translatedMessage = serverResponse.message;
       if (serverResponse.message.toLowerCase().includes("failed to login")) {
-        translatedMessage = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.";
-      } else if (serverResponse.message.toLowerCase().includes("login failed")) {
+        translatedMessage =
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.";
+      } else if (
+        serverResponse.message.toLowerCase().includes("login failed")
+      ) {
         translatedMessage = "Đăng nhập thất bại. Vui lòng thử lại.";
       }
-      
+
       errors.push({ field: "general", message: translatedMessage });
     }
   }
