@@ -86,7 +86,7 @@ export const coreMembersData: CoreMembersData = [
         name: "Lê Nhựt Anh",
         role: "Head of Academics",
         description:
-          "Head of Academics - Golden Frog of Engineering Department Spring 2024",
+          "Head of Academics - Golden Toad of Engineering Department Spring 2024",
         studentCode: "CE181767",
         email: "lnanh2k4@gmail.com",
         facebook: "https://www.facebook.com/lnanh2k4",
@@ -205,7 +205,7 @@ export const coreMembersData: CoreMembersData = [
       {
         name: "Phan Hồng Phúc",
         role: "Vice President",
-        description: "Former Vice President - Golden Frog",
+        description: "Former Vice President - Golden Toad",
         studentCode: "",
         facebook: "https://www.facebook.com/profile.php?id=100013159694804",
         image: "/images/members/phan-hong-phuc.jpg",
@@ -266,7 +266,7 @@ export const coreMembersData: CoreMembersData = [
       {
         name: "Nguyễn Quỳnh Anh",
         role: "Vice President",
-        description: "Former Vice President - Left the Club - Golden Frog",
+        description: "Former Vice President - Left the Club - Golden Toad",
         studentCode: "",
         facebook: "https://www.facebook.com/nanh1122",
         image: "/images/members/nguyen-quynh-anh.jpg",
@@ -282,7 +282,7 @@ export const coreMembersData: CoreMembersData = [
       {
         name: "Đặng Minh Cảnh",
         role: "Secretary",
-        description: "Former Secretary - Golden Frog",
+        description: "Former Secretary - Golden Toad",
         studentCode: "",
         facebook: "https://www.facebook.com/poiminhcanh08092001",
         image: "/images/members/dang-minh-canh.jpg",
